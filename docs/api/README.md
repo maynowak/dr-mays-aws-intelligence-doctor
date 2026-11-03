@@ -35,6 +35,7 @@ The container uses the `docker` Spring profile to bind `0.0.0.0:8080` internally
 | --- | --- | --- |
 | POST | `/api/v1/diagnoses` | Run deterministic rules over a synthetic snapshot |
 | POST | `/api/v1/dna/graphs` | Build the offline Infrastructure DNA graph |
+| POST | `/api/v1/intelligence/explain` | Explain findings/evidence/relationships with mock AI (Ollama opt-in) |
 | GET | `/api/v1/rules` | List registered rules in rule-ID order |
 | GET | `/actuator/health` | Health endpoint; only Actuator endpoint exposed |
 

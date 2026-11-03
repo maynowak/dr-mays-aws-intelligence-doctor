@@ -60,6 +60,19 @@ InfrastructureResource list
 
 The graph lives in `dr-mays-core` and uses no graph database. `POST /api/v1/dna/graphs` exposes versioned DTOs; diagnosis findings carry verified outgoing relationships, not inferred reachability. See `docs/development/INFRASTRUCTURE_DNA.md` and ADR-0009.
 
+## AI intelligence (DR-MAYS-06)
+
+```text
+POST /api/v1/intelligence/explain
+  -> deterministic diagnosis + DNA edges
+  -> IntelligenceRequest -> IntelligenceAnalyzer
+       default: deterministic mock
+       opt-in: Spring AI/Ollama (disabled by default)
+  -> IntelligenceResultValidator -> versioned response
+```
+
+The model only explains findings/evidence/relationships. Unknown resources, evidence or edges are rejected; technical diagnosis remains authoritative. See `docs/development/AI_INTELLIGENCE.md`, `docs/security/AI_MODEL_SECURITY.md` and ADR-0010.
+
 ## Target flow
 
 ```text

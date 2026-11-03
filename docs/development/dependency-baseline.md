@@ -8,6 +8,8 @@ Verified on 2026-11-03 against Maven Central and vendor documentation.
 | Maven | 3.9.16 | Maven Wrapper; `./mvnw -version` |
 | Spring Boot | 4.1.2 | Maven Central; supports Java 17–27 per Spring Boot system requirements |
 | Spring AI | 2.0.2 | Maven Central; supports Spring Boot 4.0.x/4.1.x |
+| Spring AI Ollama starter | 2.0.2 | Resolved in `dr-mays-ai`; disabled by default |
+| Ollama CLI | 0.32.1 | Installed locally; **no model present**, real inference NOT VERIFIED |
 | AWS SDK for Java | BOM 2.57.8 | Maven Central; Java 8+ per AWS documentation |
 | AWS SDK modules | EC2/S3/STS 2.57.8 | Resolved in `dr-mays-aws` only; mocked in tests |
 | AWS CDK | 2.275.0 | Maven Central; Java 8+ per AWS CDK documentation |

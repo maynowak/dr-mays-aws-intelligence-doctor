@@ -17,6 +17,7 @@ Tests run on Java 25 and must not require AWS credentials, network access or a m
 - API tests live in `dr-mays-api/src/test/java`; MVC slice tests cover happy paths, full-context tests cover the exception advice, a random-port integration test exercises a real server, and fixture contract tests load `examples/fixtures` from the test classpath.
 - `dr-mays-aws` tests use mocked EC2/S3/STS SDK clients; no credentials or network are required.
 - `dr-mays-core` DNA tests cover evidence-only edges, referenced nodes, partial discovery, cycles, bounded traversal, components, account/region separation and deterministic ordering.
+- `dr-mays-ai` tests cover contracts, mock explanations, evidence validation, prompt limits/injection guidance, malformed model output, unavailable/timeout behavior and deterministic output. Real Ollama inference is not required for CI.
 - Docker integration is a separate shell smoke test (`./scripts/docker-demo.sh`), not a JUnit test; report it separately.
 - Test classes are package-private and named `<Type>Test`.
 - Test methods describe the behavior and expected result in `lowerCamelCase`.
@@ -52,6 +53,8 @@ The JaCoCo gate runs during `verify`. Reports are generated at:
 - `dr-mays-api/target/site/jacoco/jacoco.xml`
 - `dr-mays-aws/target/site/jacoco/index.html`
 - `dr-mays-aws/target/site/jacoco/jacoco.xml`
+- `dr-mays-ai/target/site/jacoco/index.html`
+- `dr-mays-ai/target/site/jacoco/jacoco.xml`
 
 Modules without production code do not have a coverage gate and must not fail for missing coverage.
 
@@ -59,7 +62,7 @@ Coverage must not be improved by meaningless tests, exclusions, deleting product
 
 ## Minimum test volume
 
-DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. DR-MAYS-03 requires at least 12 new fixture/demo tests. DR-MAYS-04 requires at least 30 new AWS discovery tests. DR-MAYS-05 requires at least 35 new DNA tests. The current suite has 223 tests: 86 core, 73 API and 64 AWS.
+DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. DR-MAYS-03 requires at least 12 new fixture/demo tests. DR-MAYS-04 requires at least 30 new AWS discovery tests. DR-MAYS-05 requires at least 35 new DNA tests. DR-MAYS-06 requires at least 35 new AI/API tests. The current suite has 263 tests: 86 core, 84 API, 64 AWS and 29 AI.
 
 ## Commands
 

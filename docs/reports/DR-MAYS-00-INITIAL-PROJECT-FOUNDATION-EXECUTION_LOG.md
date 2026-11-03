@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 00D dependency baseline and ADRs documented.
+`IN PROGRESS` — 00E test foundation verified with `clean verify`.
 
 ## 2. Audit date/time
 
@@ -41,6 +41,11 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - Resolved representative artifacts with `dependency:get`: AWS SDK `s3:2.57.8`, AWS CDK `aws-cdk-lib:2.275.0`, Spring AI BOM `2.0.2`.
 - Confirmed effective POM uses `java.version=25` and `maven.compiler.release=25`; `dependency:tree` shows only internal module edges.
 - Added architecture overview, three ADRs and the dependency baseline document.
+- 00D committed as `0892fcd`.
+- Added `Severity` as the first real domain type and four JUnit tests covering rank ordering, threshold comparison, unknown names and null handling.
+- Added `spring-boot-starter-test` to `dr-mays-core` in test scope and configured Surefire (`useModulePath=false`, full stack traces).
+- Ran `./mvnw -B clean verify`: `BUILD SUCCESS`; Surefire reports 4 tests, 0 failures, 0 errors, 0 skipped.
+- Verified compiled bytecode is Java 25 (`major version: 69`).
 
 ## 6. Actual findings
 
@@ -58,6 +63,10 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - `./mvnw -B validate` and `./mvnw -B -DskipTests package` both ended with `BUILD SUCCESS`; the empty-JAR warnings are expected at this stage.
 - Vendor compatibility sources: Spring Boot 4.1 system requirements (Java 17–27), Spring AI 2.0 getting started (Boot 4.0.x/4.1.x), AWS SDK for Java setup (Java 8+), AWS CDK Java guide (Java 8+).
 - `dependency:get` succeeded for `software.amazon.awssdk:s3:2.57.8`, `software.amazon.awscdk:aws-cdk-lib:2.275.0`, and `org.springframework.ai:spring-ai-bom:2.0.2:pom`.
+- `./mvnw -B clean verify` ended with `BUILD SUCCESS` for all eight reactor projects.
+- `dr-mays-core/target/surefire-reports/io.github.maynowak.drmays.core.finding.SeverityTest.txt`: `Tests run: 4, Failures: 0, Errors: 0, Skipped: 0`.
+- `javap -verbose` on `Severity.class`: `major version: 69` (Java 25).
+- Test dependency tree: JUnit Jupiter `6.0.3`, AssertJ `3.27.7`, Mockito `5.23.0`.
 
 ## 7. Evidence and file references
 
@@ -103,6 +112,8 @@ Working tree contains intended new untracked files for 00A; no tracked file modi
 - Added: seven `dr-mays-*/pom.xml` module descriptors
 - Added: Java package/test skeleton directories with `.gitkeep`
 - Added: architecture overview, ADR-0001/0002/0003 and `docs/development/dependency-baseline.md`
+- Added: `Severity` domain type and `SeverityTest`
+- Modified: root `pom.xml` (Surefire config), `dr-mays-core/pom.xml` (test dependency), dependency baseline (test stack versions)
 - Added: `docs/AI_AUDITINDEX.md`
 - Added: `docs/reports/DR-MAYS-00-INITIAL-PROJECT-FOUNDATION-EXECUTION_LOG.md`
 - Existing: `AGENTS.md`, `docs/AI_AUDITLOG.md`
@@ -136,9 +147,10 @@ Not applicable — files were added in this step.
 
 ## 16. Current resume point
 
-Resume at **00E test foundation**. 00D is verified and ready to commit.
+Resume at **00F GitHub Actions workflow**. 00E is verified and ready to commit.
 
 - 00A commit: `94fe251` — `chore: initialize project structure and audit baseline`
 - 00B commit: `b1de15f` — `build: add Java 25 Maven parent and wrapper`
 - 00C commit: `d545272` — `feat: add seven-module Maven reactor skeleton`
-- 00D commit: pending
+- 00D commit: `0892fcd` — `docs: document dependency baseline and module ADRs`
+- 00E commit: pending

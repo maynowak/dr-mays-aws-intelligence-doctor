@@ -13,6 +13,9 @@ Verified on 2026-11-03 against Maven Central and vendor documentation.
 | Maven Enforcer | 3.7.0 | Maven Central |
 | Maven Compiler Plugin | 3.15.0 | Spring Boot 4.1.2 parent |
 | Maven Surefire Plugin | 3.6.1 | Maven Central |
+| JUnit Jupiter | 6.0.3 | Managed by Spring Boot 4.1.2; resolved in test scope |
+| AssertJ | 3.27.7 | Managed by Spring Boot 4.1.2; resolved in test scope |
+| Mockito | 5.23.0 | Managed by Spring Boot 4.1.2; resolved in test scope |
 
 ## Resolved artifacts
 

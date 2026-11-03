@@ -1,9 +1,9 @@
 package io.github.maynowak.drmays.api.v1;
 
-import io.github.maynowak.drmays.core.dna.InfrastructureGraph;
-import io.github.maynowak.drmays.core.dna.InfrastructureGraphBuilder;
 import io.github.maynowak.drmays.core.diagnosis.DiagnosisEngine;
 import io.github.maynowak.drmays.core.diagnosis.DiagnosisResult;
+import io.github.maynowak.drmays.core.dna.InfrastructureGraph;
+import io.github.maynowak.drmays.core.dna.InfrastructureGraphBuilder;
 import io.github.maynowak.drmays.core.evidence.Evidence;
 import io.github.maynowak.drmays.core.finding.DiagnosticFinding;
 import io.github.maynowak.drmays.core.resource.InfrastructureResource;

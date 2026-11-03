@@ -13,6 +13,7 @@ import java.util.List;
  * @param description factual description
  * @param evidence traceable evidence
  * @param recommendation recommended remediation
+ * @param relationships verified outgoing graph relationships for the resource
  */
 public record FindingResponse(
     String ruleId,

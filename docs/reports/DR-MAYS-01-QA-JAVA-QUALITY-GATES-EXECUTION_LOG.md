@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — QA-03/04 coverage and test minimum verified; QA-05 documentation pending.
+`IN PROGRESS` — QA-05 standards documentation complete; QA-07 CI artifacts pending.
 
 ## 2. Audit date/time
 
@@ -40,6 +40,11 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - Configured line coverage minimum `0.85` and branch coverage minimum `0.75`; no exclusions or generated-code filters.
 - Ran full `./mvnw -B clean verify`: `BUILD SUCCESS`, all eight modules, 63 tests.
 - JaCoCo gate passed: line `210/210` (100.00 %), branch `51/52` (98.08 %).
+- Created `docs/development/CODING_STANDARDS.md`, `TESTING_STANDARDS.md` and `QUALITY_GATES.md`.
+- Created ADR-0005 for mandatory quality gates.
+- Updated the architecture overview and dependency baseline with quality tooling and constraints.
+- Added Javadocs to the remaining public domain contracts and methods.
+- Ran `spotless:apply`, `checkstyle:check` and full `clean verify`: all succeeded.
 
 ## 6. Actual findings
 
@@ -60,6 +65,9 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - JaCoCo 0.8.16 analyzes Java 25 bytecode successfully; the coverage check passed in the full reactor.
 - Reports exist at `dr-mays-core/target/site/jacoco/index.html` and `jacoco.xml`.
 - The only uncovered branch is the unreachable non-blank branch inside the owner-tag normalisation lambda; no test was weakened and no code path was excluded.
+- QA-05 documentation covers conventions, module responsibilities, error handling, test strategy, coverage, domain invariants, formatting, architecture constraints, CI and Definition of Done.
+- Public records and contracts now have complete Javadocs; Checkstyle reports zero violations.
+- QA-05 full verify: `BUILD SUCCESS`, 63 tests, coverage gate passed.
 
 ## 7. Evidence and file references
 
@@ -78,6 +86,9 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - `/tmp/opencode/dr-mays-qa03-verify-full.log`
 - `dr-mays-core/target/site/jacoco/index.html`
 - `dr-mays-core/target/site/jacoco/jacoco.xml`
+- `/tmp/opencode/dr-mays-qa05-spotless.log`
+- `/tmp/opencode/dr-mays-qa05-checkstyle.log`
+- `/tmp/opencode/dr-mays-qa05-verify.log`
 
 ## 8. Classification
 
@@ -103,6 +114,11 @@ QA-01 changes are unstaged: `pom.xml`, `.editorconfig`, 28 formatted Java files,
 - Modified: eight domain Java files with record `@param` Javadocs
 - Modified: `pom.xml` (JaCoCo plugin management)
 - Modified: `dr-mays-core/pom.xml` (JaCoCo agent/report/check)
+- Added: `docs/development/CODING_STANDARDS.md`
+- Added: `docs/development/TESTING_STANDARDS.md`
+- Added: `docs/development/QUALITY_GATES.md`
+- Added: `docs/decisions/ADR-0005-engineering-quality-gates.md`
+- Modified: `docs/architecture/README.md`, `docs/development/dependency-baseline.md`
 
 ## 12. Explicit no-change confirmation
 
@@ -132,9 +148,10 @@ No production behavior changed; formatting is mechanical. Build and audit config
 
 ## 16. Current resume point
 
-Resume at **QA-05 standards documentation and Javadocs**. QA-03/04 are green; commit pending.
+Resume at **QA-07 CI report integration**. QA-05 is verified; commit pending.
 
 - Base HEAD: `b86985a2db96470611ebd9c0c27d3b63c132427f`
 - QA-01 commit: `d845541`
 - QA-02 commit: `97c1305`
-- QA-03/04 commit: pending
+- QA-03/04 commit: `4db5cad`
+- QA-05 commit: pending

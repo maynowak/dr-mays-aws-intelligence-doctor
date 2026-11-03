@@ -16,6 +16,11 @@ public enum Severity {
     this.rank = rank;
   }
 
+  /**
+   * Returns the numeric rank used for severity ordering.
+   *
+   * @return the rank, increasing from {@code INFO} to {@code CRITICAL}
+   */
   public int rank() {
     return rank;
   }

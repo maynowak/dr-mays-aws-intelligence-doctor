@@ -11,8 +11,18 @@ public sealed interface DiagnosticOutcome
         DiagnosticOutcome.NoFinding,
         DiagnosticOutcome.NotApplicable {
 
+  /**
+   * Returns the rule that produced this outcome.
+   *
+   * @return the rule ID
+   */
   RuleId ruleId();
 
+  /**
+   * Returns the resource this outcome belongs to.
+   *
+   * @return the resource identity
+   */
   ResourceIdentity resource();
 
   /**

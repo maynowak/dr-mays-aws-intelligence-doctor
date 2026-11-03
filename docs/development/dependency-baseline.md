@@ -16,6 +16,11 @@ Verified on 2026-11-03 against Maven Central and vendor documentation.
 | JUnit Jupiter | 6.0.3 | Managed by Spring Boot 4.1.2; resolved in test scope |
 | AssertJ | 3.27.7 | Managed by Spring Boot 4.1.2; resolved in test scope |
 | Mockito | 5.23.0 | Managed by Spring Boot 4.1.2; resolved in test scope |
+| Spotless Maven Plugin | 3.11.0 | Maven Central; formatting gate |
+| Google Java Format | 2.0.0 | Maven Central; Spotless Java formatter |
+| Checkstyle | 14.4.0 | Maven Central; project ruleset |
+| Maven Checkstyle Plugin | 3.6.0 | Maven Central |
+| JaCoCo | 0.8.16 | Maven Central; Java 25 bytecode verified |
 
 ## Resolved artifacts
 

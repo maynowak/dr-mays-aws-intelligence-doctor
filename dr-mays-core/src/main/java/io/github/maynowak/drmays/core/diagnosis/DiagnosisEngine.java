@@ -39,6 +39,11 @@ public final class DiagnosisEngine {
     this.rules = List.copyOf(ordered.values());
   }
 
+  /**
+   * Returns the registered rules in rule-ID order.
+   *
+   * @return immutable rule list
+   */
   public List<DiagnosticRule> rules() {
     return rules;
   }

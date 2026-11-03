@@ -36,3 +36,11 @@ AWS adapters or offline fixtures
 6. AWS permissions follow least privilege.
 7. Diagnosis never mutates inspected resources.
 8. Modules remain independently testable.
+
+## Quality and testability
+
+- The domain is exercised without AWS or model access.
+- Spotless, Checkstyle and JaCoCo run during `./mvnw -B clean verify`; see `docs/development/QUALITY_GATES.md`.
+- `dr-mays-core` enforces 85 % line and 75 % branch coverage; rules and engine remain deterministic.
+- Public domain contracts carry Javadocs, including record component parameters.
+- Coding, testing and Definition-of-Done rules live in `docs/development/CODING_STANDARDS.md`, `docs/development/TESTING_STANDARDS.md` and `docs/development/QUALITY_GATES.md`.

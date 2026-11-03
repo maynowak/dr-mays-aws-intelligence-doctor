@@ -5,8 +5,18 @@ import io.github.maynowak.drmays.core.resource.InfrastructureResource;
 /** Deterministic, side-effect-free contract for one diagnostic check. */
 public interface DiagnosticRule {
 
+  /**
+   * Returns the stable rule identifier.
+   *
+   * @return the rule ID
+   */
   RuleId id();
 
+  /**
+   * Returns a short description of what the rule checks.
+   *
+   * @return the rule description
+   */
   String description();
 
   /**

@@ -59,10 +59,20 @@ public record DiagnosisResult(List<DiagnosticOutcome> outcomes) {
         .toList();
   }
 
+  /**
+   * Returns the number of findings in this result.
+   *
+   * @return the finding count
+   */
   public int findingCount() {
     return findings().size();
   }
 
+  /**
+   * Returns whether this result contains at least one finding.
+   *
+   * @return {@code true} when at least one finding exists
+   */
   public boolean hasFindings() {
     return outcomes.stream().anyMatch(DiagnosticOutcome.FindingDetected.class::isInstance);
   }

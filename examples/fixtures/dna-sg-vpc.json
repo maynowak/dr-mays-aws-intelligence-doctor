@@ -1,0 +1,20 @@
+{
+  "resources": [
+    {
+      "identity": {
+        "provider": "aws",
+        "accountId": "000000000000",
+        "region": "eu-west-1",
+        "resourceType": "network",
+        "resourceId": "sg-with-vpc"
+      },
+      "tags": {
+        "owner": "platform"
+      },
+      "attributes": {
+        "vpc.id": "vpc-unknown",
+        "ingress.public": "true"
+      }
+    }
+  ]
+}

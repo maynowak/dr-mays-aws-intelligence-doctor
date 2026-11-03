@@ -1,0 +1,559 @@
+openapi: 3.1.0
+info:
+  title: Dr. Mays REST API
+  version: 1.0.0
+  description: |
+    Local, read-only diagnosis API over synthetic infrastructure snapshots.
+    The API never calls AWS or a model provider. It is bound to 127.0.0.1 by default.
+servers:
+  - url: http://127.0.0.1:8080
+paths:
+  /api/v1/diagnoses:
+    post:
+      operationId: diagnose
+      summary: Run deterministic diagnosis rules over a synthetic snapshot
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DiagnosisRequest'
+            example:
+              resources:
+                - identity:
+                    provider: aws
+                    accountId: "123456789012"
+                    region: eu-central-1
+                    resourceType: network
+                    resourceId: net-1
+                  tags: {}
+                  attributes:
+                    ingress.public: "true"
+      responses:
+        '200':
+          description: Deterministic diagnosis result
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DiagnosisResponse'
+              example:
+                findings:
+                  - ruleId: NET-PUBLIC-001
+                    ruleVersion: "1.0"
+                    severity: HIGH
+                    resource:
+                      provider: aws
+                      accountId: "123456789012"
+                      region: eu-central-1
+                      resourceType: network
+                      resourceId: net-1
+                    title: Network resource allows public ingress
+                    description: The resource declares public ingress.
+                    evidence:
+                      source: resource-attribute
+                      observed: ingress.public=true
+                      expected: ingress.public=false
+                      details:
+                        attribute: ingress.public
+                        value: "true"
+                    recommendation: Restrict ingress to explicitly trusted sources.
+                  - ruleId: TAG-OWNER-001
+                    ruleVersion: "1.0"
+                    severity: MEDIUM
+                    resource:
+                      provider: aws
+                      accountId: "123456789012"
+                      region: eu-central-1
+                      resourceType: network
+                      resourceId: net-1
+                    title: Resource has no owner tag
+                    description: The resource does not declare a non-blank owner tag.
+                    evidence:
+                      source: resource-tag
+                      observed: absent
+                      expected: non-blank owner tag
+                      details:
+                        tag: owner
+                    recommendation: Add an owner tag identifying the responsible team.
+                outcomes:
+                  - ruleId: NET-PUBLIC-001
+                    resource:
+                      provider: aws
+                      accountId: "123456789012"
+                      region: eu-central-1
+                      resourceType: network
+                      resourceId: net-1
+                    type: FINDING
+                  - ruleId: TAG-OWNER-001
+                    resource:
+                      provider: aws
+                      accountId: "123456789012"
+                      region: eu-central-1
+                      resourceType: network
+                      resourceId: net-1
+                    type: FINDING
+                findingCount: 2
+        '400':
+          description: Invalid or malformed request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '500':
+          description: Unexpected server error without internal details
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /api/v1/dna/graphs:
+    post:
+      operationId: buildDnaGraph
+      summary: Build an offline Infrastructure DNA graph
+      description: |
+        Builds a deterministic graph from synthetic resources. No AWS or model call is made.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/GraphRequest'
+            example:
+              partialDiscovery: false
+              resources:
+                - identity:
+                    provider: aws
+                    accountId: "000000000000"
+                    region: eu-west-1
+                    resourceType: network
+                    resourceId: sg-1
+                  tags:
+                    owner: platform
+                  attributes:
+                    vpc.id: vpc-1
+                    ingress.referenced.securityGroupIds: sg-2
+      responses:
+        '200':
+          description: Deterministic graph representation
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/GraphResponse'
+        '400':
+          description: Invalid graph request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /api/v1/intelligence/explain:
+    post:
+      operationId: explainDiagnosis
+      summary: Explain verified findings and DNA relationships with the configured AI analyzer
+      description: |
+        Defaults to a deterministic offline mock. Ollama is opt-in and disabled by default.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntelligenceExplainRequest'
+            example:
+              partialDiscovery: false
+              resources:
+                - identity:
+                    provider: aws
+                    accountId: "000000000000"
+                    region: eu-west-1
+                    resourceType: network
+                    resourceId: net-1
+                  tags: {}
+                  attributes:
+                    ingress.public: "true"
+                    vpc.id: vpc-1
+      responses:
+        '200':
+          description: Structured explanation or explicit execution status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntelligenceExplainResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /api/v1/rules:
+    get:
+      operationId: listRules
+      summary: List registered diagnostic rules
+      responses:
+        '200':
+          description: Rules in rule-ID order
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/RulesResponse'
+  /actuator/health:
+    get:
+      operationId: health
+      summary: Actuator health endpoint
+      responses:
+        '200':
+          description: Service health
+          content:
+            application/json:
+              schema:
+                type: object
+                required: [status]
+                properties:
+                  status:
+                    type: string
+                    example: UP
+components:
+  schemas:
+    DiagnosisRequest:
+      type: object
+      required: [resources]
+      properties:
+        resources:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ResourceRequest'
+    ResourceRequest:
+      type: object
+      required: [identity]
+      properties:
+        identity:
+          $ref: '#/components/schemas/ResourceIdentity'
+        tags:
+          type: object
+          maxProperties: 50
+          additionalProperties:
+            type: string
+            maxLength: 1024
+        attributes:
+          type: object
+          maxProperties: 50
+          additionalProperties:
+            type: string
+            maxLength: 1024
+    ResourceIdentity:
+      type: object
+      required: [provider, accountId, region, resourceType, resourceId]
+      properties:
+        provider:
+          type: string
+          minLength: 1
+          maxLength: 64
+          pattern: '^[a-z][a-z0-9-]*$'
+        accountId:
+          type: string
+          minLength: 1
+          maxLength: 128
+        region:
+          type: string
+          minLength: 1
+          maxLength: 64
+        resourceType:
+          type: string
+          minLength: 1
+          maxLength: 128
+          pattern: '^[a-z][a-z0-9-]*$'
+        resourceId:
+          type: string
+          minLength: 1
+          maxLength: 256
+    DiagnosisResponse:
+      type: object
+      required: [findings, outcomes, findingCount]
+      properties:
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/Finding'
+        outcomes:
+          type: array
+          items:
+            $ref: '#/components/schemas/Outcome'
+        findingCount:
+          type: integer
+          minimum: 0
+    Finding:
+      type: object
+      required:
+        [ruleId, ruleVersion, severity, resource, title, description, evidence, recommendation]
+      properties:
+        ruleId:
+          type: string
+        ruleVersion:
+          type: string
+        severity:
+          type: string
+          enum: [INFO, LOW, MEDIUM, HIGH, CRITICAL]
+        resource:
+          $ref: '#/components/schemas/ResourceIdentity'
+        title:
+          type: string
+        description:
+          type: string
+        evidence:
+          $ref: '#/components/schemas/Evidence'
+        recommendation:
+          type: string
+        relationships:
+          type: array
+          description: Verified outgoing graph relationships for this finding's resource.
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+    Evidence:
+      type: object
+      required: [source, observed, expected, details]
+      properties:
+        source:
+          type: string
+        observed:
+          type: string
+        expected:
+          type: string
+        details:
+          type: object
+          additionalProperties:
+            type: string
+    Outcome:
+      type: object
+      required: [ruleId, resource, type]
+      properties:
+        ruleId:
+          type: string
+        resource:
+          $ref: '#/components/schemas/ResourceIdentity'
+        type:
+          type: string
+          enum: [FINDING, NO_FINDING, NOT_APPLICABLE]
+        reason:
+          type: string
+    RulesResponse:
+      type: object
+      required: [rules]
+      properties:
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/Rule'
+    Rule:
+      type: object
+      required: [ruleId, version, description]
+      properties:
+        ruleId:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
+    GraphRequest:
+      type: object
+      required: [resources]
+      properties:
+        resources:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ResourceRequest'
+        partialDiscovery:
+          type: boolean
+          default: false
+    GraphResponse:
+      type: object
+      required: [nodes, edges, issues, stats, completeness]
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphIssue'
+        stats:
+          $ref: '#/components/schemas/GraphStats'
+        completeness:
+          type: string
+          enum: [COMPLETE, PARTIAL, UNKNOWN]
+    GraphNode:
+      type: object
+      required: [resource, status, tags, attributes]
+      properties:
+        resource:
+          $ref: '#/components/schemas/ResourceIdentity'
+        status:
+          type: string
+          enum: [INVENTORIED, REFERENCED]
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+    GraphEdge:
+      type: object
+      required: [from, to, type, evidence]
+      properties:
+        from:
+          $ref: '#/components/schemas/ResourceIdentity'
+        to:
+          $ref: '#/components/schemas/ResourceIdentity'
+        type:
+          type: string
+          enum: [SECURITY_GROUP_IN_VPC, SECURITY_GROUP_REFERENCES_SECURITY_GROUP]
+        evidence:
+          $ref: '#/components/schemas/Evidence'
+    GraphIssue:
+      type: object
+      required: [code, message]
+      properties:
+        code:
+          type: string
+          enum:
+            - DUPLICATE_RESOURCE
+            - DUPLICATE_EDGE
+            - UNKNOWN_REFERENCE
+            - INVALID_REFERENCE
+            - PARTIAL_DISCOVERY
+        message:
+          type: string
+    GraphStats:
+      type: object
+      required: [nodeCount, edgeCount, inventoriedCount, referencedCount, componentCount, cyclic]
+      properties:
+        nodeCount:
+          type: integer
+        edgeCount:
+          type: integer
+        inventoriedCount:
+          type: integer
+        referencedCount:
+          type: integer
+        componentCount:
+          type: integer
+        cyclic:
+          type: boolean
+    IntelligenceExplainRequest:
+      type: object
+      required: [resources]
+      properties:
+        resources:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ResourceRequest'
+        partialDiscovery:
+          type: boolean
+          default: false
+    IntelligenceExplainResponse:
+      type: object
+      required:
+        [status, metadata, summary, explanations, recommendations, evidenceReferences,
+         verifiedRelationships, uncertainties]
+      properties:
+        status:
+          type: string
+          enum: [SUCCESS, DISABLED, UNAVAILABLE, FAILED, INVALID_RESPONSE]
+        metadata:
+          $ref: '#/components/schemas/IntelligenceMetadata'
+        summary:
+          type: string
+        explanations:
+          type: array
+          items:
+            $ref: '#/components/schemas/IntelligenceExplanation'
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiRecommendation'
+        evidenceReferences:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceReference'
+        verifiedRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+        uncertainties:
+          type: array
+          items:
+            type: string
+    IntelligenceMetadata:
+      type: object
+      required: [provider, model, version]
+      properties:
+        provider:
+          type: string
+        model:
+          type: string
+        version:
+          type: string
+    IntelligenceExplanation:
+      type: object
+      required: [ruleId, resource, explanation, evidence]
+      properties:
+        ruleId:
+          type: string
+        resource:
+          $ref: '#/components/schemas/ResourceIdentity'
+        explanation:
+          type: string
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceReference'
+    EvidenceReference:
+      type: object
+      required: [ruleId, resource, source]
+      properties:
+        ruleId:
+          type: string
+        resource:
+          $ref: '#/components/schemas/ResourceIdentity'
+        source:
+          type: string
+    AiRecommendation:
+      type: object
+      required: [title, action, severity]
+      properties:
+        title:
+          type: string
+        action:
+          type: string
+        severity:
+          type: string
+          enum: [INFO, LOW, MEDIUM, HIGH, CRITICAL]
+    ProblemDetail:
+      type: object
+      required: [type, title, status]
+      properties:
+        type:
+          type: string
+          format: uri
+        title:
+          type: string
+        status:
+          type: integer
+        detail:
+          type: string
+        instance:
+          type: string
+          format: uri
+        errors:
+          type: object
+          additionalProperties:
+            type: string

@@ -1,0 +1,34 @@
+# Git and local metadata
+.git
+.gitignore
+.gitattributes
+.github
+
+# Local environment and secrets
+.env
+.env.*
+*.pem
+*.p12
+*.jks
+
+# Build outputs and caches
+**/target
+.cache
+.idea
+.vscode
+*.iml
+*.log
+
+# Documentation and host-only demo assets
+README.md
+AGENTS.md
+LICENSE
+docs
+examples
+scripts
+compose.yaml
+docker
+
+# OS noise
+.DS_Store
+Thumbs.db

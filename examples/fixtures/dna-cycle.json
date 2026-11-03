@@ -1,0 +1,30 @@
+{
+  "resources": [
+    {
+      "identity": {
+        "provider": "aws",
+        "accountId": "000000000000",
+        "region": "eu-west-1",
+        "resourceType": "network",
+        "resourceId": "sg-a"
+      },
+      "tags": {},
+      "attributes": {
+        "ingress.referenced.securityGroupIds": "sg-b"
+      }
+    },
+    {
+      "identity": {
+        "provider": "aws",
+        "accountId": "000000000000",
+        "region": "eu-west-1",
+        "resourceType": "network",
+        "resourceId": "sg-b"
+      },
+      "tags": {},
+      "attributes": {
+        "ingress.referenced.securityGroupIds": "sg-a"
+      }
+    }
+  ]
+}

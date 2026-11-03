@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 00A repository baseline and project skeleton.
+`IN PROGRESS` — 00B root POM and Maven wrapper verified.
 
 ## 2. Audit date/time
 
@@ -28,6 +28,10 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - Created the top-level directory skeleton plus `.gitkeep` files for currently empty leaves.
 - Created `.gitignore`, `.editorconfig`, `.gitattributes`, `.env.example`.
 - Initialized this execution log and `docs/AI_AUDITINDEX.md`.
+- 00A committed as `94fe251`.
+- Created the root `pom.xml`: Spring Boot `4.1.2` parent, Java 25 release, UTF-8, seven modules, verified AWS SDK/Spring AI BOM imports, internal module version management, Enforcer Java/Maven rules, compiler and Surefire management.
+- Added Maven Wrapper `3.3.4` pinned to Maven `3.9.16` (`mvnw`, `mvnw.cmd`, `.mvn/wrapper/maven-wrapper.properties`).
+- Validated `pom.xml` with Python XML parser and ran `./mvnw -N -B validate` successfully.
 
 ## 6. Actual findings
 
@@ -38,6 +42,9 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - The specified Windows path differs from the actual Linux workspace; the actual path is `/home/dci-student/projects/dr-mays-aws-intelligence-doctor`. Repository identity matches the requested remote.
 - Verified current stable versions on Maven Central: Spring Boot `4.1.2`, AWS SDK BOM `2.57.8`, AWS CDK `2.275.0`, Spring AI BOM `2.0.2`, Maven `3.9.16`.
 - No existing `pom.xml` or module code is present at this point.
+- Root POM XML is well-formed. `./mvnw -N -B validate` passed Enforcer rules for Java `[25,26)` and Maven `[3.9.0,4.0.0)`.
+- The wrapper uses `distributionType=only-script`; it downloads Maven `3.9.16` on first run and does not commit a wrapper JAR.
+- Spring AI `2.0.2` declares Spring Boot `4.1.2` dependencies, so the selected BOM aligns with the parent.
 
 ## 7. Evidence and file references
 
@@ -51,6 +58,9 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
   - `software/amazon/awssdk/bom/maven-metadata.xml`
   - `software/amazon/awscdk/aws-cdk-lib/maven-metadata.xml`
   - `org/springframework/ai/spring-ai-bom/maven-metadata.xml`
+- `pom.xml` (XML parse + effective Maven validation)
+- `.mvn/wrapper/maven-wrapper.properties` → Maven `3.9.16`
+- Command output: `Rule 0 ... RequireJavaVersion passed`, `Rule 1 ... RequireMavenVersion passed`, `BUILD SUCCESS`.
 
 ## 8. Classification
 
@@ -68,6 +78,7 @@ Working tree contains intended new untracked files for 00A; no tracked file modi
 
 - Added: `.gitignore`, `.editorconfig`, `.gitattributes`, `.env.example`
 - Added: directory skeleton (`docs/*`, `docker/`, `examples/`, `scripts/`, `dr-mays-*/src/...`) with `.gitkeep`
+- Added: `pom.xml`, `mvnw`, `mvnw.cmd`, `.mvn/wrapper/maven-wrapper.properties`
 - Added: `docs/AI_AUDITINDEX.md`
 - Added: `docs/reports/DR-MAYS-00-INITIAL-PROJECT-FOUNDATION-EXECUTION_LOG.md`
 - Existing: `AGENTS.md`, `docs/AI_AUDITLOG.md`
@@ -101,6 +112,7 @@ Not applicable — files were added in this step.
 
 ## 16. Current resume point
 
-Resume at **00A commit**. Re-run `git status`, then commit the skeleton and audit baseline. Do not proceed to 00B until the 00A commit SHA is recorded below.
+Resume at **00C module POMs and Java package skeletons**. 00B is verified and ready to commit.
 
-- 00A commit: pending
+- 00A commit: `94fe251` — `chore: initialize project structure and audit baseline`
+- 00B commit: pending

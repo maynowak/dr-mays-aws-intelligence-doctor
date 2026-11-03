@@ -34,6 +34,8 @@ Build a simulated, read-only AWS discovery foundation in `dr-mays-aws`: contract
 - AWS coverage: 95.35 % line / 84.55 % branch; core/API coverage retained.
 - Docker regression `./scripts/docker-demo.sh` passed and the container stopped cleanly.
 - 04A–04E committed; documentation, IAM concept and readiness report prepared for 04H.
+- Final local verify: 179 tests, 0 failures; core 100 % / 98.08 %, API 97.83 % / 100 %, AWS 95.35 % / 84.55 %.
+- Docker regression passed; no live AWS call was made.
 
 ## 6. Actual findings
 
@@ -100,7 +102,7 @@ No production code or AWS configuration has been changed yet.
 
 ## 16. Current resume point
 
-Resume at **final 04H commit**. 04A–04E are committed; docs/readiness are staged for close-out.
+**DR-MAYS-04 is complete locally.** The feature branch is authorized for a final push; no live AWS scan was performed.
 
 - Base HEAD: `21e5b4327ecf10002ec724eba95e2a902a8f3206`
 - 04A commit: `96a3141`
@@ -108,4 +110,4 @@ Resume at **final 04H commit**. 04A–04E are committed; docs/readiness are stag
 - 04C commit: `c5a6419`
 - 04D commit: `55cad14`
 - 04E commit: `d76a160`
-- 04H commit: pending (docs/readiness)
+- 04H commit: final commit containing docs/readiness (HEAD)

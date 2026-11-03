@@ -38,7 +38,7 @@
 - Fixtures live in `examples/fixtures` and are copied to the API test classpath by `dr-mays-api/pom.xml`. Keep them aligned with `docs/api/openapi.yaml`.
 - AWS SDK is isolated to `dr-mays-aws`; Spring AI and CDK are version-managed but intentionally **not** on any module classpath yet (phases 06, 07). Do not add them without the corresponding phase.
 - Add internal module versions in the root `dependencyManagement`; add new modules to `<modules>` and the internal dependency list.
-- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0007`. Verify any upgrade with `./mvnw clean verify`.
+- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0008`. Verify any upgrade with `./mvnw clean verify`.
 
 ## CI
 

@@ -105,6 +105,24 @@ if data.get("completeness") != "COMPLETE":
 print("  DNA graph checks passed: 2 nodes, 1 verified VPC edge")
 PY
 
+echo
+echo "--- AI intelligence (deterministic mock) ---"
+curl -fsS -X POST "$BASE_URL/api/v1/intelligence/explain" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$FIXTURES_DIR/dna-sg-vpc.json" > "$TMP_DIR/intelligence.json"
+python3 -m json.tool < "$TMP_DIR/intelligence.json"
+python3 - "$TMP_DIR/intelligence.json" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
+if data.get("status") != "SUCCESS":
+    raise SystemExit(f"unexpected intelligence status: {data.get('status')}")
+if not data.get("explanations"):
+    raise SystemExit("no AI explanations returned")
+if data.get("metadata", {}).get("provider") != "mock":
+    raise SystemExit(f"unexpected provider: {data.get('metadata')}")
+print("  AI mock checks passed: verified explanations and evidence references")
+PY
+
 # The same fixture must produce byte-identical JSON on a second run.
 curl -fsS -X POST "$BASE_URL/api/v1/diagnoses" \
   -H 'Content-Type: application/json' \

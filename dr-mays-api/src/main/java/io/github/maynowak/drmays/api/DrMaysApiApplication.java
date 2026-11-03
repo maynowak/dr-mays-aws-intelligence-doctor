@@ -1,7 +1,9 @@
 package io.github.maynowak.drmays.api;
 
+import io.github.maynowak.drmays.ai.IntelligenceConfiguration;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.context.annotation.Import;
 
 /**
  * Local Spring Boot entry point for the Dr. Mays REST API.
@@ -10,6 +12,7 @@ import org.springframework.boot.autoconfigure.SpringBootApplication;
  * AWS or model-provider calls.
  */
 @SpringBootApplication
+@Import(IntelligenceConfiguration.class)
 public class DrMaysApiApplication {
 
   /**

@@ -144,6 +144,44 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetail'
+  /api/v1/intelligence/explain:
+    post:
+      operationId: explainDiagnosis
+      summary: Explain verified findings and DNA relationships with the configured AI analyzer
+      description: |
+        Defaults to a deterministic offline mock. Ollama is opt-in and disabled by default.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/IntelligenceExplainRequest'
+            example:
+              partialDiscovery: false
+              resources:
+                - identity:
+                    provider: aws
+                    accountId: "000000000000"
+                    region: eu-west-1
+                    resourceType: network
+                    resourceId: net-1
+                  tags: {}
+                  attributes:
+                    ingress.public: "true"
+                    vpc.id: vpc-1
+      responses:
+        '200':
+          description: Structured explanation or explicit execution status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/IntelligenceExplainResponse'
+        '400':
+          description: Invalid request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/v1/rules:
     get:
       operationId: listRules
@@ -408,6 +446,97 @@ components:
           type: integer
         cyclic:
           type: boolean
+    IntelligenceExplainRequest:
+      type: object
+      required: [resources]
+      properties:
+        resources:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ResourceRequest'
+        partialDiscovery:
+          type: boolean
+          default: false
+    IntelligenceExplainResponse:
+      type: object
+      required:
+        [status, metadata, summary, explanations, recommendations, evidenceReferences,
+         verifiedRelationships, uncertainties]
+      properties:
+        status:
+          type: string
+          enum: [SUCCESS, DISABLED, UNAVAILABLE, FAILED, INVALID_RESPONSE]
+        metadata:
+          $ref: '#/components/schemas/IntelligenceMetadata'
+        summary:
+          type: string
+        explanations:
+          type: array
+          items:
+            $ref: '#/components/schemas/IntelligenceExplanation'
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiRecommendation'
+        evidenceReferences:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceReference'
+        verifiedRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+        uncertainties:
+          type: array
+          items:
+            type: string
+    IntelligenceMetadata:
+      type: object
+      required: [provider, model, version]
+      properties:
+        provider:
+          type: string
+        model:
+          type: string
+        version:
+          type: string
+    IntelligenceExplanation:
+      type: object
+      required: [ruleId, resource, explanation, evidence]
+      properties:
+        ruleId:
+          type: string
+        resource:
+          $ref: '#/components/schemas/ResourceIdentity'
+        explanation:
+          type: string
+        evidence:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceReference'
+    EvidenceReference:
+      type: object
+      required: [ruleId, resource, source]
+      properties:
+        ruleId:
+          type: string
+        resource:
+          $ref: '#/components/schemas/ResourceIdentity'
+        source:
+          type: string
+    AiRecommendation:
+      type: object
+      required: [title, action, severity]
+      properties:
+        title:
+          type: string
+        action:
+          type: string
+        severity:
+          type: string
+          enum: [INFO, LOW, MEDIUM, HIGH, CRITICAL]
     ProblemDetail:
       type: object
       required: [type, title, status]

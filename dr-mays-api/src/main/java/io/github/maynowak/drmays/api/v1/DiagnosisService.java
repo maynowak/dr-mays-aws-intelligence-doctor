@@ -39,6 +39,11 @@ public class DiagnosisService {
     return toResponse(result, graph);
   }
 
+  /** Runs the deterministic engine for server-side intelligence input. */
+  DiagnosisResult diagnoseDomain(DiagnosisRequest request) {
+    return engine.diagnose(new DiagnosticContext(toResources(request)));
+  }
+
   /** Maps validated wire resources to the existing domain model. */
   List<InfrastructureResource> toResources(DiagnosisRequest request) {
     return request.resources().stream().map(this::toResource).toList();

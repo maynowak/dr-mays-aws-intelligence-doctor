@@ -7,6 +7,17 @@ spring:
   mvc:
     problemdetails:
       enabled: true
+  ai:
+    ollama:
+      base-url: http://127.0.0.1:11434
+      chat:
+        options:
+          model: ${DR_MAYS_OLLAMA_MODEL:llama3.2}
+
+dr:
+  mays:
+    ai:
+      enabled: false
 
 server:
   address: 127.0.0.1

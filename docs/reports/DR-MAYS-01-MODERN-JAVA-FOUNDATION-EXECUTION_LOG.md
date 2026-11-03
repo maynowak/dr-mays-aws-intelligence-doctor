@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 01D deterministic engine complete; 01E quality verification pending.
+`IN PROGRESS` — 01E quality verification passed; 01F documentation pending.
 
 ## 2. Audit date/time
 
@@ -44,6 +44,11 @@ Implement a Java-25 domain foundation in `dr-mays-core`: resource identity, infr
 - Added `DiagnosisEngine` with sorted rule registration, duplicate-ID rejection and outcome attribution validation.
 - Added engine/result tests for determinism, input-order independence, empty resources/rules, invalid metadata, null outcomes and wrong attribution.
 - Ran `./mvnw -B -pl dr-mays-core -am test`: `BUILD SUCCESS`, 63 tests, 0 failures.
+- 01D committed as `3d1ca91`.
+- Ran full `./mvnw -B clean verify`: `BUILD SUCCESS`, all eight reactor projects, 63 tests.
+- Verified core compile dependencies: only `dr-mays-common`; no AWS SDK, Spring AI or CDK.
+- `jdeps --multi-release 25` reports only `java.base` for the core JAR.
+- Confirmed no forbidden imports in core main sources and `git diff --check` is clean.
 
 ## 6. Actual findings
 
@@ -63,6 +68,10 @@ Implement a Java-25 domain foundation in `dr-mays-core`: resource identity, infr
 - 01D engine sorts rules by ID and resources via `DiagnosticContext`; resource input order does not affect output.
 - The engine rejects duplicate rule IDs, null outcomes and outcomes attributed to another rule/resource.
 - 01D tests: 63 total, all passing.
+- 01E full reactor: 63 tests, 0 failures, 0 errors, 0 skipped; all eight projects `SUCCESS`.
+- Core compile dependency tree: `dr-mays-core -> dr-mays-common` only.
+- Core bytecode dependencies: `java.base` only; no AWS, Spring AI or CDK imports.
+- Source inventory: 14 main Java files and 13 test classes.
 
 ## 7. Evidence and file references
 
@@ -83,6 +92,8 @@ Implement a Java-25 domain foundation in `dr-mays-core`: resource identity, infr
 - `/tmp/opencode/dr-mays-01d-test.log` (session-local focused test output)
 - `dr-mays-core/src/main/java/io/github/maynowak/drmays/core/diagnosis/`
 - `dr-mays-core/src/test/java/io/github/maynowak/drmays/core/diagnosis/`
+- `/tmp/opencode/dr-mays-01e-verify.log` (session-local full verify output)
+- `/tmp/opencode/dr-mays-01e-deps.log` (session-local dependency tree)
 
 ## 8. Classification
 
@@ -107,6 +118,7 @@ Clean after branch creation; no files changed yet.
 - Added: `DiagnosticContextTest`, `DiagnosticOutcomeTest`, `MissingOwnerTagRuleTest`, `PublicIngressRuleTest`, `TestFixtures`
 - Added: `DiagnosisResult`, `DiagnosisEngine`
 - Added: `DiagnosisResultTest`, `DiagnosisEngineTest`
+- Modified: audit log/index only for 01E verification evidence
 
 ## 12. Explicit no-change confirmation
 
@@ -134,10 +146,11 @@ No production code or build files have been changed yet.
 
 ## 16. Current resume point
 
-Resume at **01E quality and module-boundary verification**. 01D passes 63 tests; commit pending.
+Resume at **01F documentation and readiness report**. 01E is GREEN; commit pending.
 
 - Base commit: `45cf93d50b8cd55118a38a562b5404dfe0fde5c1`
 - 01A commit: `81560f8` — `docs: define modern Java domain architecture`
 - 01B commit: `71aabcc` — `feat: add immutable diagnostic domain models`
 - 01C commit: `4022925` — `feat: add diagnostic rule contract and demo rules`
-- 01D commit: pending
+- 01D commit: `3d1ca91` — `feat: add deterministic diagnosis engine`
+- 01E commit: pending

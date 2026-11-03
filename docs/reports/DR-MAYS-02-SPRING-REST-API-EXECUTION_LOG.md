@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 02B API contract complete; 02C diagnosis controller/service pending.
+`IN PROGRESS` — 02C diagnosis controller/service complete; 02D validation and error handling pending.
 
 ## 2. Audit date/time
 
@@ -36,6 +36,12 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - Added Bean Validation limits: 100 resources, 50 tags/attributes, bounded identity and value lengths.
 - Added `docs/api/openapi.yaml` with all three endpoints, schemas and a full example request/response.
 - Added eight validation tests and two JSON serialization tests; all API tests pass.
+- 02B committed as `6863c12`.
+- Added `DiagnosisEngineConfiguration` wiring the existing core engine and built-in rules.
+- Added `DiagnosisService` mapping wire DTOs to domain types and back, without a parallel engine.
+- Added `DiagnosisController` with `POST /api/v1/diagnoses` and `GET /api/v1/rules`.
+- Added service/controller tests for findings, no-findings, rule listing and repeated-request determinism.
+- Ran `spotless:apply`, Checkstyle (0 violations) and full `clean verify`: 82 tests, all passing.
 
 ## 6. Actual findings
 
@@ -49,6 +55,9 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - Spring Boot 4.1.2 uses **Jackson 3** (`tools.jackson.databind`); Jackson annotations remain under `com.fasterxml.jackson.annotation`.
 - The OpenAPI document parses as YAML with 3 paths and 10 schemas.
 - 02B API tests: 11 total (1 context, 8 validation, 2 JSON); reactor total 74.
+- 02C controller uses the real `DiagnosisEngine`; no diagnosis logic is duplicated in the API.
+- Two synthetic resources produce two findings; clean storage produces `NOT_APPLICABLE` + `NO_FINDING`; repeated requests produce identical JSON.
+- 02C API tests: 19 total; reactor total 82.
 
 ## 7. Evidence and file references
 
@@ -61,6 +70,9 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - `dr-mays-api/src/main/resources/application.yml`
 - `docs/api/openapi.yaml`
 - `/tmp/opencode/dr-mays-02b-verify.log`
+- `/tmp/opencode/dr-mays-02c-verify.log`
+- `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/DiagnosisService.java`
+- `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/DiagnosisController.java`
 
 ## 8. Classification
 
@@ -82,6 +94,8 @@ Clean after branch creation.
 - Added: `dr-mays-api/src/test/java/.../DrMaysApiApplicationTest.java`
 - Added: versioned DTOs under `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/`
 - Added: DTO validation/serialization tests, `docs/api/openapi.yaml`
+- Added: `DiagnosisEngineConfiguration`, `DiagnosisService`, `DiagnosisController`
+- Added: `DiagnosisServiceTest`, `DiagnosisControllerTest`
 - Modified: `dr-mays-api/pom.xml`, `config/checkstyle/checkstyle.xml`
 - Modified: `docs/AI_AUDITINDEX.md`
 
@@ -114,8 +128,9 @@ No production code or build configuration has been changed yet.
 
 ## 16. Current resume point
 
-Resume at **02C diagnosis controller and service integration**. 02B is verified; commit pending.
+Resume at **02D validation and ProblemDetail error handling**. 02C is verified; commit pending.
 
 - Base HEAD: `daa80505ce247ae43c338838b666713293419243`
 - 02A commit: `afa39d3`
-- 02B commit: pending
+- 02B commit: `6863c12`
+- 02C commit: pending

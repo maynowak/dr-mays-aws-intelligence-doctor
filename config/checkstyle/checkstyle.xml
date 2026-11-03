@@ -34,7 +34,6 @@
             <property name="allowPublicFinalFields" value="true"/>
         </module>
         <module name="FinalClass"/>
-        <module name="HideUtilityClassConstructor"/>
 
         <module name="JavadocType">
             <property name="scope" value="public"/>

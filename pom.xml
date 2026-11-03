@@ -56,6 +56,7 @@
         <google-java-format.version>2.0.0</google-java-format.version>
         <maven-checkstyle-plugin.version>3.6.0</maven-checkstyle-plugin.version>
         <checkstyle.version>14.4.0</checkstyle.version>
+        <jacoco-maven-plugin.version>0.8.16</jacoco-maven-plugin.version>
     </properties>
 
     <dependencyManagement>
@@ -138,6 +139,11 @@
                         <useModulePath>false</useModulePath>
                         <trimStackTrace>false</trimStackTrace>
                     </configuration>
+                </plugin>
+                <plugin>
+                    <groupId>org.jacoco</groupId>
+                    <artifactId>jacoco-maven-plugin</artifactId>
+                    <version>${jacoco-maven-plugin.version}</version>
                 </plugin>
             </plugins>
         </pluginManagement>

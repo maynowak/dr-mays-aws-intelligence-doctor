@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — QA-02 Checkstyle green; QA-03 JaCoCo coverage pending.
+`IN PROGRESS` — QA-03/04 coverage and test minimum verified; QA-05 documentation pending.
 
 ## 2. Audit date/time
 
@@ -36,6 +36,10 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - Fixed 31 `JavadocType` findings by documenting all record components with `@param`.
 - Ran `./mvnw checkstyle:check`: 0 violations in all eight modules.
 - Ran `./mvnw -B clean verify`: `BUILD SUCCESS`, 63 tests, Checkstyle gate active.
+- Added JaCoCo `0.8.16` to `dr-mays-core` with prepare-agent, HTML/XML report and BUNDLE coverage checks at verify.
+- Configured line coverage minimum `0.85` and branch coverage minimum `0.75`; no exclusions or generated-code filters.
+- Ran full `./mvnw -B clean verify`: `BUILD SUCCESS`, all eight modules, 63 tests.
+- JaCoCo gate passed: line `210/210` (100.00 %), branch `51/52` (98.08 %).
 
 ## 6. Actual findings
 
@@ -52,6 +56,10 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - The initial Checkstyle run produced 31 `JavadocType` violations, all missing record `@param` tags; fixed by adding documentation.
 - Checkstyle now reports 0 violations; the ruleset is project-owned and intentionally small.
 - QA-02 tests: 63 total, all passing.
+- QA-04 minimum is exceeded: 63 tests total, 59 new since DR-MAYS-00's four tests.
+- JaCoCo 0.8.16 analyzes Java 25 bytecode successfully; the coverage check passed in the full reactor.
+- Reports exist at `dr-mays-core/target/site/jacoco/index.html` and `jacoco.xml`.
+- The only uncovered branch is the unreachable non-blank branch inside the owner-tag normalisation lambda; no test was weakened and no code path was excluded.
 
 ## 7. Evidence and file references
 
@@ -66,6 +74,10 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - `/tmp/opencode/dr-mays-qa02-checkstyle.log`
 - `/tmp/opencode/dr-mays-qa02-checkstyle2.log`
 - `/tmp/opencode/dr-mays-qa02-verify.log`
+- `/tmp/opencode/dr-mays-qa03-verify1.log`
+- `/tmp/opencode/dr-mays-qa03-verify-full.log`
+- `dr-mays-core/target/site/jacoco/index.html`
+- `dr-mays-core/target/site/jacoco/jacoco.xml`
 
 ## 8. Classification
 
@@ -89,6 +101,8 @@ QA-01 changes are unstaged: `pom.xml`, `.editorconfig`, 28 formatted Java files,
 - Added: `config/checkstyle/checkstyle.xml`
 - Modified: `pom.xml` (Checkstyle plugin/version)
 - Modified: eight domain Java files with record `@param` Javadocs
+- Modified: `pom.xml` (JaCoCo plugin management)
+- Modified: `dr-mays-core/pom.xml` (JaCoCo agent/report/check)
 
 ## 12. Explicit no-change confirmation
 
@@ -118,8 +132,9 @@ No production behavior changed; formatting is mechanical. Build and audit config
 
 ## 16. Current resume point
 
-Resume at **QA-03 JaCoCo coverage**. QA-02 is verified; commit pending.
+Resume at **QA-05 standards documentation and Javadocs**. QA-03/04 are green; commit pending.
 
 - Base HEAD: `b86985a2db96470611ebd9c0c27d3b63c132427f`
 - QA-01 commit: `d845541`
-- QA-02 commit: pending
+- QA-02 commit: `97c1305`
+- QA-03/04 commit: pending

@@ -2,20 +2,21 @@
 
 ## Project status
 
-- **Core domain + local API + Docker offline demo implemented; AWS/AI not started.** The Java 25 reactor, immutable domain, deterministic engine, Spring Boot 4 REST API and local Docker demo exist and pass 115 local tests (63 core + 52 API). AWS discovery, AI and deployments remain targets — never claim them as implemented.
-- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the upstream baseline; DR-MAYS-03 work is on `feature/dr-mays-docker-offline-demo-03`). No push or merge is authorized for DR-MAYS-03.
+- **Core domain + API + Docker demo + simulated AWS discovery implemented; live AWS/AI not started.** The reactor, domain, REST API, Docker demo and mocked AWS discovery foundation pass 179 local tests (63 core + 52 API + 64 AWS). No live AWS scan or AI integration has run — never claim one.
+- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the upstream baseline; DR-MAYS-04 work is on `feature/dr-mays-aws-discovery-04`). The user authorized pushing this branch at the end; no merge is authorized.
 - License is GPL-3.0 (`LICENSE`). Do not relicense without explicit confirmation.
 - Roadmap IDs use `DR-MAYS-<AREA>-<NN>` (phases 01–08). MVP gate is after phase 04: offline demo, inspectable checks, reproducible JSON diagnosis.
 
 ## Build and test commands
 
 - **Always use the wrapper** (`./mvnw`); the system Maven is 3.8.7 and the Enforcer rejects it. The wrapper pins Maven 3.9.16 and downloads it on first use.
-- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 115 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core and API).
+- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 179 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core, API and AWS).
 - Formatting: `./mvnw spotless:apply` to fix, `./mvnw spotless:check` to verify. Never auto-format in CI.
 - Static analysis: `./mvnw checkstyle:check` (0 violations required).
-- Coverage reports: `dr-mays-core/target/site/jacoco/` and `dr-mays-api/target/site/jacoco/`.
+- Coverage reports: `dr-mays-core/target/site/jacoco/`, `dr-mays-api/target/site/jacoco/`, `dr-mays-aws/target/site/jacoco/`.
 - Single test class: `./mvnw -pl dr-mays-core -am -Dtest=SeverityTest -Dsurefire.failIfNoSpecifiedTests=false test`
 - API tests: `./mvnw -pl dr-mays-api -am test`
+- AWS discovery tests (mocked, no credentials): `./mvnw -pl dr-mays-aws -am test`
 - Start API: `./mvnw -B -DskipTests package && java -jar dr-mays-api/target/dr-mays-api-0.1.0-SNAPSHOT.jar`
 - Docker demo: `./scripts/docker-demo.sh` (builds, starts, runs fixtures, stops)
 - Host demo against a running API: `DR_MAYS_API_URL=http://127.0.0.1:8080 ./scripts/demo.sh`
@@ -33,8 +34,9 @@
 - API packages: `api`, `api.config`, `api.v1`. DTOs are separate from domain types; `DiagnosisService` maps between them. The API is loopback-only, unauthenticated and not for public deployment.
 - The API must use the existing `DiagnosisEngine`; do not duplicate diagnosis logic in controllers.
 - Docker: `compose.yaml` publishes only `127.0.0.1:18080`, runs UID/GID `10001`, read-only root with `/tmp` tmpfs, all capabilities dropped, `no-new-privileges`, no extra services. Image base digests are pinned in `docker/Dockerfile`; do not add curl/wget to the runtime image—health is external.
+- AWS discovery: SDK types live only in `dr-mays-aws`; core/api must stay AWS-free. No Spring wiring, no startup clients, no default profile, no live calls. `DiscoveryScope` requires explicit profile/account/regions/services/maxResources; STS mismatch fails closed. See `docs/development/AWS_DISCOVERY.md` and `docs/security/AWS_SCANNER_IAM.md`.
 - Fixtures live in `examples/fixtures` and are copied to the API test classpath by `dr-mays-api/pom.xml`. Keep them aligned with `docs/api/openapi.yaml`.
-- AWS SDK, Spring AI and CDK are version-managed but intentionally **not** on any module classpath yet (phases 04, 06, 07). Do not add them without the corresponding phase.
+- AWS SDK is isolated to `dr-mays-aws`; Spring AI and CDK are version-managed but intentionally **not** on any module classpath yet (phases 06, 07). Do not add them without the corresponding phase.
 - Add internal module versions in the root `dependencyManagement`; add new modules to `<modules>` and the internal dependency list.
 - Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0007`. Verify any upgrade with `./mvnw clean verify`.
 
@@ -43,7 +45,7 @@
 - `.github/workflows/build.yml` runs Java 25 (Temurin), Maven caching and `./mvnw -B clean verify`; no AWS credentials or deployment.
 - The workflow confirms JaCoCo XML and Checkstyle reports exist, then uploads Surefire, JaCoCo and Checkstyle reports as `quality-reports`.
 - Proven runs: `41609325812` (commit `7c7f775`) and `41609592971` (commit `45cf93d`) both succeeded.
-- The DR-MAYS-03 branch has **not** been pushed, so no CI run exists for its commits. Never report a new CI pass without an actual run. Docker smoke checks are local and separate from CI.
+- The DR-MAYS-04 branch is authorized for a single feature-branch push at the end; no merge. Verify any CI result from the actual run. Docker smoke checks are local and separate from CI.
 
 ## Audit workflow (from `docs/AI_AUDITLOG.md`)
 

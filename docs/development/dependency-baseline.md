@@ -9,6 +9,7 @@ Verified on 2026-11-03 against Maven Central and vendor documentation.
 | Spring Boot | 4.1.2 | Maven Central; supports Java 17–27 per Spring Boot system requirements |
 | Spring AI | 2.0.2 | Maven Central; supports Spring Boot 4.0.x/4.1.x |
 | AWS SDK for Java | BOM 2.57.8 | Maven Central; Java 8+ per AWS documentation |
+| AWS SDK modules | EC2/S3/STS 2.57.8 | Resolved in `dr-mays-aws` only; mocked in tests |
 | AWS CDK | 2.275.0 | Maven Central; Java 8+ per AWS CDK documentation |
 | Maven Enforcer | 3.7.0 | Maven Central |
 | Maven Compiler Plugin | 3.15.0 | Spring Boot 4.1.2 parent |
@@ -38,7 +39,7 @@ All three resolved successfully. `dependency:tree` confirms the only compile dep
 
 ## Deferred to later phases
 
-- AWS SDK service clients: phase 04.
+- Additional AWS SDK service clients beyond EC2/S3/STS: future approved discovery phases.
 - Spring AI starters and provider adapters: phase 06.
 - AWS CDK and Lambda runtime libraries: phase 07.
 

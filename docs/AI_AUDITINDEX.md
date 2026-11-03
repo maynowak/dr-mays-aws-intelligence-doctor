@@ -1,8 +1,8 @@
 # Dr. Mays — AI Audit Index
 
-Current Branch: `feature/dr-mays-docker-offline-demo-03`
-Latest recorded HEAD: `edcb353` (03F; 03G final documentation commit is HEAD)
-Last updated: 2026-11-03T12:42:22+01:00
+Current Branch: `feature/dr-mays-aws-discovery-04`
+Latest recorded HEAD: `d76a160` (04E; 04H final documentation commit is HEAD)
+Last updated: 2026-11-03T13:07:00+01:00
 
 | Task ID | Report | Status |
 | --- | --- | --- |
@@ -18,3 +18,5 @@ Last updated: 2026-11-03T12:42:22+01:00
 | `DR-MAYS-02` | `docs/reports/DR-MAYS-02-SPRING-REST-API-READINESS.md` | COMPLETE — GREEN (local); CI NOT VERIFIED |
 | `DR-MAYS-03` | `docs/reports/DR-MAYS-03-DOCKER-OFFLINE-DEMO-EXECUTION_LOG.md` | COMPLETE — GREEN (local); CI NOT VERIFIED |
 | `DR-MAYS-03` | `docs/reports/DR-MAYS-03-DOCKER-OFFLINE-DEMO-READINESS.md` | COMPLETE — GREEN (local); CI NOT VERIFIED |
+| `DR-MAYS-04` | `docs/reports/DR-MAYS-04-AWS-DISCOVERY-EXECUTION_LOG.md` | COMPLETE — GREEN (local); live AWS not executed |
+| `DR-MAYS-04` | `docs/reports/DR-MAYS-04-AWS-DISCOVERY-READINESS.md` | COMPLETE — GREEN (local); live AWS not executed |

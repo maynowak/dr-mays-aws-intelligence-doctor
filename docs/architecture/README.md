@@ -8,7 +8,7 @@ Dr. Mays is a read-only AWS infrastructure diagnostics system. Technical evidenc
 | --- | --- | --- |
 | `dr-mays-common` | Shared primitives with no AWS or AI types | None |
 | `dr-mays-core` | Domain model, findings, evidence, relations, rule engine | `common` |
-| `dr-mays-aws` | Read-only AWS SDK v2 discovery adapters | `core` |
+| `dr-mays-aws` | Read-only AWS discovery foundation (implemented, mocked only) | `core` |
 | `dr-mays-api` | Spring Boot 4 REST API (implemented, local only) | `core` |
 | `dr-mays-ai` | Optional model adapters and explanations | `core` |
 | `dr-mays-worker` | Future scheduled or Lambda execution | `core` |
@@ -38,6 +38,17 @@ docker compose -> image dr-mays-api:local
 
 The default jar and local app remain loopback-only. The `docker` profile is the only place the server binds all interfaces, and only inside the container network namespace.
 
+## AWS discovery boundary (DR-MAYS-04)
+
+```text
+DiscoveryScope -> STS identity verification (fail closed)
+               -> EC2 security groups  -> AwsResourceMapper -> core resources
+               -> S3 bucket metadata   -> AwsResourceMapper -> core resources
+               -> DiscoveryResult (COMPLETE / PARTIAL / FAILED)
+```
+
+All AWS SDK types stay in `dr-mays-aws`. The adapter is not wired into Spring, the API or Docker, and no live AWS call has executed. See `docs/development/AWS_DISCOVERY.md`, ADR-0008 and `docs/security/AWS_SCANNER_IAM.md`.
+
 ## Target flow
 
 ```text
@@ -65,5 +76,6 @@ AWS adapters or offline fixtures
 - Spotless, Checkstyle and JaCoCo run during `./mvnw -B clean verify`; see `docs/development/QUALITY_GATES.md`.
 - `dr-mays-core` enforces 85 % line and 75 % branch coverage; rules and engine remain deterministic.
 - `dr-mays-api` enforces the same thresholds over its testable production code and exercises real HTTP, MVC slices and ProblemDetail error paths.
+- `dr-mays-aws` enforces the same thresholds over discovery contracts, mappers, identity and SDK-failure handling; all AWS clients are mocked.
 - Public domain contracts carry Javadocs, including record component parameters.
 - Coding, testing and Definition-of-Done rules live in `docs/development/CODING_STANDARDS.md`, `docs/development/TESTING_STANDARDS.md` and `docs/development/QUALITY_GATES.md`.

@@ -15,6 +15,7 @@ Tests run on Java 25 and must not require AWS credentials, network access or a m
 
 - Unit tests live next to the domain code in `dr-mays-core/src/test/java`.
 - API tests live in `dr-mays-api/src/test/java`; MVC slice tests cover happy paths, full-context tests cover the exception advice, a random-port integration test exercises a real server, and fixture contract tests load `examples/fixtures` from the test classpath.
+- `dr-mays-aws` tests use mocked EC2/S3/STS SDK clients; no credentials or network are required.
 - Docker integration is a separate shell smoke test (`./scripts/docker-demo.sh`), not a JUnit test; report it separately.
 - Test classes are package-private and named `<Type>Test`.
 - Test methods describe the behavior and expected result in `lowerCamelCase`.
@@ -48,6 +49,8 @@ The JaCoCo gate runs during `verify`. Reports are generated at:
 - `dr-mays-core/target/site/jacoco/jacoco.xml`
 - `dr-mays-api/target/site/jacoco/index.html`
 - `dr-mays-api/target/site/jacoco/jacoco.xml`
+- `dr-mays-aws/target/site/jacoco/index.html`
+- `dr-mays-aws/target/site/jacoco/jacoco.xml`
 
 Modules without production code do not have a coverage gate and must not fail for missing coverage.
 
@@ -55,7 +58,7 @@ Coverage must not be improved by meaningless tests, exclusions, deleting product
 
 ## Minimum test volume
 
-DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. DR-MAYS-03 requires at least 12 new fixture/demo tests. The current suite has 115 tests: 63 core and 52 API.
+DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. DR-MAYS-03 requires at least 12 new fixture/demo tests. DR-MAYS-04 requires at least 30 new AWS discovery tests. The current suite has 179 tests: 63 core, 52 API and 64 AWS.
 
 ## Commands
 
@@ -78,6 +81,6 @@ DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful t
 
 ## Test evidence
 
-- Surefire text/XML: `dr-mays-core/target/surefire-reports/` and `dr-mays-api/target/surefire-reports/`
-- JaCoCo HTML/XML: `dr-mays-core/target/site/jacoco/` and `dr-mays-api/target/site/jacoco/`
+- Surefire text/XML: `dr-mays-core/target/surefire-reports/`, `dr-mays-api/target/surefire-reports/` and `dr-mays-aws/target/surefire-reports/`
+- JaCoCo HTML/XML: `dr-mays-core/target/site/jacoco/`, `dr-mays-api/target/site/jacoco/` and `dr-mays-aws/target/site/jacoco/`
 - CI uploads these reports as artifacts.

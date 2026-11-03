@@ -10,7 +10,7 @@ Every change must pass the same local and CI gates. `./mvnw -B clean verify` is 
 | 2 | Formatting | Spotless 3.11.0 / GJF 2.0.0 | `spotless:check` fails on unformatted Java |
 | 3 | Static analysis | Checkstyle 14.4.0 | any violation fails the build |
 | 4 | Unit tests | JUnit 6.0.3 / Surefire 3.6.1 | any failure or error fails the build |
-| 5 | Coverage | JaCoCo 0.8.16 | core/API line < 85 % or branch < 75 % fails the build |
+| 5 | Coverage | JaCoCo 0.8.16 | core/API/AWS line < 85 % or branch < 75 % fails the build |
 | 6 | Reactor build | Maven | any module failure fails the build |
 
 Spotless is applied locally with `./mvnw spotless:apply`; CI only checks, never rewrites files.
@@ -41,7 +41,7 @@ A step is GREEN only when all of the following are true:
 - [ ] `./mvnw checkstyle:check` reports zero violations.
 - [ ] `./mvnw -B clean verify` passes.
 - [ ] All tests pass; minimum test volume is met.
-- [ ] Core/API line/branch coverage gates pass.
+- [ ] Core/API/AWS line/branch coverage gates pass.
 - [ ] Module boundaries are unchanged or intentionally documented.
 - [ ] `docs/development`, `docs/architecture` and relevant ADRs are updated.
 - [ ] Execution log and `docs/AI_AUDITINDEX.md` are current.

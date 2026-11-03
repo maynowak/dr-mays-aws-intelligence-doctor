@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 04A–04G implemented and verified; 04H documentation/readiness pending.
+`COMPLETE` — all local Maven, mocked AWS and Docker regression checks pass. No live AWS scan was executed; CI status is pending the authorized push.
 
 ## 2. Audit date/time
 
@@ -33,6 +33,7 @@ Build a simulated, read-only AWS discovery foundation in `dr-mays-aws`: contract
 - Full `./mvnw -B clean verify`: 179 tests, all reactor modules successful.
 - AWS coverage: 95.35 % line / 84.55 % branch; core/API coverage retained.
 - Docker regression `./scripts/docker-demo.sh` passed and the container stopped cleanly.
+- 04A–04E committed; documentation, IAM concept and readiness report prepared for 04H.
 
 ## 6. Actual findings
 
@@ -99,8 +100,12 @@ No production code or AWS configuration has been changed yet.
 
 ## 16. Current resume point
 
-Resume at **04H documentation and readiness**. 04A–04G are verified; code commits in progress.
+Resume at **final 04H commit**. 04A–04E are committed; docs/readiness are staged for close-out.
 
 - Base HEAD: `21e5b4327ecf10002ec724eba95e2a902a8f3206`
-- 04A–04G commits: pending
-- 04H commit: pending
+- 04A commit: `96a3141`
+- 04B commit: `f93cd5e`
+- 04C commit: `c5a6419`
+- 04D commit: `55cad14`
+- 04E commit: `d76a160`
+- 04H commit: pending (docs/readiness)

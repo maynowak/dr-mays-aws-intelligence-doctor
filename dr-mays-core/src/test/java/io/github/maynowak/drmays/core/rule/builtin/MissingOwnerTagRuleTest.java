@@ -13,47 +13,47 @@ import org.junit.jupiter.api.Test;
 
 class MissingOwnerTagRuleTest {
 
-    private final MissingOwnerTagRule rule = new MissingOwnerTagRule();
+  private final MissingOwnerTagRule rule = new MissingOwnerTagRule();
 
-    @Test
-    void detectsMissingOwnerTag() {
-        var resource = resource(NETWORK_ID, Map.of(), Map.of());
+  @Test
+  void detectsMissingOwnerTag() {
+    var resource = resource(NETWORK_ID, Map.of(), Map.of());
 
-        var outcome = rule.evaluate(resource, context(resource));
+    var outcome = rule.evaluate(resource, context(resource));
 
-        assertThat(outcome).isInstanceOf(DiagnosticOutcome.FindingDetected.class);
-        var finding = ((DiagnosticOutcome.FindingDetected) outcome).finding();
-        assertThat(finding.ruleId()).isEqualTo(MissingOwnerTagRule.RULE_ID);
-        assertThat(finding.severity()).isEqualTo(Severity.MEDIUM);
-        assertThat(finding.evidence().observed()).isEqualTo("absent");
-        assertThat(finding.evidence().details()).containsEntry("tag", "owner");
-    }
+    assertThat(outcome).isInstanceOf(DiagnosticOutcome.FindingDetected.class);
+    var finding = ((DiagnosticOutcome.FindingDetected) outcome).finding();
+    assertThat(finding.ruleId()).isEqualTo(MissingOwnerTagRule.RULE_ID);
+    assertThat(finding.severity()).isEqualTo(Severity.MEDIUM);
+    assertThat(finding.evidence().observed()).isEqualTo("absent");
+    assertThat(finding.evidence().details()).containsEntry("tag", "owner");
+  }
 
-    @Test
-    void detectsBlankOwnerTagAsFinding() {
-        var resource = resource(NETWORK_ID, Map.of("owner", "  "), Map.of());
+  @Test
+  void detectsBlankOwnerTagAsFinding() {
+    var resource = resource(NETWORK_ID, Map.of("owner", "  "), Map.of());
 
-        var outcome = rule.evaluate(resource, context(resource));
+    var outcome = rule.evaluate(resource, context(resource));
 
-        var finding = ((DiagnosticOutcome.FindingDetected) outcome).finding();
-        assertThat(finding.evidence().observed()).isEqualTo("blank");
-    }
+    var finding = ((DiagnosticOutcome.FindingDetected) outcome).finding();
+    assertThat(finding.evidence().observed()).isEqualTo("blank");
+  }
 
-    @Test
-    void returnsNoFindingForPresentOwnerTag() {
-        var resource = resource(NETWORK_ID, Map.of("owner", "platform"), Map.of());
+  @Test
+  void returnsNoFindingForPresentOwnerTag() {
+    var resource = resource(NETWORK_ID, Map.of("owner", "platform"), Map.of());
 
-        var outcome = rule.evaluate(resource, context(resource));
+    var outcome = rule.evaluate(resource, context(resource));
 
-        assertThat(outcome).isInstanceOf(DiagnosticOutcome.NoFinding.class);
-        assertThat(outcome.ruleId()).isEqualTo(MissingOwnerTagRule.RULE_ID);
-    }
+    assertThat(outcome).isInstanceOf(DiagnosticOutcome.NoFinding.class);
+    assertThat(outcome.ruleId()).isEqualTo(MissingOwnerTagRule.RULE_ID);
+  }
 
-    @Test
-    void rejectsNullArguments() {
-        var resource = resource(NETWORK_ID, Map.of(), Map.of());
+  @Test
+  void rejectsNullArguments() {
+    var resource = resource(NETWORK_ID, Map.of(), Map.of());
 
-        assertThatNullPointerException().isThrownBy(() -> rule.evaluate(null, context(resource)));
-        assertThatNullPointerException().isThrownBy(() -> rule.evaluate(resource, null));
-    }
+    assertThatNullPointerException().isThrownBy(() -> rule.evaluate(null, context(resource)));
+    assertThatNullPointerException().isThrownBy(() -> rule.evaluate(resource, null));
+  }
 }

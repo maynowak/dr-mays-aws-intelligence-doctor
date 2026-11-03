@@ -14,66 +14,67 @@ import org.junit.jupiter.api.Test;
 
 class PublicIngressRuleTest {
 
-    private final PublicIngressRule rule = new PublicIngressRule();
+  private final PublicIngressRule rule = new PublicIngressRule();
 
-    @Test
-    void detectsPublicIngress() {
-        var network = resource(NETWORK_ID, Map.of(), Map.of("ingress.public", "true"));
+  @Test
+  void detectsPublicIngress() {
+    var network = resource(NETWORK_ID, Map.of(), Map.of("ingress.public", "true"));
 
-        var outcome = rule.evaluate(network, context(network));
+    var outcome = rule.evaluate(network, context(network));
 
-        assertThat(outcome).isInstanceOf(DiagnosticOutcome.FindingDetected.class);
-        var finding = ((DiagnosticOutcome.FindingDetected) outcome).finding();
-        assertThat(finding.ruleId()).isEqualTo(PublicIngressRule.RULE_ID);
-        assertThat(finding.severity()).isEqualTo(Severity.HIGH);
-        assertThat(finding.evidence().observed()).isEqualTo("ingress.public=true");
-        assertThat(finding.evidence().expected()).isEqualTo("ingress.public=false");
-    }
+    assertThat(outcome).isInstanceOf(DiagnosticOutcome.FindingDetected.class);
+    var finding = ((DiagnosticOutcome.FindingDetected) outcome).finding();
+    assertThat(finding.ruleId()).isEqualTo(PublicIngressRule.RULE_ID);
+    assertThat(finding.severity()).isEqualTo(Severity.HIGH);
+    assertThat(finding.evidence().observed()).isEqualTo("ingress.public=true");
+    assertThat(finding.evidence().expected()).isEqualTo("ingress.public=false");
+  }
 
-    @Test
-    void returnsNoFindingForPrivateIngress() {
-        var network = resource(NETWORK_ID, Map.of(), Map.of("ingress.public", "false"));
+  @Test
+  void returnsNoFindingForPrivateIngress() {
+    var network = resource(NETWORK_ID, Map.of(), Map.of("ingress.public", "false"));
 
-        var outcome = rule.evaluate(network, context(network));
+    var outcome = rule.evaluate(network, context(network));
 
-        assertThat(outcome).isInstanceOf(DiagnosticOutcome.NoFinding.class);
-    }
+    assertThat(outcome).isInstanceOf(DiagnosticOutcome.NoFinding.class);
+  }
 
-    @Test
-    void returnsNotApplicableForMissingAttribute() {
-        var network = resource(NETWORK_ID, Map.of(), Map.of());
+  @Test
+  void returnsNotApplicableForMissingAttribute() {
+    var network = resource(NETWORK_ID, Map.of(), Map.of());
 
-        var outcome = rule.evaluate(network, context(network));
+    var outcome = rule.evaluate(network, context(network));
 
-        assertThat(outcome).isInstanceOf(DiagnosticOutcome.NotApplicable.class);
-        assertThat(((DiagnosticOutcome.NotApplicable) outcome).reason()).contains("not declared");
-    }
+    assertThat(outcome).isInstanceOf(DiagnosticOutcome.NotApplicable.class);
+    assertThat(((DiagnosticOutcome.NotApplicable) outcome).reason()).contains("not declared");
+  }
 
-    @Test
-    void returnsNotApplicableForInvalidAttributeValue() {
-        var network = resource(NETWORK_ID, Map.of(), Map.of("ingress.public", "sometimes"));
+  @Test
+  void returnsNotApplicableForInvalidAttributeValue() {
+    var network = resource(NETWORK_ID, Map.of(), Map.of("ingress.public", "sometimes"));
 
-        var outcome = rule.evaluate(network, context(network));
+    var outcome = rule.evaluate(network, context(network));
 
-        assertThat(outcome).isInstanceOf(DiagnosticOutcome.NotApplicable.class);
-        assertThat(((DiagnosticOutcome.NotApplicable) outcome).reason()).contains("must be 'true' or 'false'");
-    }
+    assertThat(outcome).isInstanceOf(DiagnosticOutcome.NotApplicable.class);
+    assertThat(((DiagnosticOutcome.NotApplicable) outcome).reason())
+        .contains("must be 'true' or 'false'");
+  }
 
-    @Test
-    void returnsNotApplicableForNonNetworkResource() {
-        var storage = resource(STORAGE_ID, Map.of(), Map.of("ingress.public", "true"));
+  @Test
+  void returnsNotApplicableForNonNetworkResource() {
+    var storage = resource(STORAGE_ID, Map.of(), Map.of("ingress.public", "true"));
 
-        var outcome = rule.evaluate(storage, context(storage));
+    var outcome = rule.evaluate(storage, context(storage));
 
-        assertThat(outcome).isInstanceOf(DiagnosticOutcome.NotApplicable.class);
-        assertThat(((DiagnosticOutcome.NotApplicable) outcome).reason()).contains("network");
-    }
+    assertThat(outcome).isInstanceOf(DiagnosticOutcome.NotApplicable.class);
+    assertThat(((DiagnosticOutcome.NotApplicable) outcome).reason()).contains("network");
+  }
 
-    @Test
-    void rejectsNullArguments() {
-        var network = resource(NETWORK_ID, Map.of(), Map.of());
+  @Test
+  void rejectsNullArguments() {
+    var network = resource(NETWORK_ID, Map.of(), Map.of());
 
-        assertThatNullPointerException().isThrownBy(() -> rule.evaluate(null, context(network)));
-        assertThatNullPointerException().isThrownBy(() -> rule.evaluate(network, null));
-    }
+    assertThatNullPointerException().isThrownBy(() -> rule.evaluate(null, context(network)));
+    assertThatNullPointerException().isThrownBy(() -> rule.evaluate(network, null));
+  }
 }

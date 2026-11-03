@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 05H verified locally; 05I documentation/readiness pending.
+`IN PROGRESS` — 05I documentation/readiness pending; local implementation and checks are complete.
 
 ## 2. Audit date/time
 
@@ -27,6 +27,14 @@ Build an offline Infrastructure DNA graph in `dr-mays-core`, relationship extrac
 - Inspected core resources, Evidence, findings, DiagnosisEngine/Result and API contracts.
 - Confirmed EC2 mapper currently exposes `vpc.id` but only a count of referenced security groups.
 - Created branch `feature/dr-mays-infrastructure-dna-05`.
+- Added core graph model, builder and bounded analyzer with evidence-backed SG→VPC and SG→SG edges.
+- Extended the EC2 mapper with concrete referenced security-group IDs.
+- Added versioned DNA graph DTOs, `POST /api/v1/dna/graphs`, OpenAPI contract and error handling reuse.
+- Added six DNA fixtures and extended the offline/Docker demo with a verified VPC edge check.
+- Full `./mvnw -B clean verify`: 222 tests, all modules successful.
+- Docker regression passed with non-root/read-only/cap-drop settings; container stopped cleanly.
+- 05A/B, 05C, 05E, 05F and 05G commits created; final docs/readiness close-out pending.
+- Final local verify: 223 tests, 0 failures; core 99.36 % / 95.65 %, API 98.48 % / 85.19 %, AWS 95.25 % / 83.93 %.
 
 ## 6. Actual findings
 
@@ -49,7 +57,7 @@ Build an offline Infrastructure DNA graph in `dr-mays-core`, relationship extrac
 
 ## 8. Classification
 
-`YELLOW` — baseline verified; graph implementation pending.
+`GREEN (local)` — graph, API, tests and Docker regression pass. No live AWS call, push or merge was performed.
 
 ## 9. Terraform checks and results
 
@@ -95,7 +103,12 @@ No production code or configuration has been changed yet.
 
 ## 16. Current resume point
 
-Resume at **05A ADR and core graph contracts**. Baseline verified; no commit exists for this task.
+**DR-MAYS-05 is complete locally.** No push/merge/live AWS call was performed.
 
 - Base HEAD: `1ba7c5f9a9b52af3ddadf57d0bafeea196663091`
-- 05A commit: pending
+- 05A/B commit: `b61fe62`
+- 05C commit: `df953de`
+- 05F commit: `e62570b`
+- 05G commit: `8f50fb8`
+- 05E commit: `a49dc7f`
+- 05I commit: final docs/readiness commit (HEAD)

@@ -49,6 +49,17 @@ DiscoveryScope -> STS identity verification (fail closed)
 
 All AWS SDK types stay in `dr-mays-aws`. The adapter is not wired into Spring, the API or Docker, and no live AWS call has executed. See `docs/development/AWS_DISCOVERY.md`, ADR-0008 and `docs/security/AWS_SCANNER_IAM.md`.
 
+## Infrastructure DNA (DR-MAYS-05)
+
+```text
+InfrastructureResource list
+  -> InfrastructureGraphBuilder (only explicit vpc.id / referenced SG IDs)
+  -> InfrastructureGraph (INVENTORIED vs REFERENCED nodes, evidence-backed edges)
+  -> GraphAnalyzer (bounded traversal, components, cycles, account/region filters)
+```
+
+The graph lives in `dr-mays-core` and uses no graph database. `POST /api/v1/dna/graphs` exposes versioned DTOs; diagnosis findings carry verified outgoing relationships, not inferred reachability. See `docs/development/INFRASTRUCTURE_DNA.md` and ADR-0009.
+
 ## Target flow
 
 ```text

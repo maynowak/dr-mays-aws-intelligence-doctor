@@ -4,13 +4,13 @@
 >
 > *Understand the infrastructure. Detect the risks. Explain the diagnosis.*
 
-**Project status:** 🟡 Core domain + REST API + Docker demo + AWS discovery foundation (simulated) / live AWS scan not started<br>
+**Project status:** 🟡 Core domain + REST API + Docker demo + simulated AWS discovery + Infrastructure DNA / live AWS not started<br>
 **Initial plan:** 3 November 2026<br>
 **Project ID:** `DR-MAYS`<br>
 **Type:** Independent, Java-first portfolio and reference project
 
 > [!IMPORTANT]
-> The Java 25 foundation, core diagnostic domain, local Spring Boot API, Docker offline demo and a simulated read-only AWS discovery layer are implemented and verified locally. **No live AWS scan has been executed.** AI and deployments remain targets. No AWS resources are provisioned by this README.
+> The Java 25 foundation, core diagnostic domain, local Spring Boot API, Docker offline demo, simulated AWS discovery layer and offline Infrastructure DNA graph are implemented and verified locally. **No live AWS scan or AI integration has run.** No AWS resources are provisioned by this README.
 
 ## 🎯 Vision
 
@@ -27,7 +27,7 @@ The key idea is **Infrastructure DNA**: infrastructure is more than a list of re
 | **AWS discovery** | Simulated foundation: EC2 security groups, S3 metadata, STS identity boundary; no live calls yet |
 | **REST API** | Implemented locally: synthetic snapshot in, deterministic JSON findings/evidence out |
 | **Rule engine** | Deterministic checks with stable rule IDs, severity, evidence and recommendations |
-| **Infrastructure DNA** | Small graph of resource nodes and *verified* relationships |
+| **Infrastructure DNA** | Implemented offline graph of inventoried/referenced resources with verified SG→VPC and SG→SG edges |
 | **Diagnosis report** | Machine-readable JSON with findings, affected resources and priorities |
 | **AI interpretation** | Optional summarized findings via a replaceable model adapter; not the source of truth |
 | **Local demo** | Implemented: Docker/offline fixtures with **no AWS account required** |
@@ -152,7 +152,7 @@ dr-mays-aws-intelligence-doctor/
 ├── pom.xml
 ├── mvnw / mvnw.cmd
 ├── dr-mays-common/         # Shared primitives, no AWS/AI types
-├── dr-mays-core/           # Implemented domain, findings, evidence, rules, engine
+├── dr-mays-core/           # Implemented domain, findings, evidence, rules, engine, DNA graph
 ├── dr-mays-aws/            # Implemented read-only AWS discovery foundation (simulated)
 ├── dr-mays-api/            # Implemented Spring Boot REST API
 ├── dr-mays-ai/             # Optional model adapters (later)
@@ -176,7 +176,7 @@ The core domain, local REST API and Docker offline demo are implemented today. O
 | 02 | `DR-MAYS-SPRING-API-02` | REST contract, validation, mock scans, API tests | ✅ Complete (local verify, 103 tests) |
 | 03 | `DR-MAYS-LOCAL-DOCKER-03` | Docker demo, fixture scans, reproducible example JSON | ✅ Complete (local verify + Docker smoke) |
 | 04 | `DR-MAYS-AWS-DISCOVERY-04` | Authorized S3/IAM/SG/Lambda discovery, rules, JSON report | 🟡 Simulated foundation complete; live scan not executed |
-| 05 | `DR-MAYS-DNA-GRAPH-05` | Verified resource links with provenance and graph tests | ⬜ Planned |
+| 05 | `DR-MAYS-DNA-GRAPH-05` | Verified resource links with provenance and graph tests | ✅ Complete (local verify, 223 tests) |
 | 06 | `DR-MAYS-AI-REPORTS-06` | Opt-in model adapters, redaction, fallback, JSON/PDF report | ⬜ Planned |
 | 07 | `DR-MAYS-CLOUD-DOCTOR-07` | Java Lambda, CDK synth/diff, approval-gated deploy | ⬜ Planned |
 | 08 | `DR-MAYS-PORTFOLIO-READINESS-08` | CI, security review, observability, docs and demo | ⬜ Planned |
@@ -207,9 +207,9 @@ java -jar dr-mays-api/target/dr-mays-api-0.1.0-SNAPSHOT.jar
 ./scripts/docker-demo.sh
 ```
 
-Endpoints: `POST /api/v1/diagnoses`, `GET /api/v1/rules`, `GET /actuator/health`. Contract and examples: `docs/api/README.md` and `docs/api/openapi.yaml`. Docker and fixtures: `docs/development/DOCKER_DEVELOPMENT.md` and `docs/development/OFFLINE_DEMO.md`.
+Endpoints: `POST /api/v1/diagnoses`, `GET /api/v1/rules`, `POST /api/v1/dna/graphs`, `GET /actuator/health`. Contract and examples: `docs/api/README.md` and `docs/api/openapi.yaml`. DNA model: `docs/development/INFRASTRUCTURE_DNA.md`.
 
-Quality gates: Spotless/Google Java Format, Checkstyle, 179 tests, and JaCoCo with 85 % line / 75 % branch minimums. Current coverage: core 100 % / 98.08 %, API 97.83 % / 100 %, AWS discovery 95.35 % / 84.55 %. Reports are under each module's `target/site/jacoco/`.
+Quality gates: Spotless/Google Java Format, Checkstyle, 223 tests, and JaCoCo with 85 % line / 75 % branch minimums. Current coverage: core 99.36 % / 95.65 %, API 98.48 % / 85.19 %, AWS discovery 95.25 % / 83.93 %. Reports are under each module's `target/site/jacoco/`.
 
 The build and tests require no AWS credentials. The AWS discovery layer uses mocked SDK clients only; the first live scan requires a separate explicit approval. Details: `docs/development/AWS_DISCOVERY.md` and `docs/security/AWS_SCANNER_IAM.md`.
 

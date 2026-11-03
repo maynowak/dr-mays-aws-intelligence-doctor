@@ -16,6 +16,7 @@ Tests run on Java 25 and must not require AWS credentials, network access or a m
 - Unit tests live next to the domain code in `dr-mays-core/src/test/java`.
 - API tests live in `dr-mays-api/src/test/java`; MVC slice tests cover happy paths, full-context tests cover the exception advice, a random-port integration test exercises a real server, and fixture contract tests load `examples/fixtures` from the test classpath.
 - `dr-mays-aws` tests use mocked EC2/S3/STS SDK clients; no credentials or network are required.
+- `dr-mays-core` DNA tests cover evidence-only edges, referenced nodes, partial discovery, cycles, bounded traversal, components, account/region separation and deterministic ordering.
 - Docker integration is a separate shell smoke test (`./scripts/docker-demo.sh`), not a JUnit test; report it separately.
 - Test classes are package-private and named `<Type>Test`.
 - Test methods describe the behavior and expected result in `lowerCamelCase`.
@@ -58,7 +59,7 @@ Coverage must not be improved by meaningless tests, exclusions, deleting product
 
 ## Minimum test volume
 
-DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. DR-MAYS-03 requires at least 12 new fixture/demo tests. DR-MAYS-04 requires at least 30 new AWS discovery tests. The current suite has 179 tests: 63 core, 52 API and 64 AWS.
+DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. DR-MAYS-03 requires at least 12 new fixture/demo tests. DR-MAYS-04 requires at least 30 new AWS discovery tests. DR-MAYS-05 requires at least 35 new DNA tests. The current suite has 223 tests: 86 core, 73 API and 64 AWS.
 
 ## Commands
 

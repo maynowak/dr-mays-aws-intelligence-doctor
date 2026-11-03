@@ -34,6 +34,7 @@ The container uses the `docker` Spring profile to bind `0.0.0.0:8080` internally
 | Method | Endpoint | Purpose |
 | --- | --- | --- |
 | POST | `/api/v1/diagnoses` | Run deterministic rules over a synthetic snapshot |
+| POST | `/api/v1/dna/graphs` | Build the offline Infrastructure DNA graph |
 | GET | `/api/v1/rules` | List registered rules in rule-ID order |
 | GET | `/actuator/health` | Health endpoint; only Actuator endpoint exposed |
 

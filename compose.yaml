@@ -1,0 +1,24 @@
+services:
+  dr-mays-api:
+    build:
+      context: .
+      dockerfile: docker/Dockerfile
+    image: dr-mays-api:local
+    container_name: dr-mays-api-demo
+    init: true
+    user: "10001:10001"
+    environment:
+      SPRING_PROFILES_ACTIVE: docker
+      JAVA_TOOL_OPTIONS: "-XX:MaxRAMPercentage=75"
+    ports:
+      - "127.0.0.1:18080:8080"
+    read_only: true
+    tmpfs:
+      - /tmp:rw,nosuid,nodev,size=64m
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    pids_limit: 256
+    stop_grace_period: 15s
+    restart: "no"

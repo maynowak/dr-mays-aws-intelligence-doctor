@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 02F API coverage gate passed; 02G documentation/readiness pending.
+`COMPLETE` — all local gates pass; CI remains NOT VERIFIED because no push was permitted.
 
 ## 2. Audit date/time
 
@@ -57,6 +57,11 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - Initial API branch coverage was 73.68 %; added meaningful tests for empty validation errors, blank/null violation messages, generic body errors and null evidence details.
 - Final API coverage: 97.83 % line (`135/138`) and 100 % branch (`19/19`).
 - Full `clean verify`: all eight modules, 103 tests, both module coverage gates passing.
+- 02F committed as `47d57b9`.
+- Updated README, AGENTS, architecture, testing, quality and dependency documentation.
+- Added `docs/api/README.md` and ADR-0006 for the local REST boundary.
+- Created `docs/reports/DR-MAYS-02-SPRING-REST-API-READINESS.md`.
+- Verified the packaged jar over real HTTP on loopback: health UP, two rules, two findings for the sample request.
 
 ## 6. Actual findings
 
@@ -84,6 +89,9 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - API coverage after the additions: line 97.83 %, branch 100 %; no exclusions were added.
 - Core retains 100 % line / 98.08 % branch.
 - All eight reactor modules pass Spotless, Checkstyle and tests.
+- Final runtime: jar started on `127.0.0.1:18080`; health `UP`, rules returned 2 entries, sample diagnosis returned 2 findings.
+- Final local gate: 103 tests (63 core + 40 API), API 97.83 % line / 100 % branch, core 100 % / 98.08 %.
+- CI remains **NOT VERIFIED**; no GitHub Actions run exists for this branch.
 
 ## 7. Evidence and file references
 
@@ -109,7 +117,7 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 
 ## 8. Classification
 
-`YELLOW` — baseline and dependency availability verified; API not implemented.
+`GREEN (local)` — all local gates and runtime checks pass. CI is `NOT VERIFIED` because the branch was not pushed.
 
 ## 9. Terraform checks and results
 
@@ -132,6 +140,9 @@ Clean after branch creation.
 - Added: `ApiExceptionHandler`, `DiagnosisErrorHandlingTest`, `ApiExceptionHandlerTest`
 - Added: `HealthIntegrationTest`
 - Added: `EvidenceResponseTest` and error-handler edge tests
+- Added: `docs/api/README.md`, `docs/decisions/ADR-0006-local-spring-rest-boundary.md`
+- Added: `docs/reports/DR-MAYS-02-SPRING-REST-API-READINESS.md`
+- Modified: README, AGENTS, architecture/testing/quality/dependency docs
 - Modified: `dr-mays-api/pom.xml` (JaCoCo gate), `config/checkstyle/checkstyle.xml`
 - Modified: `docs/AI_AUDITINDEX.md`
 
@@ -164,7 +175,7 @@ No production code or build configuration has been changed yet.
 
 ## 16. Current resume point
 
-Resume at **02G documentation and readiness**. 02F is verified; commit pending.
+**DR-MAYS-02 is complete locally.** Push/CI verification remains a future authorized action.
 
 - Base HEAD: `daa80505ce247ae43c338838b666713293419243`
 - 02A commit: `afa39d3`
@@ -172,4 +183,5 @@ Resume at **02G documentation and readiness**. 02F is verified; commit pending.
 - 02C commit: `b1a2003`
 - 02D commit: `138c994`
 - 02E commit: `f87b6a7`
-- 02F commit: pending
+- 02F commit: `47d57b9`
+- 02G commit: final commit containing this log and the readiness report (HEAD)

@@ -16,6 +16,8 @@ Verified on 2026-11-03 against Maven Central and vendor documentation.
 | JUnit Jupiter | 6.0.3 | Managed by Spring Boot 4.1.2; resolved in test scope |
 | AssertJ | 3.27.7 | Managed by Spring Boot 4.1.2; resolved in test scope |
 | Mockito | 5.23.0 | Managed by Spring Boot 4.1.2; resolved in test scope |
+| Jackson databind | 3.1.7 | Managed by Spring Boot 4.1.2; package `tools.jackson.databind` |
+| Spring Boot starters | webmvc/validation/actuator 4.1.2 | Maven Central; resolved in `dr-mays-api` |
 | Spotless Maven Plugin | 3.11.0 | Maven Central; formatting gate |
 | Google Java Format | 2.0.0 | Maven Central; Spotless Java formatter |
 | Checkstyle | 14.4.0 | Maven Central; project ruleset |

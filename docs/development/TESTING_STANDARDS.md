@@ -7,12 +7,14 @@
 - Mockito 5.23.0 (available; prefer real objects for domain tests)
 - Maven Surefire 3.6.1
 - JaCoCo 0.8.16
+- Spring Boot 4.1.2 webmvc test slice and full-server tests
 
 Tests run on Java 25 and must not require AWS credentials, network access or a model provider.
 
 ## Test structure
 
 - Unit tests live next to the domain code in `dr-mays-core/src/test/java`.
+- API tests live in `dr-mays-api/src/test/java`; MVC slice tests cover happy paths, full-context tests cover the exception advice, and a random-port integration test exercises a real server.
 - Test classes are package-private and named `<Type>Test`.
 - Test methods describe the behavior and expected result in `lowerCamelCase`.
 - One logical behavior per test; avoid assertions unrelated to the test name.
@@ -34,7 +36,7 @@ Do not use dummy tests, duplicate tests with cosmetic changes, or parameterized 
 
 ## Coverage requirements
 
-For `dr-mays-core` production code:
+For `dr-mays-core` and `dr-mays-api` production code:
 
 - **Line coverage: at least 85 %.**
 - **Branch coverage: at least 75 %.**
@@ -43,6 +45,8 @@ The JaCoCo gate runs during `verify`. Reports are generated at:
 
 - `dr-mays-core/target/site/jacoco/index.html`
 - `dr-mays-core/target/site/jacoco/jacoco.xml`
+- `dr-mays-api/target/site/jacoco/index.html`
+- `dr-mays-api/target/site/jacoco/jacoco.xml`
 
 Modules without production code do not have a coverage gate and must not fail for missing coverage.
 
@@ -50,7 +54,7 @@ Coverage must not be improved by meaningless tests, exclusions, deleting product
 
 ## Minimum test volume
 
-DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. The current suite has 63 tests: 59 new domain tests plus the four original `Severity` tests.
+DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. The current suite has 103 tests: 63 core tests (including the original four) and 40 API tests.
 
 ## Commands
 
@@ -61,12 +65,15 @@ DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful t
 # Focused core tests; -am builds the uninstalled sibling module
 ./mvnw -pl dr-mays-core -am test
 
+# Focused API tests
+./mvnw -pl dr-mays-api -am test
+
 # Single test class
 ./mvnw -pl dr-mays-core -am -Dtest=DiagnosisEngineTest -Dsurefire.failIfNoSpecifiedTests=false test
 ```
 
 ## Test evidence
 
-- Surefire text/XML: `dr-mays-core/target/surefire-reports/`
-- JaCoCo HTML/XML: `dr-mays-core/target/site/jacoco/`
+- Surefire text/XML: `dr-mays-core/target/surefire-reports/` and `dr-mays-api/target/surefire-reports/`
+- JaCoCo HTML/XML: `dr-mays-core/target/site/jacoco/` and `dr-mays-api/target/site/jacoco/`
 - CI uploads these reports as artifacts.

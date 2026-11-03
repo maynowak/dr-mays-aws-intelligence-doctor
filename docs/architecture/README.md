@@ -9,12 +9,23 @@ Dr. Mays is a read-only AWS infrastructure diagnostics system. Technical evidenc
 | `dr-mays-common` | Shared primitives with no AWS or AI types | None |
 | `dr-mays-core` | Domain model, findings, evidence, relations, rule engine | `common` |
 | `dr-mays-aws` | Read-only AWS SDK v2 discovery adapters | `core` |
-| `dr-mays-api` | Spring Boot REST API | `core` |
+| `dr-mays-api` | Spring Boot 4 REST API (implemented, local only) | `core` |
 | `dr-mays-ai` | Optional model adapters and explanations | `core` |
 | `dr-mays-worker` | Future scheduled or Lambda execution | `core` |
 | `dr-mays-infrastructure` | Future AWS CDK v2 definitions | None initially |
 
 The dependency direction is always inward: AWS, API, AI and worker may depend on the domain, but the domain depends on neither AWS nor AI. `infrastructure` remains isolated until the deployment phase.
+
+## REST boundary (DR-MAYS-02)
+
+```text
+POST /api/v1/diagnoses  -> wire DTOs -> DiagnosisService -> DiagnosticContext
+                        -> DiagnosisEngine -> DiagnosisResult -> wire DTOs -> JSON
+GET  /api/v1/rules      -> registered core rules -> wire DTOs
+GET  /actuator/health   -> Spring Boot Actuator health
+```
+
+The API binds to `127.0.0.1`, is unauthenticated and uses no database, AWS SDK or model provider. Wire DTOs are versioned under `api.v1`; domain types are never serialized directly. Failures use RFC 9457 `application/problem+json`.
 
 ## Target flow
 
@@ -42,5 +53,6 @@ AWS adapters or offline fixtures
 - The domain is exercised without AWS or model access.
 - Spotless, Checkstyle and JaCoCo run during `./mvnw -B clean verify`; see `docs/development/QUALITY_GATES.md`.
 - `dr-mays-core` enforces 85 % line and 75 % branch coverage; rules and engine remain deterministic.
+- `dr-mays-api` enforces the same thresholds over its testable production code and exercises real HTTP, MVC slices and ProblemDetail error paths.
 - Public domain contracts carry Javadocs, including record component parameters.
 - Coding, testing and Definition-of-Done rules live in `docs/development/CODING_STANDARDS.md`, `docs/development/TESTING_STANDARDS.md` and `docs/development/QUALITY_GATES.md`.

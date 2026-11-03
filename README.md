@@ -4,13 +4,13 @@
 >
 > *Understand the infrastructure. Detect the risks. Explain the diagnosis.*
 
-**Project status:** 🟡 Domain foundation implemented / AWS discovery not started<br>
+**Project status:** 🟡 Core domain + local REST API implemented / AWS discovery not started<br>
 **Initial plan:** 3 November 2026<br>
 **Project ID:** `DR-MAYS`<br>
 **Type:** Independent, Java-first portfolio and reference project
 
 > [!IMPORTANT]
-> The Java 25 Maven foundation and the core diagnostic domain are implemented and verified locally. AWS discovery, REST API, AI, Docker and deployments described below remain **targets**, not completed features. No AWS resources are provisioned by this README.
+> The Java 25 Maven foundation, core diagnostic domain and local Spring Boot REST API are implemented and verified locally. AWS discovery, AI, Docker and deployments described below remain **targets**, not completed features. No AWS resources are provisioned by this README.
 
 ## 🎯 Vision
 
@@ -25,6 +25,7 @@ The key idea is **Infrastructure DNA**: infrastructure is more than a list of re
 | Capability | Initial scope |
 | --- | --- |
 | **AWS discovery** | Read-only inventory of selected S3, IAM, EC2 security group and Lambda metadata |
+| **REST API** | Implemented locally: synthetic snapshot in, deterministic JSON findings/evidence out |
 | **Rule engine** | Deterministic checks with stable rule IDs, severity, evidence and recommendations |
 | **Infrastructure DNA** | Small graph of resource nodes and *verified* relationships |
 | **Diagnosis report** | Machine-readable JSON with findings, affected resources and priorities |
@@ -153,7 +154,7 @@ dr-mays-aws-intelligence-doctor/
 ├── dr-mays-common/         # Shared primitives, no AWS/AI types
 ├── dr-mays-core/           # Implemented domain, findings, evidence, rules, engine
 ├── dr-mays-aws/            # AWS SDK v2 discovery adapters (later)
-├── dr-mays-api/            # Spring Boot REST API (later)
+├── dr-mays-api/            # Implemented Spring Boot REST API
 ├── dr-mays-ai/             # Optional model adapters (later)
 ├── dr-mays-worker/         # Scheduled or Lambda execution (later)
 ├── dr-mays-infrastructure/ # AWS CDK in Java (later)
@@ -164,7 +165,7 @@ dr-mays-aws-intelligence-doctor/
 └── .github/workflows/      # CI pipeline
 ```
 
-Only the core domain foundation and its tests are implemented today. Other module and support directories are intentionally reserved for their phases.
+The core domain and local REST API are implemented today. Other module and support directories are intentionally reserved for their phases.
 
 ## 🗺️ Development roadmap
 
@@ -172,7 +173,7 @@ Only the core domain foundation and its tests are implemented today. Other modul
 | --- | --- | --- | --- |
 | 00 | `DR-MAYS-00` | Java 25 Maven reactor, seven modules, tests, CI workflow, audit baseline | ✅ Complete (local verify) |
 | 01 | `DR-MAYS-JAVA-FOUNDATION-01` | Java 25 domain model, Maven build, unit tests, ADR | ✅ Complete (local verify, 63 tests) |
-| 02 | `DR-MAYS-SPRING-API-02` | REST contract, validation, mock scans, API tests | ⬜ Planned |
+| 02 | `DR-MAYS-SPRING-API-02` | REST contract, validation, mock scans, API tests | ✅ Complete (local verify, 103 tests) |
 | 03 | `DR-MAYS-LOCAL-DOCKER-03` | Docker demo, fixture scans, reproducible example JSON | ⬜ Planned |
 | 04 | `DR-MAYS-AWS-DISCOVERY-04` | Authorized S3/IAM/SG/Lambda discovery, rules, JSON report | ⬜ Planned |
 | 05 | `DR-MAYS-DNA-GRAPH-05` | Verified resource links with provenance and graph tests | ⬜ Planned |
@@ -184,10 +185,10 @@ Only the core domain foundation and its tests are implemented today. Other modul
 
 ## 🚀 Getting started
 
-**Domain foundation available; AWS discovery and the offline demo are not implemented yet.** JDK 25 is required. Maven is pinned through the wrapper, so no global Maven 3.9 installation is needed.
+**Core domain and local REST API available; AWS discovery and the offline demo are not implemented yet.** JDK 25 is required. Maven is pinned through the wrapper, so no global Maven 3.9 installation is needed.
 
 ```bash
-# Full reactor verification (compile + 63 tests + quality gates)
+# Full reactor verification (compile + 103 tests + quality gates)
 ./mvnw -B clean verify
 
 # Format and verify
@@ -197,11 +198,17 @@ Only the core domain foundation and its tests are implemented today. Other modul
 
 # Run a single test class; -am also builds the uninstalled sibling module
 ./mvnw -pl dr-mays-core -am -Dtest=SeverityTest -Dsurefire.failIfNoSpecifiedTests=false test
+
+# Start the local API (loopback only, no authentication)
+./mvnw -B -DskipTests package
+java -jar dr-mays-api/target/dr-mays-api-0.1.0-SNAPSHOT.jar
 ```
 
-Quality gates: Spotless/Google Java Format, Checkstyle, 63 tests, and JaCoCo with 100 % line / 98.08 % branch coverage on `dr-mays-core` (minimums: 85 % / 75 %). Reports are under `dr-mays-core/target/site/jacoco/`.
+Endpoints: `POST /api/v1/diagnoses`, `GET /api/v1/rules`, `GET /actuator/health`. Contract and examples: `docs/api/README.md` and `docs/api/openapi.yaml`.
 
-The build and domain tests require no AWS credentials. The offline demo, API and scan commands will be added when those phases are implemented.
+Quality gates: Spotless/Google Java Format, Checkstyle, 103 tests, and JaCoCo with 85 % line / 75 % branch minimums. Current coverage: core 100 % / 98.08 %, API 97.83 % / 100 %. Reports are under each module's `target/site/jacoco/`.
+
+The build and tests require no AWS credentials. The offline demo and AWS scan commands will be added when those phases are implemented.
 
 Planned run modes:
 
@@ -212,6 +219,7 @@ Planned run modes:
 ## 🔐 Security and privacy principles
 
 - **Read-only by design:** Scanner code never invokes mutating AWS APIs. It does not execute fixes.
+- **Local API only:** The REST API binds to `127.0.0.1` by default, has no authentication and must not be exposed publicly without a security review.
 - **Least privilege:** Explicit account, region, service and depth scope; no broad access simply for convenience. Note that some nominally read-only AWS APIs may expose sensitive data.
 - **No secrets in source control:** No access keys, tokens, raw credentials or private configuration in the repository, logs, reports or model prompts.
 - **Evidence-based results:** Every finding identifies a check, version, resource and supporting evidence. Every graph edge has a traceable source.

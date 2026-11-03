@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 00B root POM and Maven wrapper verified.
+`IN PROGRESS` — 00C seven modules and package skeletons verified.
 
 ## 2. Audit date/time
 
@@ -32,6 +32,10 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - Created the root `pom.xml`: Spring Boot `4.1.2` parent, Java 25 release, UTF-8, seven modules, verified AWS SDK/Spring AI BOM imports, internal module version management, Enforcer Java/Maven rules, compiler and Surefire management.
 - Added Maven Wrapper `3.3.4` pinned to Maven `3.9.16` (`mvnw`, `mvnw.cmd`, `.mvn/wrapper/maven-wrapper.properties`).
 - Validated `pom.xml` with Python XML parser and ran `./mvnw -N -B validate` successfully.
+- Added seven module POMs: common, core, aws, api, ai, worker, infrastructure.
+- Created `io.github.maynowak.drmays.<module>` package and test skeletons; removed obsolete root `.gitkeep` files inside `src/{main,test}/java`.
+- Verified all eight POMs parse as XML.
+- Ran `./mvnw -B validate` and `./mvnw -B -DskipTests package`: both reactor builds succeeded; empty JAR warnings are expected because no production classes exist yet.
 
 ## 6. Actual findings
 
@@ -45,6 +49,8 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - Root POM XML is well-formed. `./mvnw -N -B validate` passed Enforcer rules for Java `[25,26)` and Maven `[3.9.0,4.0.0)`.
 - The wrapper uses `distributionType=only-script`; it downloads Maven `3.9.16` on first run and does not commit a wrapper JAR.
 - Spring AI `2.0.2` declares Spring Boot `4.1.2` dependencies, so the selected BOM aligns with the parent.
+- Reactor contains eight projects (parent + seven modules). Dependency edges are limited to: core → common; aws/api/ai/worker → core. Infrastructure has no internal dependencies. No AWS SDK, Spring AI or CDK library is on any module classpath yet.
+- `./mvnw -B validate` and `./mvnw -B -DskipTests package` both ended with `BUILD SUCCESS`; the empty-JAR warnings are expected at this stage.
 
 ## 7. Evidence and file references
 
@@ -61,6 +67,9 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - `pom.xml` (XML parse + effective Maven validation)
 - `.mvn/wrapper/maven-wrapper.properties` → Maven `3.9.16`
 - Command output: `Rule 0 ... RequireJavaVersion passed`, `Rule 1 ... RequireMavenVersion passed`, `BUILD SUCCESS`.
+- `dr-mays-*/pom.xml` (all seven modules)
+- Package skeletons under `dr-mays-*/src/{main,test}/java/io/github/maynowak/drmays/<module>/`
+- 00C command output: reactor `[8/8]`, all modules `SUCCESS`.
 
 ## 8. Classification
 
@@ -79,6 +88,8 @@ Working tree contains intended new untracked files for 00A; no tracked file modi
 - Added: `.gitignore`, `.editorconfig`, `.gitattributes`, `.env.example`
 - Added: directory skeleton (`docs/*`, `docker/`, `examples/`, `scripts/`, `dr-mays-*/src/...`) with `.gitkeep`
 - Added: `pom.xml`, `mvnw`, `mvnw.cmd`, `.mvn/wrapper/maven-wrapper.properties`
+- Added: seven `dr-mays-*/pom.xml` module descriptors
+- Added: Java package/test skeleton directories with `.gitkeep`
 - Added: `docs/AI_AUDITINDEX.md`
 - Added: `docs/reports/DR-MAYS-00-INITIAL-PROJECT-FOUNDATION-EXECUTION_LOG.md`
 - Existing: `AGENTS.md`, `docs/AI_AUDITLOG.md`
@@ -112,7 +123,8 @@ Not applicable — files were added in this step.
 
 ## 16. Current resume point
 
-Resume at **00C module POMs and Java package skeletons**. 00B is verified and ready to commit.
+Resume at **00D dependency evaluation and ADRs**. 00C is verified and ready to commit.
 
 - 00A commit: `94fe251` — `chore: initialize project structure and audit baseline`
-- 00B commit: pending
+- 00B commit: `b1de15f` — `build: add Java 25 Maven parent and wrapper`
+- 00C commit: pending

@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 01E quality verification passed; 01F documentation pending.
+`COMPLETE` — 01F documentation finalized; final commit pending.
 
 ## 2. Audit date/time
 
@@ -49,6 +49,10 @@ Implement a Java-25 domain foundation in `dr-mays-core`: resource identity, infr
 - Verified core compile dependencies: only `dr-mays-common`; no AWS SDK, Spring AI or CDK.
 - `jdeps --multi-release 25` reports only `java.base` for the core JAR.
 - Confirmed no forbidden imports in core main sources and `git diff --check` is clean.
+- 01E committed as `c691527`.
+- Updated `README.md` with the implemented domain types, corrected single-test command, phase 01 status and proven CI runs.
+- Updated `AGENTS.md` with the domain package map, corrected `-am` test command, ADR-0004 reference and proven CI run IDs.
+- Created `docs/reports/DR-MAYS-01-MODERN-JAVA-FOUNDATION-READINESS.md`.
 
 ## 6. Actual findings
 
@@ -72,6 +76,8 @@ Implement a Java-25 domain foundation in `dr-mays-core`: resource identity, infr
 - Core compile dependency tree: `dr-mays-core -> dr-mays-common` only.
 - Core bytecode dependencies: `java.base` only; no AWS, Spring AI or CDK imports.
 - Source inventory: 14 main Java files and 13 test classes.
+- 01F documentation states 63 tests; the final verification is run after the documentation edits and recorded before commit.
+- CI status: **not run for DR-MAYS-01** because no push was permitted. Proven prior runs remain `41609325812` and `41609592971` on DR-MAYS-00-CI commits.
 
 ## 7. Evidence and file references
 
@@ -118,6 +124,9 @@ Clean after branch creation; no files changed yet.
 - Added: `DiagnosticContextTest`, `DiagnosticOutcomeTest`, `MissingOwnerTagRuleTest`, `PublicIngressRuleTest`, `TestFixtures`
 - Added: `DiagnosisResult`, `DiagnosisEngine`
 - Added: `DiagnosisResultTest`, `DiagnosisEngineTest`
+- Modified: `README.md` (implemented domain section, commands, roadmap, CI evidence)
+- Modified: `AGENTS.md` (domain packages, `-am` command, CI evidence)
+- Added: `docs/reports/DR-MAYS-01-MODERN-JAVA-FOUNDATION-READINESS.md`
 - Modified: audit log/index only for 01E verification evidence
 
 ## 12. Explicit no-change confirmation
@@ -146,11 +155,12 @@ No production code or build files have been changed yet.
 
 ## 16. Current resume point
 
-Resume at **01F documentation and readiness report**. 01E is GREEN; commit pending.
+**DR-MAYS-01 is complete.** Final documentation commit pending; then proceed to DR-MAYS-02.
 
 - Base commit: `45cf93d50b8cd55118a38a562b5404dfe0fde5c1`
 - 01A commit: `81560f8` — `docs: define modern Java domain architecture`
 - 01B commit: `71aabcc` — `feat: add immutable diagnostic domain models`
 - 01C commit: `4022925` — `feat: add diagnostic rule contract and demo rules`
 - 01D commit: `3d1ca91` — `feat: add deterministic diagnosis engine`
-- 01E commit: pending
+- 01E commit: `c691527` — `test: verify Java 25 domain foundation`
+- 01F commit: final commit containing this log, readiness report and documentation (HEAD)

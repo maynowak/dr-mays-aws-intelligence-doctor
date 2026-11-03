@@ -4,13 +4,13 @@
 >
 > *Understand the infrastructure. Detect the risks. Explain the diagnosis.*
 
-**Project status:** 🟡 Foundation implemented / diagnosis not started<br>
+**Project status:** 🟡 Domain foundation implemented / AWS discovery not started<br>
 **Initial plan:** 3 November 2026<br>
 **Project ID:** `DR-MAYS`<br>
 **Type:** Independent, Java-first portfolio and reference project
 
 > [!IMPORTANT]
-> The Java 25 Maven foundation, seven-module reactor and test harness are implemented and verified locally. AWS discovery, rules, API, AI and deployments described below remain **targets**, not completed features. No AWS resources are provisioned by this README.
+> The Java 25 Maven foundation and the core diagnostic domain are implemented and verified locally. AWS discovery, REST API, AI, Docker and deployments described below remain **targets**, not completed features. No AWS resources are provisioned by this README.
 
 ## 🎯 Vision
 
@@ -33,6 +33,30 @@ The key idea is **Infrastructure DNA**: infrastructure is more than a list of re
 | **Cloud Doctor** | Later: Java AWS Lambda, optional EventBridge scheduling, infrastructure via AWS CDK in Java |
 
 **Out of scope for the MVP:** automatic remediation, unrestricted account crawling, multi-account orchestration, cost forecasting and a complex web UI.
+
+## 🧱 Implemented domain foundation (DR-MAYS-01)
+
+`dr-mays-core` provides an AWS- and AI-independent diagnostic domain:
+
+| Type | Purpose |
+| --- | --- |
+| `ResourceIdentity` | Provider-neutral resource identity with a deterministic canonical key |
+| `InfrastructureResource` | Immutable resource with tags and schemaless attributes |
+| `Evidence` | Traceable observed/expected proof for a finding |
+| `DiagnosticFinding` | Rule ID, version, severity, evidence and recommendation |
+| `DiagnosticRule` | Deterministic, side-effect-free rule contract |
+| `DiagnosticOutcome` | Sealed finding / no-finding / not-applicable result |
+| `DiagnosticContext` | Immutable, identity-sorted resource snapshot |
+| `DiagnosisEngine` / `DiagnosisResult` | Ordered rule execution and findings |
+
+Two synthetic demonstration rules ship with the foundation: `TAG-OWNER-001` checks for an owner tag and `NET-PUBLIC-001` checks a synthetic `ingress.public` attribute on `network` resources. They use local fixtures, require no AWS credentials and do not perform a complete AWS security analysis.
+
+```java
+var context = new DiagnosticContext(List.of(resource));
+var engine = new DiagnosisEngine(List.of(new MissingOwnerTagRule(), new PublicIngressRule()));
+var result = engine.diagnose(context);
+List<DiagnosticFinding> findings = result.findings();
+```
 
 ## 🏗️ Architecture (target)
 
@@ -127,7 +151,7 @@ dr-mays-aws-intelligence-doctor/
 ├── pom.xml
 ├── mvnw / mvnw.cmd
 ├── dr-mays-common/         # Shared primitives, no AWS/AI types
-├── dr-mays-core/           # Domain model, findings, evidence, rules
+├── dr-mays-core/           # Implemented domain, findings, evidence, rules, engine
 ├── dr-mays-aws/            # AWS SDK v2 discovery adapters (later)
 ├── dr-mays-api/            # Spring Boot REST API (later)
 ├── dr-mays-ai/             # Optional model adapters (later)
@@ -140,14 +164,14 @@ dr-mays-aws-intelligence-doctor/
 └── .github/workflows/      # CI pipeline
 ```
 
-Only the foundation and its tests are implemented today. Empty module and support directories are intentionally reserved for their phases.
+Only the core domain foundation and its tests are implemented today. Other module and support directories are intentionally reserved for their phases.
 
 ## 🗺️ Development roadmap
 
 | Phase | Milestone | Target / acceptance evidence | Status |
 | --- | --- | --- | --- |
 | 00 | `DR-MAYS-00` | Java 25 Maven reactor, seven modules, tests, CI workflow, audit baseline | ✅ Complete (local verify) |
-| 01 | `DR-MAYS-JAVA-FOUNDATION-01` | Java 25 domain model, Maven build, unit tests, ADR | ⬜ Planned |
+| 01 | `DR-MAYS-JAVA-FOUNDATION-01` | Java 25 domain model, Maven build, unit tests, ADR | ✅ Complete (local verify, 63 tests) |
 | 02 | `DR-MAYS-SPRING-API-02` | REST contract, validation, mock scans, API tests | ⬜ Planned |
 | 03 | `DR-MAYS-LOCAL-DOCKER-03` | Docker demo, fixture scans, reproducible example JSON | ⬜ Planned |
 | 04 | `DR-MAYS-AWS-DISCOVERY-04` | Authorized S3/IAM/SG/Lambda discovery, rules, JSON report | ⬜ Planned |
@@ -160,17 +184,17 @@ Only the foundation and its tests are implemented today. Empty module and suppor
 
 ## 🚀 Getting started
 
-**Foundation build available; diagnosis features are not implemented yet.** JDK 25 is required. Maven is pinned through the wrapper, so no global Maven 3.9 installation is needed.
+**Domain foundation available; AWS discovery and the offline demo are not implemented yet.** JDK 25 is required. Maven is pinned through the wrapper, so no global Maven 3.9 installation is needed.
 
 ```bash
-# Full reactor verification (compile + tests)
+# Full reactor verification (compile + 63 tests)
 ./mvnw -B clean verify
 
-# Run a single test class
-./mvnw -pl dr-mays-core -Dtest=SeverityTest test
+# Run a single test class; -am also builds the uninstalled sibling module
+./mvnw -pl dr-mays-core -am -Dtest=SeverityTest -Dsurefire.failIfNoSpecifiedTests=false test
 ```
 
-The build and tests require no AWS credentials. The offline demo, API and scan commands will be added when those phases are implemented.
+The build and domain tests require no AWS credentials. The offline demo, API and scan commands will be added when those phases are implemented.
 
 Planned run modes:
 
@@ -190,7 +214,7 @@ Planned run modes:
 
 ## 🧪 Engineering and quality gates
 
-Each completed phase must include applicable **tests**, a brief **technical report**, updated **documentation** and a **clean Git commit** before work moves to the next phase. CI claims will be added only after workflows actually run successfully.
+Each completed phase must include applicable **tests**, a brief **technical report**, updated **documentation** and a **clean Git commit** before work moves to the next phase. The foundation workflow has passed on GitHub Actions for commits `7c7f775` (run `41609325812`) and `45cf93d` (run `41609592971`). CI claims for newer commits require an actual run.
 
 Planned evidence includes rule unit tests, REST contract tests, AWS adapter fixtures/mocks, Docker smoke tests, secret and dependency checks, and an offline end-to-end scan.
 

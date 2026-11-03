@@ -2,16 +2,17 @@
 
 ## Project status
 
-- **Foundation implemented; diagnosis not started.** The Java 25 Maven reactor, seven module POMs, test harness and CI workflow exist and pass locally. AWS discovery, rules, REST API, AI and deployments remain targets — never claim them as implemented.
-- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the upstream baseline; DR-MAYS-00 work is on `feature/dr-mays-initial-project-setup`). No push or merge is authorized by DR-MAYS-00.
+- **Core domain implemented; AWS/API/AI not started.** The Java 25 reactor, immutable diagnostic models, rule contract, two synthetic rules and deterministic engine exist and pass 63 local tests. AWS discovery, REST API, AI, Docker and deployments remain targets — never claim them as implemented.
+- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the upstream baseline; DR-MAYS-01 work is on `feature/dr-mays-modern-java-foundation-01`). No push or merge is authorized for DR-MAYS-01.
 - License is GPL-3.0 (`LICENSE`). Do not relicense without explicit confirmation.
 - Roadmap IDs use `DR-MAYS-<AREA>-<NN>` (phases 01–08). MVP gate is after phase 04: offline demo, inspectable checks, reproducible JSON diagnosis.
 
 ## Build and test commands
 
 - **Always use the wrapper** (`./mvnw`); the system Maven is 3.8.7 and the Enforcer rejects it. The wrapper pins Maven 3.9.16 and downloads it on first use.
-- Full verification (acceptance gate): `./mvnw -B clean verify`
-- Single test class: `./mvnw -pl dr-mays-core -Dtest=SeverityTest test`
+- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 63 tests.
+- Single test class: `./mvnw -pl dr-mays-core -am -Dtest=SeverityTest -Dsurefire.failIfNoSpecifiedTests=false test`
+- `-am` is required for `-pl dr-mays-core`: `dr-mays-common` is not installed in the local repository, so `-pl` alone fails dependency resolution.
 - Compile/package without tests: `./mvnw -B -DskipTests package`
 - JDK 25 is mandatory (`maven.compiler.release=25`, Enforcer bound to `[25,26)`). No AWS credentials are needed for build or tests.
 - Empty-JAR warnings from modules without production classes are expected; they are not build failures.
@@ -20,14 +21,16 @@
 
 - Reactor: `dr-mays-common`, `dr-mays-core`, `dr-mays-aws`, `dr-mays-api`, `dr-mays-ai`, `dr-mays-worker`, `dr-mays-infrastructure`. Base package: `io.github.maynowak.drmays`.
 - Dependency direction: `core -> common`; `aws`, `api`, `ai`, `worker -> core`; `infrastructure` isolated. Do not let `core` import AWS SDK, Spring AI or CDK types.
+- Core packages: `resource`, `evidence`, `finding`, `rule` (+ `rule.builtin`), `diagnosis`, `validation`. Rules must be deterministic and side-effect free; findings require evidence for the same resource.
 - AWS SDK, Spring AI and CDK are version-managed but intentionally **not** on any module classpath yet (phases 04, 06, 07). Do not add them without the corresponding phase.
 - Add internal module versions in the root `dependencyManagement`; add new modules to `<modules>` and the internal dependency list.
-- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0003`. Verify any upgrade with `./mvnw clean verify`.
+- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0004`. Verify any upgrade with `./mvnw clean verify`.
 
 ## CI
 
 - `.github/workflows/build.yml` runs Java 25 (Temurin), Maven caching and `./mvnw -B clean verify`; no AWS credentials or deployment.
-- The workflow has only been YAML-syntax-checked locally and has **not run on GitHub**. Never report CI as passing until an actual run exists.
+- Proven runs: `41609325812` (commit `7c7f775`) and `41609592971` (commit `45cf93d`) both succeeded.
+- The DR-MAYS-01 branch has **not** been pushed, so no CI run exists for its commits. Never report a new CI pass without an actual run.
 
 ## Audit workflow (from `docs/AI_AUDITLOG.md`)
 

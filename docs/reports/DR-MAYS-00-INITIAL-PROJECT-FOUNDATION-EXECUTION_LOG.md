@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 00E test foundation verified with `clean verify`.
+`IN PROGRESS` — 00F workflow added and syntax-checked; CI has not run yet.
 
 ## 2. Audit date/time
 
@@ -46,6 +46,10 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - Added `spring-boot-starter-test` to `dr-mays-core` in test scope and configured Surefire (`useModulePath=false`, full stack traces).
 - Ran `./mvnw -B clean verify`: `BUILD SUCCESS`; Surefire reports 4 tests, 0 failures, 0 errors, 0 skipped.
 - Verified compiled bytecode is Java 25 (`major version: 69`).
+- 00E committed as `549d222`.
+- Added `.github/workflows/build.yml`: Java 25 (Temurin), Maven cache, `./mvnw -B clean verify`, Surefire artifact upload, read-only permissions, no AWS credentials and no deployment.
+- Parsed the workflow with PyYAML (`YAML OK`); confirmed job `build`, Java `25`, command `./mvnw -B clean verify`.
+- Re-ran local `./mvnw -B clean verify`: `BUILD SUCCESS`, 4 tests passed.
 
 ## 6. Actual findings
 
@@ -67,6 +71,9 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - `dr-mays-core/target/surefire-reports/io.github.maynowak.drmays.core.finding.SeverityTest.txt`: `Tests run: 4, Failures: 0, Errors: 0, Skipped: 0`.
 - `javap -verbose` on `Severity.class`: `major version: 69` (Java 25).
 - Test dependency tree: JUnit Jupiter `6.0.3`, AssertJ `3.27.7`, Mockito `5.23.0`.
+- `.github/workflows/build.yml` parses as valid YAML.
+- GitHub Actions status: **NOT RUN** — no push was performed, so no CI result exists. Do not report CI as PASS.
+- Local `./mvnw -B clean verify` after adding CI: `BUILD SUCCESS`, 4 tests passed.
 
 ## 7. Evidence and file references
 
@@ -113,6 +120,7 @@ Working tree contains intended new untracked files for 00A; no tracked file modi
 - Added: Java package/test skeleton directories with `.gitkeep`
 - Added: architecture overview, ADR-0001/0002/0003 and `docs/development/dependency-baseline.md`
 - Added: `Severity` domain type and `SeverityTest`
+- Added: `.github/workflows/build.yml`
 - Modified: root `pom.xml` (Surefire config), `dr-mays-core/pom.xml` (test dependency), dependency baseline (test stack versions)
 - Added: `docs/AI_AUDITINDEX.md`
 - Added: `docs/reports/DR-MAYS-00-INITIAL-PROJECT-FOUNDATION-EXECUTION_LOG.md`
@@ -147,10 +155,11 @@ Not applicable — files were added in this step.
 
 ## 16. Current resume point
 
-Resume at **00F GitHub Actions workflow**. 00E is verified and ready to commit.
+Resume at **00G readiness review and final report**. 00F is syntax-checked and ready to commit; CI remains unexecuted.
 
 - 00A commit: `94fe251` — `chore: initialize project structure and audit baseline`
 - 00B commit: `b1de15f` — `build: add Java 25 Maven parent and wrapper`
 - 00C commit: `d545272` — `feat: add seven-module Maven reactor skeleton`
 - 00D commit: `0892fcd` — `docs: document dependency baseline and module ADRs`
-- 00E commit: pending
+- 00E commit: `549d222` — `test: add JUnit foundation and severity domain test`
+- 00F commit: pending

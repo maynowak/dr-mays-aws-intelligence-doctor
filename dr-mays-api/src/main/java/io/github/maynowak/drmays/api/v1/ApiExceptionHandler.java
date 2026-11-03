@@ -16,6 +16,7 @@ import org.springframework.web.HttpRequestMethodNotSupportedException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.resource.NoResourceFoundException;
 
 /** Maps API failures to safe RFC 9457 problem responses without internal details. */
 @RestControllerAdvice
@@ -118,6 +119,19 @@ public class ApiExceptionHandler {
   public ProblemDetail handleUnsupportedMethod(HttpRequestMethodNotSupportedException exception) {
     var problem = problem(HttpStatus.METHOD_NOT_ALLOWED, "Method not allowed");
     problem.setDetail("The HTTP method is not supported for this endpoint.");
+    return problem;
+  }
+
+  /**
+   * Handles requests for resources that do not exist.
+   *
+   * @param exception missing-resource failure
+   * @return a 404 problem
+   */
+  @ExceptionHandler(NoResourceFoundException.class)
+  public ProblemDetail handleNotFound(NoResourceFoundException exception) {
+    var problem = problem(HttpStatus.NOT_FOUND, "Not found");
+    problem.setDetail("The requested resource was not found.");
     return problem;
   }
 

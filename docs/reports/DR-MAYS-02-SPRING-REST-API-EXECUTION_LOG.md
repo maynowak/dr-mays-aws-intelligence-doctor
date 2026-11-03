@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 02D validation/error handling complete; 02E health/config pending.
+`IN PROGRESS` — 02E health/config verified; 02F API coverage gate pending.
 
 ## 2. Audit date/time
 
@@ -47,6 +47,11 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - Added provider/resource-type patterns and safe error messages; increased error-path coverage.
 - Moved error-path tests to a full-context MockMvc test after the Boot 4 slice did not select the imported advice.
 - Ran `spotless:apply`, Checkstyle (0 violations) and full `clean verify`: 96 tests, all passing.
+- 02D committed as `138c994`.
+- Added a random-port integration test that starts the real server and calls `/actuator/health` over HTTP.
+- Verified health is `UP`, only `health` is exposed, and `server.address` is `127.0.0.1`.
+- Added explicit 404 ProblemDetail handling after `/actuator/info` was initially mapped to 500 by the catch-all handler.
+- Ran `spotless:apply`, Checkstyle (0 violations) and full `clean verify`: 99 tests, all passing.
 
 ## 6. Actual findings
 
@@ -67,6 +72,9 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - Spring Boot's built-in `ProblemDetailsExceptionHandler` took precedence until `ApiExceptionHandler` was ordered `HIGHEST_PRECEDENCE`; that ordering is required.
 - Validation errors return RFC 9457 `application/problem+json` with an `errors` map; no stack traces or raw exception text are exposed.
 - 02D API tests: 33 total; reactor total 96.
+- 02E starts Tomcat on a random loopback port; Actuator exposes one endpoint and health returns `UP`.
+- Unknown routes now return a safe 404 instead of falling into the 500 handler.
+- 02E API tests: 36 total; reactor total 99.
 
 ## 7. Evidence and file references
 
@@ -84,6 +92,8 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/DiagnosisController.java`
 - `/tmp/opencode/dr-mays-02d-verify.log`
 - `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/ApiExceptionHandler.java`
+- `/tmp/opencode/dr-mays-02e-verify.log`
+- `dr-mays-api/src/test/java/io/github/maynowak/drmays/api/HealthIntegrationTest.java`
 
 ## 8. Classification
 
@@ -108,6 +118,7 @@ Clean after branch creation.
 - Added: `DiagnosisEngineConfiguration`, `DiagnosisService`, `DiagnosisController`
 - Added: `DiagnosisServiceTest`, `DiagnosisControllerTest`
 - Added: `ApiExceptionHandler`, `DiagnosisErrorHandlingTest`, `ApiExceptionHandlerTest`
+- Added: `HealthIntegrationTest`
 - Modified: `dr-mays-api/pom.xml`, `config/checkstyle/checkstyle.xml`
 - Modified: `docs/AI_AUDITINDEX.md`
 
@@ -140,10 +151,11 @@ No production code or build configuration has been changed yet.
 
 ## 16. Current resume point
 
-Resume at **02E Actuator health and local configuration tests**. 02D is verified; commit pending.
+Resume at **02F API JaCoCo gate and full quality verification**. 02E is verified; commit pending.
 
 - Base HEAD: `daa80505ce247ae43c338838b666713293419243`
 - 02A commit: `afa39d3`
 - 02B commit: `6863c12`
 - 02C commit: `b1a2003`
-- 02D commit: pending
+- 02D commit: `138c994`
+- 02E commit: pending

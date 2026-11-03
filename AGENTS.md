@@ -3,7 +3,7 @@
 ## Project status
 
 - **Core + API + Docker + simulated AWS + DNA + AI intelligence (mock/default) implemented; live AWS and real model inference not started.** The reactor passes 263 local tests (86 core + 84 API + 64 AWS + 29 AI). No live AWS scan or real Ollama inference has run — never claim one.
-- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the upstream baseline; DR-MAYS-06 work is on `feature/dr-mays-spring-ai-intelligence-06`). No push or merge is authorized for DR-MAYS-06.
+- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the upstream baseline; DR-MAYS-06 is on `feature/dr-mays-spring-ai-intelligence-06`, PR #1 open). Merge is not authorized without explicit approval.
 - License is GPL-3.0 (`LICENSE`). Do not relicense without explicit confirmation.
 - Roadmap IDs use `DR-MAYS-<AREA>-<NN>` (phases 01–08). MVP gate is after phase 04: offline demo, inspectable checks, reproducible JSON diagnosis.
 
@@ -48,8 +48,8 @@
 
 - `.github/workflows/build.yml` runs Java 25 (Temurin), Maven caching and `./mvnw -B clean verify`; no AWS credentials or deployment.
 - The workflow confirms JaCoCo XML and Checkstyle reports exist, then uploads Surefire, JaCoCo and Checkstyle reports as `quality-reports`.
-- Proven runs: `41609325812` (commit `7c7f775`) and `41609592971` (commit `45cf93d`) both succeeded.
-- The DR-MAYS-06 branch has **not** been pushed; no CI run exists for its commits. Never report a new CI pass without an actual run. Docker smoke checks are local and separate from CI.
+- Proven runs: `41674237406` (push) and `41674526277` (pull request) on `b8c92d1` both succeeded.
+- PR #1 is open, `MERGEABLE`/`CLEAN`; no merge has been performed. Live AWS and real Ollama inference remain NOT VERIFIED.
 
 ## Audit workflow (from `docs/AI_AUDITLOG.md`)
 

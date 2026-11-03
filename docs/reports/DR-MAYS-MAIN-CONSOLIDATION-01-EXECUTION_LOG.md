@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — local verification and Docker regression passed; feature push/CI/PR pending.
+`COMPLETE` — local checks, feature CI, PR CI and PR readiness verified. Merge intentionally not executed.
 
 ## 2. Audit date/time
 
@@ -32,6 +32,9 @@ Prepare controlled consolidation of DR-MAYS-00 through DR-MAYS-06: verify ancest
 - Ran full `./mvnw -B clean verify`: 263 tests, all eight modules successful.
 - Ran `./scripts/docker-demo.sh`: health, rules, diagnosis, DNA graph, mock intelligence and invalid-input checks passed.
 - Reviewed secrets, synthetic account IDs, AI default, Docker port and `git diff --check`.
+- Pushed only the DR-MAYS-06 feature branch; push CI run `41674237406` succeeded.
+- Created PR #1 against `main`; PR CI run `41674526277` succeeded.
+- PR is `MERGEABLE`/`CLEAN`; no merge was executed.
 
 ## 6. Actual findings
 
@@ -101,9 +104,10 @@ No source code changes were made. Only audit documentation is pending.
 
 ## 16. Current resume point
 
-Resume at **feature push and GitHub CI**. Local checks are green; no push yet.
+**READY FOR MAIN MERGE** — no merge executed.
 
 - Base: `1071d60`
-- Feature HEAD: `2d8ff3c`
-- Commits ahead: 57
-- Consolidation commit: pending
+- Feature HEAD: `b8c92d1`
+- Commits ahead: 57 phase commits + consolidation docs
+- PR: #1 (MERGEABLE/CLEAN)
+- CI: `41674237406` (push) and `41674526277` (PR) success

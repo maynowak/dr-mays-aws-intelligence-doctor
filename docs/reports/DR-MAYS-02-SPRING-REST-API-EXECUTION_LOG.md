@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 02E health/config verified; 02F API coverage gate pending.
+`IN PROGRESS` — 02F API coverage gate passed; 02G documentation/readiness pending.
 
 ## 2. Audit date/time
 
@@ -52,6 +52,11 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - Verified health is `UP`, only `health` is exposed, and `server.address` is `127.0.0.1`.
 - Added explicit 404 ProblemDetail handling after `/actuator/info` was initially mapped to 500 by the catch-all handler.
 - Ran `spotless:apply`, Checkstyle (0 violations) and full `clean verify`: 99 tests, all passing.
+- 02E committed as `f87b6a7`.
+- Added JaCoCo prepare-agent, HTML/XML report and 85 % line / 75 % branch gates to `dr-mays-api`.
+- Initial API branch coverage was 73.68 %; added meaningful tests for empty validation errors, blank/null violation messages, generic body errors and null evidence details.
+- Final API coverage: 97.83 % line (`135/138`) and 100 % branch (`19/19`).
+- Full `clean verify`: all eight modules, 103 tests, both module coverage gates passing.
 
 ## 6. Actual findings
 
@@ -75,6 +80,10 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - 02E starts Tomcat on a random loopback port; Actuator exposes one endpoint and health returns `UP`.
 - Unknown routes now return a safe 404 instead of falling into the 500 handler.
 - 02E API tests: 36 total; reactor total 99.
+- 02F added four meaningful API tests: 40 API tests total; reactor total 103.
+- API coverage after the additions: line 97.83 %, branch 100 %; no exclusions were added.
+- Core retains 100 % line / 98.08 % branch.
+- All eight reactor modules pass Spotless, Checkstyle and tests.
 
 ## 7. Evidence and file references
 
@@ -94,6 +103,9 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/ApiExceptionHandler.java`
 - `/tmp/opencode/dr-mays-02e-verify.log`
 - `dr-mays-api/src/test/java/io/github/maynowak/drmays/api/HealthIntegrationTest.java`
+- `/tmp/opencode/dr-mays-02f-verify2.log`
+- `dr-mays-api/target/site/jacoco/index.html`
+- `dr-mays-api/target/site/jacoco/jacoco.xml`
 
 ## 8. Classification
 
@@ -119,7 +131,8 @@ Clean after branch creation.
 - Added: `DiagnosisServiceTest`, `DiagnosisControllerTest`
 - Added: `ApiExceptionHandler`, `DiagnosisErrorHandlingTest`, `ApiExceptionHandlerTest`
 - Added: `HealthIntegrationTest`
-- Modified: `dr-mays-api/pom.xml`, `config/checkstyle/checkstyle.xml`
+- Added: `EvidenceResponseTest` and error-handler edge tests
+- Modified: `dr-mays-api/pom.xml` (JaCoCo gate), `config/checkstyle/checkstyle.xml`
 - Modified: `docs/AI_AUDITINDEX.md`
 
 ## 12. Explicit no-change confirmation
@@ -151,11 +164,12 @@ No production code or build configuration has been changed yet.
 
 ## 16. Current resume point
 
-Resume at **02F API JaCoCo gate and full quality verification**. 02E is verified; commit pending.
+Resume at **02G documentation and readiness**. 02F is verified; commit pending.
 
 - Base HEAD: `daa80505ce247ae43c338838b666713293419243`
 - 02A commit: `afa39d3`
 - 02B commit: `6863c12`
 - 02C commit: `b1a2003`
 - 02D commit: `138c994`
-- 02E commit: pending
+- 02E commit: `f87b6a7`
+- 02F commit: pending

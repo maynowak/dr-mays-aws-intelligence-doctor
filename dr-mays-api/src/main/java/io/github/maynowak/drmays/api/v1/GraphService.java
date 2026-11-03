@@ -2,11 +2,6 @@ package io.github.maynowak.drmays.api.v1;
 
 import io.github.maynowak.drmays.core.dna.GraphAnalyzer;
 import io.github.maynowak.drmays.core.dna.InfrastructureGraphBuilder;
-import io.github.maynowak.drmays.core.dna.RelationshipEvidence;
-import io.github.maynowak.drmays.core.dna.ResourceEdge;
-import io.github.maynowak.drmays.core.dna.ResourceNode;
-import io.github.maynowak.drmays.core.evidence.Evidence;
-import io.github.maynowak.drmays.core.resource.ResourceIdentity;
 import org.springframework.stereotype.Service;
 
 /** Maps the offline resource contract into the core DNA graph and back to versioned wire DTOs. */
@@ -29,8 +24,8 @@ public class GraphService {
     var resources = diagnosisService.toResources(new DiagnosisRequest(request.resources()));
     var result = new InfrastructureGraphBuilder().build(resources, request.partialDiscovery());
     var analyzer = new GraphAnalyzer(result.graph());
-    var nodes = result.graph().nodes().stream().map(this::toNode).toList();
-    var edges = result.graph().edges().stream().map(this::toEdge).toList();
+    var nodes = result.graph().nodes().stream().map(GraphDtoMapper::node).toList();
+    var edges = result.graph().edges().stream().map(GraphDtoMapper::edge).toList();
     var issues =
         result.issues().stream()
             .map(issue -> new GraphIssueResponse(issue.code().name(), issue.message()))
@@ -44,33 +39,5 @@ public class GraphService {
             analyzer.components().size(),
             analyzer.hasCycles());
     return new GraphResponse(nodes, edges, issues, stats, result.completeness().name());
-  }
-
-  private GraphNodeResponse toNode(ResourceNode node) {
-    return new GraphNodeResponse(
-        toResource(node.identity()), node.status().name(), node.tags(), node.attributes());
-  }
-
-  private GraphEdgeResponse toEdge(ResourceEdge edge) {
-    return new GraphEdgeResponse(
-        toResource(edge.from()),
-        toResource(edge.to()),
-        edge.type().name(),
-        toEvidence(edge.evidence()));
-  }
-
-  private EvidenceResponse toEvidence(RelationshipEvidence relationshipEvidence) {
-    Evidence evidence = relationshipEvidence.evidence();
-    return new EvidenceResponse(
-        evidence.source(), evidence.observed(), evidence.expected(), evidence.details());
-  }
-
-  private ResourceResponse toResource(ResourceIdentity identity) {
-    return new ResourceResponse(
-        identity.provider(),
-        identity.accountId(),
-        identity.region(),
-        identity.resourceType(),
-        identity.resourceId());
   }
 }

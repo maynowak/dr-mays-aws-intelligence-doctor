@@ -43,6 +43,25 @@ class DiagnosisServiceTest {
   }
 
   @Test
+  void addsVerifiedGraphRelationshipsToFindings() {
+    var request =
+        new DiagnosisRequest(
+            List.of(
+                new ResourceRequest(
+                    new ResourceIdentityRequest(
+                        "aws", "123456789012", "eu-central-1", "network", "net-1"),
+                    Map.of(),
+                    Map.of("ingress.public", "true", "vpc.id", "vpc-1"))));
+
+    var response = service.diagnose(request);
+
+    assertThat(response.findings()).isNotEmpty();
+    assertThat(response.findings().getFirst().relationships())
+        .extracting(GraphEdgeResponse::type)
+        .contains("SECURITY_GROUP_IN_VPC");
+  }
+
+  @Test
   void listsRulesInRuleIdOrder() {
     var response = service.rules();
 

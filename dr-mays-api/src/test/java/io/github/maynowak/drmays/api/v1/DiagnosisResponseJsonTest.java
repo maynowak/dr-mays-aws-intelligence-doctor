@@ -24,7 +24,8 @@ class DiagnosisResponseJsonTest {
             "Public ingress",
             "The resource declares public ingress.",
             evidence,
-            "Restrict ingress.");
+            "Restrict ingress.",
+            List.of());
     var response =
         new DiagnosisResponse(
             List.of(finding),

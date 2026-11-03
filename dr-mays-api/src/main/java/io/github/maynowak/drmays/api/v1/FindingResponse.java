@@ -1,5 +1,7 @@
 package io.github.maynowak.drmays.api.v1;
 
+import java.util.List;
+
 /**
  * Wire representation of one technical finding.
  *
@@ -20,4 +22,10 @@ public record FindingResponse(
     String title,
     String description,
     EvidenceResponse evidence,
-    String recommendation) {}
+    String recommendation,
+    List<GraphEdgeResponse> relationships) {
+
+  public FindingResponse {
+    relationships = relationships == null ? List.of() : List.copyOf(relationships);
+  }
+}

@@ -264,6 +264,11 @@ components:
           $ref: '#/components/schemas/Evidence'
         recommendation:
           type: string
+        relationships:
+          type: array
+          description: Verified outgoing graph relationships for this finding's resource.
+          items:
+            $ref: '#/components/schemas/GraphEdge'
     Evidence:
       type: object
       required: [source, observed, expected, details]

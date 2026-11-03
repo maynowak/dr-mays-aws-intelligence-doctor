@@ -1,5 +1,7 @@
 package io.github.maynowak.drmays.api.v1;
 
+import io.github.maynowak.drmays.core.dna.InfrastructureGraph;
+import io.github.maynowak.drmays.core.dna.InfrastructureGraphBuilder;
 import io.github.maynowak.drmays.core.diagnosis.DiagnosisEngine;
 import io.github.maynowak.drmays.core.diagnosis.DiagnosisResult;
 import io.github.maynowak.drmays.core.evidence.Evidence;
@@ -30,9 +32,11 @@ public class DiagnosisService {
    * @return deterministic wire response
    */
   public DiagnosisResponse diagnose(DiagnosisRequest request) {
-    var context = new DiagnosticContext(toResources(request));
+    var resources = toResources(request);
+    var context = new DiagnosticContext(resources);
     var result = engine.diagnose(context);
-    return toResponse(result);
+    var graph = new InfrastructureGraphBuilder().build(resources).graph();
+    return toResponse(result, graph);
   }
 
   /** Maps validated wire resources to the existing domain model. */
@@ -65,13 +69,15 @@ public class DiagnosisService {
     return new InfrastructureResource(resourceIdentity, request.tags(), request.attributes());
   }
 
-  private DiagnosisResponse toResponse(DiagnosisResult result) {
-    var findings = result.findings().stream().map(this::toFinding).toList();
+  private DiagnosisResponse toResponse(DiagnosisResult result, InfrastructureGraph graph) {
+    var findings = result.findings().stream().map(finding -> toFinding(finding, graph)).toList();
     var outcomes = result.outcomes().stream().map(this::toOutcome).toList();
     return new DiagnosisResponse(findings, outcomes, result.findingCount());
   }
 
-  private FindingResponse toFinding(DiagnosticFinding finding) {
+  private FindingResponse toFinding(DiagnosticFinding finding, InfrastructureGraph graph) {
+    var relationships =
+        graph.outgoing(finding.resource()).stream().map(GraphDtoMapper::edge).toList();
     return new FindingResponse(
         finding.ruleId().value(),
         finding.ruleVersion(),
@@ -80,7 +86,8 @@ public class DiagnosisService {
         finding.title(),
         finding.description(),
         toEvidence(finding.evidence()),
-        finding.recommendation());
+        finding.recommendation(),
+        relationships);
   }
 
   private EvidenceResponse toEvidence(Evidence evidence) {

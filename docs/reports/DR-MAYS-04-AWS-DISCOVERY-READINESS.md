@@ -102,7 +102,7 @@ No merge, deployment or live AWS operation was performed. The feature branch was
 - S3 permissions are often resource-scoped; the illustrative IAM policy needs tightening to approved bucket ARNs.
 - The AWS module is not wired into Spring/API/Docker and has no scan endpoint.
 - A future live scan requires explicit profile/account/region/service/resource-cap approval and a security review.
-- CI has no run for this branch until an authorized push occurs.
+- CI run `41633916815` passed; future changes require a new run.
 
 ## 10. Recommended next phase
 

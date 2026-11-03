@@ -49,7 +49,8 @@
 - `.github/workflows/build.yml` runs Java 25 (Temurin), Maven caching and `./mvnw -B clean verify`; no AWS credentials or deployment.
 - The workflow confirms JaCoCo XML and Checkstyle reports exist, then uploads Surefire, JaCoCo and Checkstyle reports as `quality-reports`.
 - Proven runs: `41674237406` (push) and `41674526277` (pull request) on `b8c92d1` both succeeded.
-- PR #1 is open, `MERGEABLE`/`CLEAN`; no merge has been performed. Live AWS and real Ollama inference remain NOT VERIFIED.
+- PR #1 is **MERGED** to `main`; feature branch preserved.
+- Main CI run `41677398448` on merge commit `e11881b` succeeded. No force-push or history rewrite. Live AWS and real Ollama inference remain NOT VERIFIED.
 
 ## Audit workflow (from `docs/AI_AUDITLOG.md`)
 

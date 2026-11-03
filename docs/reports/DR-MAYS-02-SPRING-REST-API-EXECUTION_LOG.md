@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 02A Spring Boot foundation complete; 02B API contract pending.
+`IN PROGRESS` — 02B API contract complete; 02C diagnosis controller/service pending.
 
 ## 2. Audit date/time
 
@@ -31,6 +31,11 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - Added `DrMaysApiApplication`, loopback-only `application.yml` and a context test.
 - Removed Checkstyle `HideUtilityClassConstructor` after it falsely flagged the Spring Boot entrypoint.
 - Ran `spotless:apply`, `checkstyle:check` (0 violations) and full `clean verify`: `BUILD SUCCESS`, 64 tests.
+- 02A committed as `afa39d3`.
+- Added versioned request DTOs (`DiagnosisRequest`, `ResourceRequest`, `ResourceIdentityRequest`) and response DTOs (`DiagnosisResponse`, `FindingResponse`, `OutcomeResponse`, `EvidenceResponse`, `ResourceResponse`, `RulesResponse`, `RuleResponse`).
+- Added Bean Validation limits: 100 resources, 50 tags/attributes, bounded identity and value lengths.
+- Added `docs/api/openapi.yaml` with all three endpoints, schemas and a full example request/response.
+- Added eight validation tests and two JSON serialization tests; all API tests pass.
 
 ## 6. Actual findings
 
@@ -41,6 +46,9 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - The application context starts successfully with Java 25; Actuator exposes only `health`.
 - The default HTTP address is `127.0.0.1:8080`; no credentials or cloud configuration exist.
 - Checkstyle's utility-class rule is unsuitable for the Spring Boot entrypoint and was removed from the project ruleset.
+- Spring Boot 4.1.2 uses **Jackson 3** (`tools.jackson.databind`); Jackson annotations remain under `com.fasterxml.jackson.annotation`.
+- The OpenAPI document parses as YAML with 3 paths and 10 schemas.
+- 02B API tests: 11 total (1 context, 8 validation, 2 JSON); reactor total 74.
 
 ## 7. Evidence and file references
 
@@ -51,6 +59,8 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - `/tmp/opencode/dr-mays-02a-test.log`
 - `/tmp/opencode/dr-mays-02a-verify2.log`
 - `dr-mays-api/src/main/resources/application.yml`
+- `docs/api/openapi.yaml`
+- `/tmp/opencode/dr-mays-02b-verify.log`
 
 ## 8. Classification
 
@@ -70,6 +80,8 @@ Clean after branch creation.
 - Added: `dr-mays-api/src/main/java/.../DrMaysApiApplication.java`
 - Added: `dr-mays-api/src/main/resources/application.yml`
 - Added: `dr-mays-api/src/test/java/.../DrMaysApiApplicationTest.java`
+- Added: versioned DTOs under `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/`
+- Added: DTO validation/serialization tests, `docs/api/openapi.yaml`
 - Modified: `dr-mays-api/pom.xml`, `config/checkstyle/checkstyle.xml`
 - Modified: `docs/AI_AUDITINDEX.md`
 
@@ -102,7 +114,8 @@ No production code or build configuration has been changed yet.
 
 ## 16. Current resume point
 
-Resume at **02B versioned DTOs and OpenAPI contract**. 02A is verified; commit pending.
+Resume at **02C diagnosis controller and service integration**. 02B is verified; commit pending.
 
 - Base HEAD: `daa80505ce247ae43c338838b666713293419243`
-- 02A commit: pending
+- 02A commit: `afa39d3`
+- 02B commit: pending

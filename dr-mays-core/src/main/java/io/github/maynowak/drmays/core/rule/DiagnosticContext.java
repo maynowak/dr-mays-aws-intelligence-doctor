@@ -8,7 +8,11 @@ import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
 
-/** Immutable view of all resources available to one diagnosis run. */
+/**
+ * Immutable view of all resources available to one diagnosis run.
+ *
+ * @param resources the resources, sorted by canonical identity
+ */
 public record DiagnosticContext(List<InfrastructureResource> resources) {
 
   public DiagnosticContext {

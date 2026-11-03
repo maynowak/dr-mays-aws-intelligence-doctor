@@ -10,7 +10,11 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 
-/** Deterministically ordered result of one diagnosis run. */
+/**
+ * Deterministically ordered result of one diagnosis run.
+ *
+ * @param outcomes the outcomes, sorted by resource canonical ID and rule ID
+ */
 public record DiagnosisResult(List<DiagnosticOutcome> outcomes) {
 
   private static final Comparator<DiagnosticOutcome> ORDER =

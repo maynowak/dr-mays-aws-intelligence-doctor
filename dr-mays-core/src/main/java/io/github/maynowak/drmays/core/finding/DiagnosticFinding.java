@@ -6,7 +6,18 @@ import io.github.maynowak.drmays.core.rule.RuleId;
 import io.github.maynowak.drmays.core.validation.DomainChecks;
 import java.util.Objects;
 
-/** A deterministic diagnostic finding with traceable evidence. */
+/**
+ * A deterministic diagnostic finding with traceable evidence.
+ *
+ * @param ruleId the rule that produced the finding
+ * @param ruleVersion the rule version
+ * @param severity the finding severity
+ * @param resource the affected resource
+ * @param title a short human-readable title
+ * @param description a factual description of the finding
+ * @param evidence traceable technical evidence
+ * @param recommendation the recommended remediation
+ */
 public record DiagnosticFinding(
     RuleId ruleId,
     String ruleVersion,

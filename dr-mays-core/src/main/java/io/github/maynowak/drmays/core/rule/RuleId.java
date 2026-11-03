@@ -3,7 +3,11 @@ package io.github.maynowak.drmays.core.rule;
 import io.github.maynowak.drmays.core.validation.DomainChecks;
 import java.util.regex.Pattern;
 
-/** Stable identifier of a diagnostic rule, for example {@code TAG-OWNER-001}. */
+/**
+ * Stable identifier of a diagnostic rule, for example {@code TAG-OWNER-001}.
+ *
+ * @param value the validated uppercase rule identifier
+ */
 public record RuleId(String value) {
 
   private static final Pattern FORMAT = Pattern.compile("[A-Z][A-Z0-9]*(?:-[A-Z0-9]+)*");

@@ -5,7 +5,13 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
 
-/** An immutable infrastructure resource with schemaless tags and attributes. */
+/**
+ * An immutable infrastructure resource with schemaless tags and attributes.
+ *
+ * @param identity the stable resource identity
+ * @param tags immutable resource tags
+ * @param attributes immutable technical attributes
+ */
 public record InfrastructureResource(
     ResourceIdentity identity, Map<String, String> tags, Map<String, String> attributes) {
 

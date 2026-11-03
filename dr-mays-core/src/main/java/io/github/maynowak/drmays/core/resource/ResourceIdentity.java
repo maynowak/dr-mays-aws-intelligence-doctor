@@ -7,6 +7,12 @@ import io.github.maynowak.drmays.core.validation.DomainChecks;
  *
  * <p>The identity is provider-neutral. AWS adapters can supply values such as {@code provider=aws},
  * an account ID, a region, an AWS resource type and the provider resource ID.
+ *
+ * @param provider the infrastructure provider
+ * @param accountId the provider account identifier
+ * @param region the provider region
+ * @param resourceType the provider resource type
+ * @param resourceId the provider resource identifier
  */
 public record ResourceIdentity(
     String provider, String accountId, String region, String resourceType, String resourceId) {

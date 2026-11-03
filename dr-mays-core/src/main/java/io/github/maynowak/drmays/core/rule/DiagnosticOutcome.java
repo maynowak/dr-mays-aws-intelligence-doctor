@@ -34,7 +34,11 @@ public sealed interface DiagnosticOutcome
     };
   }
 
-  /** A rule produced a finding. */
+  /**
+   * A rule produced a finding.
+   *
+   * @param finding the finding produced by the rule
+   */
   record FindingDetected(DiagnosticFinding finding) implements DiagnosticOutcome {
 
     public FindingDetected {
@@ -52,7 +56,13 @@ public sealed interface DiagnosticOutcome
     }
   }
 
-  /** A rule ran and found no issue. */
+  /**
+   * A rule ran and found no issue.
+   *
+   * @param ruleId the evaluated rule
+   * @param resource the evaluated resource
+   * @param reason why no finding was produced
+   */
   record NoFinding(RuleId ruleId, ResourceIdentity resource, String reason)
       implements DiagnosticOutcome {
 
@@ -63,7 +73,13 @@ public sealed interface DiagnosticOutcome
     }
   }
 
-  /** A rule does not apply to the resource. */
+  /**
+   * A rule does not apply to the resource.
+   *
+   * @param ruleId the evaluated rule
+   * @param resource the evaluated resource
+   * @param reason why the rule is not applicable
+   */
   record NotApplicable(RuleId ruleId, ResourceIdentity resource, String reason)
       implements DiagnosticOutcome {
 

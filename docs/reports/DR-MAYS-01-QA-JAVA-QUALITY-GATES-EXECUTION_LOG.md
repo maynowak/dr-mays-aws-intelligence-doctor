@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — QA-01 Spotless integrated and verified; QA-02 Checkstyle pending.
+`IN PROGRESS` — QA-02 Checkstyle green; QA-03 JaCoCo coverage pending.
 
 ## 2. Audit date/time
 
@@ -31,6 +31,11 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - Aligned `.editorconfig` Java indentation to GJF's canonical 2 spaces; XML remains 4 spaces.
 - Ran `./mvnw spotless:check`: `BUILD SUCCESS`.
 - Ran `./mvnw -B clean verify`: `BUILD SUCCESS`, 63 tests; Spotless check executed in all eight modules.
+- Added Checkstyle `14.4.0` with Maven Checkstyle plugin `3.6.0` and a lean ruleset under `config/checkstyle/checkstyle.xml`.
+- Bound `checkstyle:check` to `verify` for every module, including test sources.
+- Fixed 31 `JavadocType` findings by documenting all record components with `@param`.
+- Ran `./mvnw checkstyle:check`: 0 violations in all eight modules.
+- Ran `./mvnw -B clean verify`: `BUILD SUCCESS`, 63 tests, Checkstyle gate active.
 
 ## 6. Actual findings
 
@@ -43,6 +48,10 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - `spotless:apply` reformatted 28 Java files mechanically; no behavior changed.
 - No wildcard imports exist in `dr-mays-core`.
 - QA-01 tests: 63 total, all passing; Spotless check is part of `clean verify`.
+- Checkstyle 14.4.0 parses records, sealed interfaces and pattern switches correctly (verified).
+- The initial Checkstyle run produced 31 `JavadocType` violations, all missing record `@param` tags; fixed by adding documentation.
+- Checkstyle now reports 0 violations; the ruleset is project-owned and intentionally small.
+- QA-02 tests: 63 total, all passing.
 
 ## 7. Evidence and file references
 
@@ -54,6 +63,9 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - `/tmp/opencode/dr-mays-qa01-spotless-apply.log`
 - `/tmp/opencode/dr-mays-qa01-spotless-check.log`
 - `/tmp/opencode/dr-mays-qa01-verify.log`
+- `/tmp/opencode/dr-mays-qa02-checkstyle.log`
+- `/tmp/opencode/dr-mays-qa02-checkstyle2.log`
+- `/tmp/opencode/dr-mays-qa02-verify.log`
 
 ## 8. Classification
 
@@ -74,6 +86,9 @@ QA-01 changes are unstaged: `pom.xml`, `.editorconfig`, 28 formatted Java files,
 - Modified: `.editorconfig` (Java 2-space, XML 4-space)
 - Modified: 28 Java files reformatted by Spotless
 - Modified: `docs/AI_AUDITINDEX.md`
+- Added: `config/checkstyle/checkstyle.xml`
+- Modified: `pom.xml` (Checkstyle plugin/version)
+- Modified: eight domain Java files with record `@param` Javadocs
 
 ## 12. Explicit no-change confirmation
 
@@ -103,7 +118,8 @@ No production behavior changed; formatting is mechanical. Build and audit config
 
 ## 16. Current resume point
 
-Resume at **QA-02 Checkstyle integration**. QA-01 is verified; commit pending.
+Resume at **QA-03 JaCoCo coverage**. QA-02 is verified; commit pending.
 
 - Base HEAD: `b86985a2db96470611ebd9c0c27d3b63c132427f`
-- QA-01 commit: pending
+- QA-01 commit: `d845541`
+- QA-02 commit: pending

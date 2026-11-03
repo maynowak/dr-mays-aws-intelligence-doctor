@@ -30,7 +30,7 @@ Versions are pinned in the root POM: Spotless `3.11.0`, Google Java Format `2.0.
 - runs `./mvnw -B clean verify`, which includes all gates;
 - uploads Surefire, JaCoCo and Checkstyle reports.
 
-A CI claim is valid only after inspecting an actual successful run. Local PASS does not imply CI PASS.
+A CI claim is valid only after inspecting an actual successful run. Local PASS does not imply CI PASS. Docker image build/compose/smoke checks are local and reported separately from Maven/CI.
 
 ## Definition of Done
 

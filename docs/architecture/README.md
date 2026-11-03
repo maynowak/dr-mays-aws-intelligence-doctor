@@ -27,6 +27,17 @@ GET  /actuator/health   -> Spring Boot Actuator health
 
 The API binds to `127.0.0.1`, is unauthenticated and uses no database, AWS SDK or model provider. Wire DTOs are versioned under `api.v1`; domain types are never serialized directly. Failures use RFC 9457 `application/problem+json`.
 
+## Container runtime (DR-MAYS-03)
+
+```text
+docker compose -> image dr-mays-api:local
+  -> UID 10001, read-only root, /tmp tmpfs, cap-drop ALL, no-new-privileges
+  -> host publish 127.0.0.1:18080 -> container 0.0.0.0:8080
+  -> external demo runner checks health/rules/fixtures (no extra runtime tools)
+```
+
+The default jar and local app remain loopback-only. The `docker` profile is the only place the server binds all interfaces, and only inside the container network namespace.
+
 ## Target flow
 
 ```text

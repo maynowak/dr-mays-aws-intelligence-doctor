@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 03F verified locally; 03G documentation/readiness pending.
+`COMPLETE` — all local Maven and Docker checks pass; CI remains NOT VERIFIED because no push was permitted.
 
 ## 2. Audit date/time
 
@@ -34,6 +34,10 @@ Add a reproducible multi-stage Docker image, local-only Docker Compose demo, syn
 - Added five synthetic fixtures and a host-side demo runner plus Docker smoke wrapper.
 - Built the image and ran the container smoke test successfully.
 - Added 12 fixture contract tests; full reactor verification passes with 115 tests.
+- 03F committed as `edcb353`.
+- Added Docker development, offline demo and container security documentation; ADR-0007.
+- Updated README, AGENTS, API/architecture/testing/quality docs and the audit index.
+- Created `docs/reports/DR-MAYS-03-DOCKER-OFFLINE-DEMO-READINESS.md`.
 
 ## 6. Actual findings
 
@@ -48,6 +52,8 @@ Add a reproducible multi-stage Docker image, local-only Docker Compose demo, syn
 - The external demo passed health, rules, four diagnosis fixtures, deterministic output and invalid-input handling; the container stopped cleanly.
 - Docker smoke is a real execution, not a JUnit substitute.
 - Full Maven gate: 115 tests, 0 failures; core 100 % line / 98.08 % branch, API 97.83 % line / 100 % branch.
+- Final docs reconcile Docker/Compose/demo details with the executed commands and observed security settings.
+- CI remains **NOT VERIFIED**; no GitHub Actions run exists for this branch.
 
 ## 7. Evidence and file references
 
@@ -76,8 +82,10 @@ Docker, Compose, fixture and demo-runner commits exist; fixture tests and final 
 - Added: `examples/fixtures/{healthy,missing-owner,public-ingress,multiple-findings,invalid-input}.json`
 - Added: `scripts/demo.sh`, `scripts/docker-demo.sh`
 - Added: `dr-mays-api/src/test/java/.../FixtureApiContractTest.java`
+- Added: Docker/offline/readiness docs, ADR-0007
 - Modified: `dr-mays-api/pom.xml` (fixture test resources)
-- Added: this execution log; docs/readiness/index pending
+- Modified: README, AGENTS, API/architecture/testing/quality docs
+- Added: this execution log; audit index updated
 
 ## 12. Explicit no-change confirmation
 
@@ -106,7 +114,7 @@ No production code or Docker configuration has been changed yet.
 
 ## 16. Current resume point
 
-Resume at **03G documentation and readiness**. 03F is verified; commit pending.
+**DR-MAYS-03 is complete locally.** Push/CI verification remains a future authorized action.
 
 - Base HEAD: `7374e5db112681ce2fa07cafe08496ea63fc9f85`
 - 03A commit: `e08b335`
@@ -114,4 +122,5 @@ Resume at **03G documentation and readiness**. 03F is verified; commit pending.
 - 03C commit: `5d0e5ea`
 - 03D commit: `6c6ef88`
 - 03E commit: `ffcfe09`
-- 03F commit: pending
+- 03F commit: `edcb353`
+- 03G commit: final commit containing this log and the readiness report (HEAD)

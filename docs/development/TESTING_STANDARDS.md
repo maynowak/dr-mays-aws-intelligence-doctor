@@ -14,7 +14,8 @@ Tests run on Java 25 and must not require AWS credentials, network access or a m
 ## Test structure
 
 - Unit tests live next to the domain code in `dr-mays-core/src/test/java`.
-- API tests live in `dr-mays-api/src/test/java`; MVC slice tests cover happy paths, full-context tests cover the exception advice, and a random-port integration test exercises a real server.
+- API tests live in `dr-mays-api/src/test/java`; MVC slice tests cover happy paths, full-context tests cover the exception advice, a random-port integration test exercises a real server, and fixture contract tests load `examples/fixtures` from the test classpath.
+- Docker integration is a separate shell smoke test (`./scripts/docker-demo.sh`), not a JUnit test; report it separately.
 - Test classes are package-private and named `<Type>Test`.
 - Test methods describe the behavior and expected result in `lowerCamelCase`.
 - One logical behavior per test; avoid assertions unrelated to the test name.
@@ -54,7 +55,7 @@ Coverage must not be improved by meaningless tests, exclusions, deleting product
 
 ## Minimum test volume
 
-DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. The current suite has 103 tests: 63 core tests (including the original four) and 40 API tests.
+DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. DR-MAYS-03 requires at least 12 new fixture/demo tests. The current suite has 115 tests: 63 core and 52 API.
 
 ## Commands
 
@@ -67,6 +68,9 @@ DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful t
 
 # Focused API tests
 ./mvnw -pl dr-mays-api -am test
+
+# Docker/offline smoke (separate from JUnit)
+./scripts/docker-demo.sh
 
 # Single test class
 ./mvnw -pl dr-mays-core -am -Dtest=DiagnosisEngineTest -Dsurefire.failIfNoSpecifiedTests=false test

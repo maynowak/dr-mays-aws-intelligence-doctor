@@ -19,6 +19,16 @@ java -jar dr-mays-api/target/dr-mays-api-0.1.0-SNAPSHOT.jar --server.port=18080
 
 The bind address remains `127.0.0.1` unless explicitly changed.
 
+## Docker
+
+```bash
+docker compose up -d
+curl -s http://127.0.0.1:18080/actuator/health
+docker compose down --remove-orphans
+```
+
+The container uses the `docker` Spring profile to bind `0.0.0.0:8080` internally, but the host publishes only `127.0.0.1:18080`. It runs non-root, read-only, with all capabilities dropped. See `docs/development/DOCKER_DEVELOPMENT.md`.
+
 ## Endpoints
 
 | Method | Endpoint | Purpose |

@@ -1,8 +1,8 @@
 # Dr. Mays — AI Audit Index
 
 Current Branch: `feature/dr-mays-aws-discovery-04`
-Latest recorded HEAD: `d76a160` (04E; 04H final documentation commit is HEAD)
-Last updated: 2026-11-03T13:07:00+01:00
+Latest recorded HEAD: `df78ffb` (04H/CI docs; final audit commit is HEAD)
+Last updated: 2026-11-03T13:12:56+01:00
 
 | Task ID | Report | Status |
 | --- | --- | --- |

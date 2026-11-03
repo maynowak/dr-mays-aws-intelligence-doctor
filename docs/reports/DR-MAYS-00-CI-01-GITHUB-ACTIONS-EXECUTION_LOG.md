@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — workflow pinned and locally verified; commit and push pending.
+`COMPLETE` — first GitHub Actions run succeeded; documentation commit pending.
 
 ## 2. Audit date/time
 
@@ -34,6 +34,10 @@ Verify the existing Java 25 Maven foundation through its first real GitHub Actio
 - Added `persist-credentials: false` to checkout; the build does not need persisted git credentials.
 - Parsed the workflow as valid YAML and confirmed all four step commands.
 - Ran `./mvnw -B clean verify`: `BUILD SUCCESS`, 4 tests, 0 failures.
+- Committed workflow and audit changes as `7c7f775`.
+- Pushed only `feature/dr-mays-initial-project-setup` to `origin` with upstream tracking.
+- GitHub Actions run `41609325812` triggered by the push and completed with `conclusion: success`.
+- Verified the run log, reactor summary, test result, job steps and uploaded artifact.
 
 ## 6. Actual findings
 
@@ -49,6 +53,13 @@ Verify the existing Java 25 Maven foundation through its first real GitHub Actio
   - `actions/setup-java@b843ebf9b913146b38da2eaa7aeddf76074ae1ad` (v6.1.0)
   - `actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9` (v7.0.2)
 - Local `./mvnw -B clean verify`: `BUILD SUCCESS`, all eight reactor projects, 4 tests.
+- GitHub run `41609325812`: workflow `build`, event `push`, branch `feature/dr-mays-initial-project-setup`, commit `7c7f7754ca8ccbc9cff6c82649a412e6b562bdfc`, status `completed`, conclusion `success`.
+- Job `Java 25 / Maven verify` succeeded in 23 seconds (09:13:56Z–09:14:19Z).
+- CI Java: Temurin `25.0.5+8`, resolved by `actions/setup-java` at the pinned SHA.
+- Maven: wrapper-pinned `3.9.16`.
+- CI tests: `Tests run: 4, Failures: 0, Errors: 0, Skipped: 0`; reactor `BUILD SUCCESS`.
+- Artifact `surefire-reports` uploaded (2,928 bytes, not expired).
+- Non-blocking annotation: `ubuntu-latest` will migrate to Ubuntu 26 beginning 2026-10-19.
 
 ## 7. Evidence and file references
 
@@ -61,10 +72,13 @@ Verify the existing Java 25 Maven foundation through its first real GitHub Actio
 - Each selected action's `action.yml` at the pinned SHA (inputs and Node 24 runtime verified)
 - Local verify log: `/tmp/opencode/dr-mays-ci01-local-verify.log`
 - Surefire: `dr-mays-core/target/surefire-reports/io.github.maynowak.drmays.core.finding.SeverityTest.txt`
+- Run URL: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor/actions/runs/41609325812`
+- Run log archive: `/tmp/opencode/dr-mays-ci01-run/`
+- Artifact: `surefire-reports` (ID `13217807575`)
 
 ## 8. Classification
 
-`YELLOW` — workflow present and triggers correct, but actions are tag-referenced and no GitHub run has occurred yet.
+`GREEN` — local build and the real GitHub Actions run both succeeded on commit `7c7f775`.
 
 ## 9. Terraform checks and results
 
@@ -78,7 +92,8 @@ Clean before changes. No tracked modifications at discovery time.
 
 - Added: `docs/reports/DR-MAYS-00-CI-01-GITHUB-ACTIONS-EXECUTION_LOG.md`
 - Modified: `.github/workflows/build.yml` (pinned action SHAs, `persist-credentials: false`)
-- Pending: `docs/AI_AUDITINDEX.md`
+- Added: `docs/reports/DR-MAYS-00-CI-01-GITHUB-ACTIONS-READINESS.md`
+- Modified: `docs/AI_AUDITINDEX.md`
 
 ## 12. Explicit no-change confirmation
 
@@ -105,7 +120,10 @@ Build configuration, POMs, Java sources and tests are unchanged. Only CI workflo
 
 ## 16. Current resume point
 
-Resume at **commit and push**. Workflow changes are locally verified; no commit or push has occurred yet.
+**CI-01 verification is complete.** The documentation commit remains to be created and pushed.
 
 - Baseline HEAD: `880f184c19e68d386b11bf69c1f5f9c6576b16be`
-- CI-01 commit: pending
+- Workflow commit: `7c7f7754ca8ccbc9cff6c82649a412e6b562bdfc`
+- First CI run: `41609325812` — success
+- Remote branch HEAD after push: `7c7f7754ca8ccbc9cff6c82649a412e6b562bdfc`
+- Documentation commit: pending

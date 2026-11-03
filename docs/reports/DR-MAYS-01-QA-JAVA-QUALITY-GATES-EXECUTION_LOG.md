@@ -51,6 +51,7 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - 07 committed as `f5d1734`.
 - Created `docs/reports/DR-MAYS-01-QA-JAVA-QUALITY-GATES-READINESS.md`.
 - Performed the final local verification, coverage extraction, whitespace check and secret scan; results are recorded below.
+- QA-02 refinement: removed Checkstyle rules already guaranteed by Spotless (newline/tab/line-length/import duplication); re-ran Checkstyle (0 violations) and full `clean verify` (`BUILD SUCCESS`).
 
 ## 6. Actual findings
 
@@ -135,6 +136,8 @@ QA-01 changes are unstaged: `pom.xml`, `.editorconfig`, 28 formatted Java files,
 - Modified: `.github/workflows/build.yml` (quality report confirmation/upload)
 - Modified: `README.md`, `AGENTS.md` (quality commands, coverage, CI artifacts)
 - Added: `docs/reports/DR-MAYS-01-QA-JAVA-QUALITY-GATES-READINESS.md`
+- Modified: `config/checkstyle/checkstyle.xml` (removed formatter-redundant rules)
+- Modified: `docs/development/CODING_STANDARDS.md` (import rule wording)
 
 ## 12. Explicit no-change confirmation
 
@@ -172,4 +175,4 @@ No production behavior changed; formatting is mechanical. Build and audit config
 - QA-03/04 commit: `4db5cad`
 - QA-05 commit: `4d118e9`
 - QA-07 commit: `f5d1734`
-- QA-08/09 commit: final commit containing this log and the readiness report (HEAD)
+- QA-02b/08/09 commit: final commit containing this log, readiness report and Checkstyle de-duplication (HEAD)

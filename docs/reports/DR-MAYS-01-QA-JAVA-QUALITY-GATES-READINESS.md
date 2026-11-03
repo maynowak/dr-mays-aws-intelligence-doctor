@@ -63,7 +63,7 @@ Reports:
 
 - Root POM pins Spotless, GJF, Checkstyle, Checkstyle plugin and JaCoCo versions.
 - Spotless formats `src/main/java` and `src/test/java`, removes unused imports and enforces final newlines; `spotless:check` is bound to `verify`.
-- Checkstyle uses the project-owned `config/checkstyle/checkstyle.xml`; test sources are included; `checkstyle:check` is bound to `verify`.
+- Checkstyle uses the project-owned `config/checkstyle/checkstyle.xml`; test sources are included; `checkstyle:check` is bound to `verify`. The ruleset deliberately excludes formatting concerns already handled by Spotless (newlines, tabs, line length, unused/redundant imports).
 - JaCoCo is active only in `dr-mays-core` (the only module with production code), with `prepare-agent`, HTML/XML `report` and BUNDLE `check`.
 - `.editorconfig` now reflects GJF's 2-space Java indentation; XML remains 4 spaces.
 - Existing module dependencies and AWS/AI/CDK boundaries were not changed.
@@ -102,7 +102,7 @@ It now confirms JaCoCo XML and Checkstyle output exist, then uploads Surefire, J
 | QA-03/04 | `4db5cad` | `build: add JaCoCo coverage gates` |
 | QA-05 | `4d118e9` | `docs: add engineering standards and quality gates` |
 | QA-07 | `f5d1734` | `ci: publish quality gate reports` |
-| QA-08/09 | current HEAD | Final readiness, audit and documentation commit |
+| QA-02b / QA-08/09 | current HEAD | Final Checkstyle de-duplication, readiness report and audit close-out |
 
 No push, merge, reset or clean was performed.
 
@@ -120,7 +120,7 @@ No push, merge, reset or clean was performed.
 | Documentation updated | PASS |
 | Audit log complete | PASS |
 | Changes reviewed | PASS — local review and full verify |
-| Git commit present | PASS — six QA commits |
+| Git commit present | PASS — seven QA commits |
 | Working tree clean | PASS after final commit |
 | CI verified | **NOT VERIFIED** — no push |
 

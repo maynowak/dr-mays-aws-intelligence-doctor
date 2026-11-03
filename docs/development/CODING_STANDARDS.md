@@ -6,7 +6,7 @@ These standards apply to every Dr. Mays module and every contributor or agent.
 
 - **Language:** Java 25, no preview or experimental features. The build enforces the Java version.
 - **Formatting:** Google Java Format 2.0.0 through Spotless 3.11.0. Java uses 2-space indentation, UTF-8, LF line endings and a final newline. Do not hand-format around the formatter.
-- **Imports:** no wildcard imports, no unused imports. Spotless removes unused imports; Checkstyle rejects star imports, redundant imports and illegal JDK-internal imports.
+- **Imports:** no wildcard imports, no unused imports. Spotless removes unused imports; Checkstyle rejects star imports and illegal JDK-internal imports.
 - **Names:** packages are lowercase; types are `UpperCamelCase`; methods and fields are `lowerCamelCase`; constants are `UPPER_SNAKE_CASE`; test methods describe behavior.
 - **Immutability:** domain values are records with unmodifiable collections copied in compact constructors. Do not expose mutable internal state.
 - **Local variables:** use `var` only when the initializer makes the type obvious.

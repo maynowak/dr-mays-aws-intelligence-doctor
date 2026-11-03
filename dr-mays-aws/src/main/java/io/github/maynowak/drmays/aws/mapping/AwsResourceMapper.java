@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.stream.Collectors;
 import software.amazon.awssdk.services.ec2.model.IpPermission;
 import software.amazon.awssdk.services.ec2.model.SecurityGroup;
+import software.amazon.awssdk.services.ec2.model.UserIdGroupPair;
 import software.amazon.awssdk.services.s3.model.Bucket;
 import software.amazon.awssdk.services.s3.model.GetBucketVersioningResponse;
 import software.amazon.awssdk.services.s3.model.PublicAccessBlockConfiguration;
@@ -41,6 +42,7 @@ public final class AwsResourceMapper {
     attributes.put("ingress.port.ranges", portRanges(permissions));
     attributes.put(
         "ingress.group.reference.count", Long.toString(groupReferenceCount(permissions)));
+    attributes.put("ingress.referenced.securityGroupIds", groupReferences(permissions));
     if (group.vpcId() != null && !group.vpcId().isBlank()) {
       attributes.put("vpc.id", group.vpcId());
     }
@@ -100,6 +102,20 @@ public final class AwsResourceMapper {
                 ? java.util.stream.Stream.empty()
                 : permission.userIdGroupPairs().stream())
         .count();
+  }
+
+  private static String groupReferences(List<IpPermission> permissions) {
+    return permissions.stream()
+        .flatMap(permission ->
+            permission.userIdGroupPairs() == null
+                ? java.util.stream.Stream.empty()
+                : permission.userIdGroupPairs().stream())
+        .map(UserIdGroupPair::groupId)
+        .filter(Objects::nonNull)
+        .filter(value -> !value.isBlank())
+        .distinct()
+        .sorted()
+        .collect(Collectors.joining(","));
   }
 
   private static String protocols(List<IpPermission> permissions) {

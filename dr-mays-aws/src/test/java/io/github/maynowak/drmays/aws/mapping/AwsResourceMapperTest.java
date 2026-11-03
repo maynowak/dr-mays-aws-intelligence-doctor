@@ -106,6 +106,7 @@ class AwsResourceMapperTest {
 
     assertThat(resource.attribute("ingress.rule.count")).contains("2");
     assertThat(resource.attribute("ingress.group.reference.count")).contains("1");
+    assertThat(resource.attribute("ingress.referenced.securityGroupIds")).contains("sg-source");
     assertThat(resource.attribute("ingress.protocols")).contains("-1,tcp");
     assertThat(resource.attribute("ingress.port.ranges")).contains("-1:*-*,tcp:443-443");
   }

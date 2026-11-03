@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 02C diagnosis controller/service complete; 02D validation and error handling pending.
+`IN PROGRESS` — 02D validation/error handling complete; 02E health/config pending.
 
 ## 2. Audit date/time
 
@@ -42,6 +42,11 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - Added `DiagnosisController` with `POST /api/v1/diagnoses` and `GET /api/v1/rules`.
 - Added service/controller tests for findings, no-findings, rule listing and repeated-request determinism.
 - Ran `spotless:apply`, Checkstyle (0 violations) and full `clean verify`: 82 tests, all passing.
+- 02C committed as `b1a2003`.
+- Added `ApiExceptionHandler` with ProblemDetail responses for validation, malformed JSON, domain errors, 415, 405 and generic 500 failures.
+- Added provider/resource-type patterns and safe error messages; increased error-path coverage.
+- Moved error-path tests to a full-context MockMvc test after the Boot 4 slice did not select the imported advice.
+- Ran `spotless:apply`, Checkstyle (0 violations) and full `clean verify`: 96 tests, all passing.
 
 ## 6. Actual findings
 
@@ -58,6 +63,10 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - 02C controller uses the real `DiagnosisEngine`; no diagnosis logic is duplicated in the API.
 - Two synthetic resources produce two findings; clean storage produces `NOT_APPLICABLE` + `NO_FINDING`; repeated requests produce identical JSON.
 - 02C API tests: 19 total; reactor total 82.
+- 02D adds eight error-path controller tests plus six handler unit tests; all pass.
+- Spring Boot's built-in `ProblemDetailsExceptionHandler` took precedence until `ApiExceptionHandler` was ordered `HIGHEST_PRECEDENCE`; that ordering is required.
+- Validation errors return RFC 9457 `application/problem+json` with an `errors` map; no stack traces or raw exception text are exposed.
+- 02D API tests: 33 total; reactor total 96.
 
 ## 7. Evidence and file references
 
@@ -73,6 +82,8 @@ Build a local Spring Boot 4.1.2 REST API in `dr-mays-api` that exposes the exist
 - `/tmp/opencode/dr-mays-02c-verify.log`
 - `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/DiagnosisService.java`
 - `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/DiagnosisController.java`
+- `/tmp/opencode/dr-mays-02d-verify.log`
+- `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/ApiExceptionHandler.java`
 
 ## 8. Classification
 
@@ -96,6 +107,7 @@ Clean after branch creation.
 - Added: DTO validation/serialization tests, `docs/api/openapi.yaml`
 - Added: `DiagnosisEngineConfiguration`, `DiagnosisService`, `DiagnosisController`
 - Added: `DiagnosisServiceTest`, `DiagnosisControllerTest`
+- Added: `ApiExceptionHandler`, `DiagnosisErrorHandlingTest`, `ApiExceptionHandlerTest`
 - Modified: `dr-mays-api/pom.xml`, `config/checkstyle/checkstyle.xml`
 - Modified: `docs/AI_AUDITINDEX.md`
 
@@ -128,9 +140,10 @@ No production code or build configuration has been changed yet.
 
 ## 16. Current resume point
 
-Resume at **02D validation and ProblemDetail error handling**. 02C is verified; commit pending.
+Resume at **02E Actuator health and local configuration tests**. 02D is verified; commit pending.
 
 - Base HEAD: `daa80505ce247ae43c338838b666713293419243`
 - 02A commit: `afa39d3`
 - 02B commit: `6863c12`
-- 02C commit: pending
+- 02C commit: `b1a2003`
+- 02D commit: pending

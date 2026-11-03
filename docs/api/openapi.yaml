@@ -170,6 +170,7 @@ components:
           type: string
           minLength: 1
           maxLength: 64
+          pattern: '^[a-z][a-z0-9-]*$'
         accountId:
           type: string
           minLength: 1
@@ -182,6 +183,7 @@ components:
           type: string
           minLength: 1
           maxLength: 128
+          pattern: '^[a-z][a-z0-9-]*$'
         resourceId:
           type: string
           minLength: 1

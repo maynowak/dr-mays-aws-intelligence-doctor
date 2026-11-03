@@ -84,6 +84,27 @@ run_case missing-owner 1 "TAG-OWNER-001"
 run_case public-ingress 1 "NET-PUBLIC-001"
 run_case multiple-findings 2 "NET-PUBLIC-001,TAG-OWNER-001"
 
+echo
+echo "--- DNA graph: security group -> VPC ---"
+curl -fsS -X POST "$BASE_URL/api/v1/dna/graphs" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$FIXTURES_DIR/dna-sg-vpc.json" > "$TMP_DIR/dna-graph.json"
+python3 -m json.tool < "$TMP_DIR/dna-graph.json"
+python3 - "$TMP_DIR/dna-graph.json" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
+if data.get("stats", {}).get("nodeCount") != 2:
+    raise SystemExit(f"unexpected graph node count: {data.get('stats')}")
+if data.get("stats", {}).get("edgeCount") != 1:
+    raise SystemExit(f"unexpected graph edge count: {data.get('stats')}")
+edges = data.get("edges", [])
+if not edges or edges[0].get("type") != "SECURITY_GROUP_IN_VPC":
+    raise SystemExit(f"unexpected graph edge: {edges}")
+if data.get("completeness") != "COMPLETE":
+    raise SystemExit(f"unexpected completeness: {data.get('completeness')}")
+print("  DNA graph checks passed: 2 nodes, 1 verified VPC edge")
+PY
+
 # The same fixture must produce byte-identical JSON on a second run.
 curl -fsS -X POST "$BASE_URL/api/v1/diagnoses" \
   -H 'Content-Type: application/json' \

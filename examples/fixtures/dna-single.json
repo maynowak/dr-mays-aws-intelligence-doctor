@@ -1,0 +1,20 @@
+{
+  "resources": [
+    {
+      "identity": {
+        "provider": "aws",
+        "accountId": "000000000000",
+        "region": "eu-west-1",
+        "resourceType": "s3-bucket",
+        "resourceId": "bucket-single"
+      },
+      "tags": {
+        "owner": "platform"
+      },
+      "attributes": {
+        "s3.versioning.status": "Enabled",
+        "s3.publicAccessBlock.enabled": "true"
+      }
+    }
+  ]
+}

@@ -29,6 +29,9 @@ Prepare controlled consolidation of DR-MAYS-00 through DR-MAYS-06: verify ancest
 - Listed local/remote branches; no PRs exist yet.
 - Confirmed GitHub CLI authentication with `repo`/`workflow` scopes.
 - Read `AGENTS.md`, audit index and quality gates.
+- Ran full `./mvnw -B clean verify`: 263 tests, all eight modules successful.
+- Ran `./scripts/docker-demo.sh`: health, rules, diagnosis, DNA graph, mock intelligence and invalid-input checks passed.
+- Reviewed secrets, synthetic account IDs, AI default, Docker port and `git diff --check`.
 
 ## 6. Actual findings
 
@@ -38,6 +41,11 @@ Prepare controlled consolidation of DR-MAYS-00 through DR-MAYS-06: verify ancest
 - No Pull Request exists.
 - Working tree is clean at discovery.
 - Java 25.0.4.1 and Maven 3.9.16 are available.
+- Local verify: 263 tests, 0 failures/errors/skips.
+- Coverage: core 99.36 % / 95.65 %, API 98.83 % / 83.87 %, AWS 95.25 % / 83.93 %, AI 93.58 % / 82.86 %.
+- Docker demo passed; container user/rootfs/capability settings observed as designed and container stopped.
+- Secret scan: no tracked credentials/keys; fixtures use only `000000000000` and `111111111111`.
+- AI is disabled by default (`dr.mays.ai.enabled=false`); Docker publishes only loopback.
 
 ## 7. Evidence and file references
 
@@ -50,7 +58,7 @@ Prepare controlled consolidation of DR-MAYS-00 through DR-MAYS-06: verify ancest
 
 ## 8. Classification
 
-`YELLOW` — ancestry verified; local Maven/Docker/security evidence pending.
+`GREEN (local)` — ancestry, Maven, coverage, Docker and security checks pass. GitHub CI/PR remain pending.
 
 ## 9. Terraform checks and results
 
@@ -58,16 +66,16 @@ N/A — no Terraform, CDK, AWS or model call was executed.
 
 ## 10. Git status
 
-Clean at discovery; consolidation log added as an untracked file.
+Clean before the consolidation log; log is the only untracked file.
 
 ## 11. Files changed
 
 - Added: `docs/reports/DR-MAYS-MAIN-CONSOLIDATION-01-EXECUTION_LOG.md`
-- Pending: readiness report, audit index/AGENTS CI status.
+- Pending: readiness report and CI/PR updates.
 
 ## 12. Explicit no-change confirmation
 
-No source code changes are planned; only audit documentation and CI status updates.
+No source code changes were made. Only audit documentation is pending.
 
 ## 13. Open questions
 
@@ -93,7 +101,7 @@ No source code changes are planned; only audit documentation and CI status updat
 
 ## 16. Current resume point
 
-Resume at **local Maven/Docker verification**. Ancestry is verified; no push yet.
+Resume at **feature push and GitHub CI**. Local checks are green; no push yet.
 
 - Base: `1071d60`
 - Feature HEAD: `2d8ff3c`

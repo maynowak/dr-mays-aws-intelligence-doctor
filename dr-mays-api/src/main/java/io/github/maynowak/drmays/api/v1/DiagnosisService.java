@@ -8,6 +8,7 @@ import io.github.maynowak.drmays.core.resource.InfrastructureResource;
 import io.github.maynowak.drmays.core.resource.ResourceIdentity;
 import io.github.maynowak.drmays.core.rule.DiagnosticContext;
 import io.github.maynowak.drmays.core.rule.DiagnosticOutcome;
+import java.util.List;
 import org.springframework.stereotype.Service;
 
 /**
@@ -29,10 +30,14 @@ public class DiagnosisService {
    * @return deterministic wire response
    */
   public DiagnosisResponse diagnose(DiagnosisRequest request) {
-    var context =
-        new DiagnosticContext(request.resources().stream().map(this::toResource).toList());
+    var context = new DiagnosticContext(toResources(request));
     var result = engine.diagnose(context);
     return toResponse(result);
+  }
+
+  /** Maps validated wire resources to the existing domain model. */
+  List<InfrastructureResource> toResources(DiagnosisRequest request) {
+    return request.resources().stream().map(this::toResource).toList();
   }
 
   /**

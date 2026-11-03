@@ -187,12 +187,19 @@ Only the core domain foundation and its tests are implemented today. Other modul
 **Domain foundation available; AWS discovery and the offline demo are not implemented yet.** JDK 25 is required. Maven is pinned through the wrapper, so no global Maven 3.9 installation is needed.
 
 ```bash
-# Full reactor verification (compile + 63 tests)
+# Full reactor verification (compile + 63 tests + quality gates)
 ./mvnw -B clean verify
+
+# Format and verify
+./mvnw spotless:apply
+./mvnw spotless:check
+./mvnw checkstyle:check
 
 # Run a single test class; -am also builds the uninstalled sibling module
 ./mvnw -pl dr-mays-core -am -Dtest=SeverityTest -Dsurefire.failIfNoSpecifiedTests=false test
 ```
+
+Quality gates: Spotless/Google Java Format, Checkstyle, 63 tests, and JaCoCo with 100 % line / 98.08 % branch coverage on `dr-mays-core` (minimums: 85 % / 75 %). Reports are under `dr-mays-core/target/site/jacoco/`.
 
 The build and domain tests require no AWS credentials. The offline demo, API and scan commands will be added when those phases are implemented.
 

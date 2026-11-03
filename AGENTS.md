@@ -10,7 +10,10 @@
 ## Build and test commands
 
 - **Always use the wrapper** (`./mvnw`); the system Maven is 3.8.7 and the Enforcer rejects it. The wrapper pins Maven 3.9.16 and downloads it on first use.
-- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 63 tests.
+- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 63 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core).
+- Formatting: `./mvnw spotless:apply` to fix, `./mvnw spotless:check` to verify. Never auto-format in CI.
+- Static analysis: `./mvnw checkstyle:check` (0 violations required).
+- Coverage reports: `dr-mays-core/target/site/jacoco/index.html` and `jacoco.xml`.
 - Single test class: `./mvnw -pl dr-mays-core -am -Dtest=SeverityTest -Dsurefire.failIfNoSpecifiedTests=false test`
 - `-am` is required for `-pl dr-mays-core`: `dr-mays-common` is not installed in the local repository, so `-pl` alone fails dependency resolution.
 - Compile/package without tests: `./mvnw -B -DskipTests package`
@@ -29,6 +32,7 @@
 ## CI
 
 - `.github/workflows/build.yml` runs Java 25 (Temurin), Maven caching and `./mvnw -B clean verify`; no AWS credentials or deployment.
+- The workflow confirms JaCoCo XML and Checkstyle reports exist, then uploads Surefire, JaCoCo and Checkstyle reports as `quality-reports`.
 - Proven runs: `41609325812` (commit `7c7f775`) and `41609592971` (commit `45cf93d`) both succeeded.
 - The DR-MAYS-01 branch has **not** been pushed, so no CI run exists for its commits. Never report a new CI pass without an actual run.
 

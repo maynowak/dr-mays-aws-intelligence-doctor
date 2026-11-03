@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — QA-05 standards documentation complete; QA-07 CI artifacts pending.
+`IN PROGRESS` — QA-07 CI report integration complete; final readiness/audit pending.
 
 ## 2. Audit date/time
 
@@ -45,6 +45,9 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - Updated the architecture overview and dependency baseline with quality tooling and constraints.
 - Added Javadocs to the remaining public domain contracts and methods.
 - Ran `spotless:apply`, `checkstyle:check` and full `clean verify`: all succeeded.
+- Updated `.github/workflows/build.yml` to confirm JaCoCo/Checkstyle reports and upload all quality reports as `quality-reports`.
+- Kept Java 25, Maven caching, SHA-pinned actions, `contents: read`, no AWS credentials and no deployment.
+- Parsed the workflow as YAML and ran the full local `clean verify`: `BUILD SUCCESS`.
 
 ## 6. Actual findings
 
@@ -68,6 +71,9 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - QA-05 documentation covers conventions, module responsibilities, error handling, test strategy, coverage, domain invariants, formatting, architecture constraints, CI and Definition of Done.
 - Public records and contracts now have complete Javadocs; Checkstyle reports zero violations.
 - QA-05 full verify: `BUILD SUCCESS`, 63 tests, coverage gate passed.
+- QA-07 workflow is syntactically valid and only adds report confirmation/upload; the verify command is unchanged.
+- CI has **not** run for this branch because no push is allowed. CI status is **NOT VERIFIED**, not PASS.
+- Local QA-07 verify: `BUILD SUCCESS`, all eight modules.
 
 ## 7. Evidence and file references
 
@@ -89,6 +95,7 @@ Add mandatory engineering quality gates to the DR-MAYS-01 branch: Spotless/Googl
 - `/tmp/opencode/dr-mays-qa05-spotless.log`
 - `/tmp/opencode/dr-mays-qa05-checkstyle.log`
 - `/tmp/opencode/dr-mays-qa05-verify.log`
+- `/tmp/opencode/dr-mays-qa07-verify.log`
 
 ## 8. Classification
 
@@ -119,6 +126,8 @@ QA-01 changes are unstaged: `pom.xml`, `.editorconfig`, 28 formatted Java files,
 - Added: `docs/development/QUALITY_GATES.md`
 - Added: `docs/decisions/ADR-0005-engineering-quality-gates.md`
 - Modified: `docs/architecture/README.md`, `docs/development/dependency-baseline.md`
+- Modified: `.github/workflows/build.yml` (quality report confirmation/upload)
+- Modified: `README.md`, `AGENTS.md` (quality commands, coverage, CI artifacts)
 
 ## 12. Explicit no-change confirmation
 
@@ -148,10 +157,11 @@ No production behavior changed; formatting is mechanical. Build and audit config
 
 ## 16. Current resume point
 
-Resume at **QA-07 CI report integration**. QA-05 is verified; commit pending.
+Resume at **QA-08/09 final readiness report and audit closure**. QA-07 is locally verified; CI is not run.
 
 - Base HEAD: `b86985a2db96470611ebd9c0c27d3b63c132427f`
 - QA-01 commit: `d845541`
 - QA-02 commit: `97c1305`
 - QA-03/04 commit: `4db5cad`
-- QA-05 commit: pending
+- QA-05 commit: `4d118e9`
+- QA-07 commit: pending

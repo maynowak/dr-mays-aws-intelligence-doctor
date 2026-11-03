@@ -2,7 +2,7 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — 00C seven modules and package skeletons verified.
+`IN PROGRESS` — 00D dependency baseline and ADRs documented.
 
 ## 2. Audit date/time
 
@@ -36,6 +36,11 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - Created `io.github.maynowak.drmays.<module>` package and test skeletons; removed obsolete root `.gitkeep` files inside `src/{main,test}/java`.
 - Verified all eight POMs parse as XML.
 - Ran `./mvnw -B validate` and `./mvnw -B -DskipTests package`: both reactor builds succeeded; empty JAR warnings are expected because no production classes exist yet.
+- 00C committed as `d545272`.
+- Verified compatibility from primary sources: Spring Boot 4.1.2 supports Java 17–27; Spring AI 2.0.x supports Spring Boot 4.0.x/4.1.x; AWS SDK v2 and AWS CDK support Java 8+.
+- Resolved representative artifacts with `dependency:get`: AWS SDK `s3:2.57.8`, AWS CDK `aws-cdk-lib:2.275.0`, Spring AI BOM `2.0.2`.
+- Confirmed effective POM uses `java.version=25` and `maven.compiler.release=25`; `dependency:tree` shows only internal module edges.
+- Added architecture overview, three ADRs and the dependency baseline document.
 
 ## 6. Actual findings
 
@@ -51,6 +56,8 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - Spring AI `2.0.2` declares Spring Boot `4.1.2` dependencies, so the selected BOM aligns with the parent.
 - Reactor contains eight projects (parent + seven modules). Dependency edges are limited to: core → common; aws/api/ai/worker → core. Infrastructure has no internal dependencies. No AWS SDK, Spring AI or CDK library is on any module classpath yet.
 - `./mvnw -B validate` and `./mvnw -B -DskipTests package` both ended with `BUILD SUCCESS`; the empty-JAR warnings are expected at this stage.
+- Vendor compatibility sources: Spring Boot 4.1 system requirements (Java 17–27), Spring AI 2.0 getting started (Boot 4.0.x/4.1.x), AWS SDK for Java setup (Java 8+), AWS CDK Java guide (Java 8+).
+- `dependency:get` succeeded for `software.amazon.awssdk:s3:2.57.8`, `software.amazon.awscdk:aws-cdk-lib:2.275.0`, and `org.springframework.ai:spring-ai-bom:2.0.2:pom`.
 
 ## 7. Evidence and file references
 
@@ -70,6 +77,11 @@ Initialize and verify the DR-MAYS-00 Java/Maven foundation only. No AWS operatio
 - `dr-mays-*/pom.xml` (all seven modules)
 - Package skeletons under `dr-mays-*/src/{main,test}/java/io/github/maynowak/drmays/<module>/`
 - 00C command output: reactor `[8/8]`, all modules `SUCCESS`.
+- `docs/architecture/README.md`
+- `docs/decisions/ADR-0001-java-and-maven-baseline.md`
+- `docs/decisions/ADR-0002-module-boundaries.md`
+- `docs/decisions/ADR-0003-dependency-management.md`
+- `docs/development/dependency-baseline.md`
 
 ## 8. Classification
 
@@ -90,6 +102,7 @@ Working tree contains intended new untracked files for 00A; no tracked file modi
 - Added: `pom.xml`, `mvnw`, `mvnw.cmd`, `.mvn/wrapper/maven-wrapper.properties`
 - Added: seven `dr-mays-*/pom.xml` module descriptors
 - Added: Java package/test skeleton directories with `.gitkeep`
+- Added: architecture overview, ADR-0001/0002/0003 and `docs/development/dependency-baseline.md`
 - Added: `docs/AI_AUDITINDEX.md`
 - Added: `docs/reports/DR-MAYS-00-INITIAL-PROJECT-FOUNDATION-EXECUTION_LOG.md`
 - Existing: `AGENTS.md`, `docs/AI_AUDITLOG.md`
@@ -123,8 +136,9 @@ Not applicable — files were added in this step.
 
 ## 16. Current resume point
 
-Resume at **00D dependency evaluation and ADRs**. 00C is verified and ready to commit.
+Resume at **00E test foundation**. 00D is verified and ready to commit.
 
 - 00A commit: `94fe251` — `chore: initialize project structure and audit baseline`
 - 00B commit: `b1de15f` — `build: add Java 25 Maven parent and wrapper`
-- 00C commit: pending
+- 00C commit: `d545272` — `feat: add seven-module Maven reactor skeleton`
+- 00D commit: pending

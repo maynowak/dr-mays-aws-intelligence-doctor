@@ -1,9 +1,10 @@
 # Dr. Mays — AI Audit Index
 
 Current Branch: `feature/dr-mays-initial-project-setup`
-Latest HEAD: `1071d60` (upstream `main` baseline, before DR-MAYS-00)
-Last updated: 2026-11-03T09:52:27+01:00
+Latest recorded HEAD: `0d83a01` (00F; the 00G documentation commit is the current HEAD)
+Last updated: 2026-11-03T10:00:18+01:00
 
 | Task ID | Report | Status |
 | --- | --- | --- |
-| `DR-MAYS-00` | `docs/reports/DR-MAYS-00-INITIAL-PROJECT-FOUNDATION-EXECUTION_LOG.md` | IN PROGRESS |
+| `DR-MAYS-00` | `docs/reports/DR-MAYS-00-INITIAL-PROJECT-FOUNDATION-EXECUTION_LOG.md` | COMPLETE |
+| `DR-MAYS-00` | `docs/reports/DR-MAYS-00-INITIAL-PROJECT-FOUNDATION-READINESS.md` | COMPLETE — READY for DR-MAYS-01 |

@@ -4,13 +4,13 @@
 >
 > *Understand the infrastructure. Detect the risks. Explain the diagnosis.*
 
-**Project status:** 🟡 Concept / pre-implementation  
-**Initial plan:** 3 November 2026  
-**Project ID:** `DR-MAYS`  
+**Project status:** 🟡 Foundation implemented / diagnosis not started<br>
+**Initial plan:** 3 November 2026<br>
+**Project ID:** `DR-MAYS`<br>
 **Type:** Independent, Java-first portfolio and reference project
 
 > [!IMPORTANT]
-> This repository is being planned. Features, modules, tests, CI pipelines and AWS deployments described below are **targets**, not claims of completed implementation. No AWS resources are provisioned by this README.
+> The Java 25 Maven foundation, seven-module reactor and test harness are implemented and verified locally. AWS discovery, rules, API, AI and deployments described below remain **targets**, not completed features. No AWS resources are provisioned by this README.
 
 ## 🎯 Vision
 
@@ -94,7 +94,7 @@ AI does **not** independently inspect AWS, invent evidence or modify resources. 
 | Testing | **JUnit, Mockito, Testcontainers** | Unit, contract and integration tests |
 | Delivery and telemetry | **GitHub Actions, Micrometer / OpenTelemetry** | CI, logging, metrics and traces |
 
-Exact dependency versions will be pinned and compatibility-tested during implementation.
+Exact dependency versions are pinned in the root POM; see `docs/development/dependency-baseline.md`.
 
 ## 🧬 Example diagnosis (illustrative)
 
@@ -117,29 +117,36 @@ Exact dependency versions will be pinned and compatibility-tested during impleme
 
 This is **sample data**, not the result of a live AWS scan. The diagnosis would be derived from an explicit rule and its evidence. An optional AI summary is labeled as an interpretation.
 
-## 📂 Proposed repository structure
+## 📂 Repository structure
 
 ```text
 dr-mays-aws-intelligence-doctor/
 ├── README.md
+├── LICENSE
+├── AGENTS.md
 ├── pom.xml
-├── compose.yaml
-├── dr-mays-domain/     # Resource, Finding, Evidence, Relation, rules
-├── dr-mays-aws/        # AWS SDK v2 discovery adapters
-├── dr-mays-api/        # Spring Boot REST API
-├── dr-mays-ai/         # Optional model adapters
-├── dr-mays-infra/      # AWS CDK in Java (later)
-├── dr-mays-demo/       # Offline fixtures and example scans
-├── docs/               # Architecture decisions, reports, test evidence
-└── .github/workflows/  # CI (later)
+├── mvnw / mvnw.cmd
+├── dr-mays-common/         # Shared primitives, no AWS/AI types
+├── dr-mays-core/           # Domain model, findings, evidence, rules
+├── dr-mays-aws/            # AWS SDK v2 discovery adapters (later)
+├── dr-mays-api/            # Spring Boot REST API (later)
+├── dr-mays-ai/             # Optional model adapters (later)
+├── dr-mays-worker/         # Scheduled or Lambda execution (later)
+├── dr-mays-infrastructure/ # AWS CDK in Java (later)
+├── docker/                 # Local demo environment (later)
+├── examples/               # Example scans and reports (later)
+├── docs/                   # Architecture, decisions, security, reports
+├── scripts/                # Development helpers (later)
+└── .github/workflows/      # CI pipeline
 ```
 
-This structure is a **proposal**; directories will be introduced as their phases are implemented.
+Only the foundation and its tests are implemented today. Empty module and support directories are intentionally reserved for their phases.
 
 ## 🗺️ Development roadmap
 
 | Phase | Milestone | Target / acceptance evidence | Status |
 | --- | --- | --- | --- |
+| 00 | `DR-MAYS-00` | Java 25 Maven reactor, seven modules, tests, CI workflow, audit baseline | ✅ Complete (local verify) |
 | 01 | `DR-MAYS-JAVA-FOUNDATION-01` | Java 25 domain model, Maven build, unit tests, ADR | ⬜ Planned |
 | 02 | `DR-MAYS-SPRING-API-02` | REST contract, validation, mock scans, API tests | ⬜ Planned |
 | 03 | `DR-MAYS-LOCAL-DOCKER-03` | Docker demo, fixture scans, reproducible example JSON | ⬜ Planned |
@@ -153,7 +160,17 @@ This structure is a **proposal**; directories will be introduced as their phases
 
 ## 🚀 Getting started
 
-**Not available yet:** The Java modules, Maven wrapper and Docker Compose environment have not been implemented. Setup and execution commands will be added only after they work in a clean environment.
+**Foundation build available; diagnosis features are not implemented yet.** JDK 25 is required. Maven is pinned through the wrapper, so no global Maven 3.9 installation is needed.
+
+```bash
+# Full reactor verification (compile + tests)
+./mvnw -B clean verify
+
+# Run a single test class
+./mvnw -pl dr-mays-core -Dtest=SeverityTest test
+```
+
+The build and tests require no AWS credentials. The offline demo, API and scan commands will be added when those phases are implemented.
 
 Planned run modes:
 
@@ -183,7 +200,7 @@ The project begins as a focused portfolio reference. Contribution guidelines and
 
 ## 📄 License
 
-**To be selected before public code publication.** A `LICENSE` file and any required notices will be added explicitly. Until then, no open-source license is granted by this README alone.
+Licensed under the **GNU General Public License v3.0**. See [`LICENSE`](LICENSE) for the full text.
 
 ---
 

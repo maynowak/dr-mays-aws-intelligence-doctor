@@ -45,7 +45,7 @@
 - `.github/workflows/build.yml` runs Java 25 (Temurin), Maven caching and `./mvnw -B clean verify`; no AWS credentials or deployment.
 - The workflow confirms JaCoCo XML and Checkstyle reports exist, then uploads Surefire, JaCoCo and Checkstyle reports as `quality-reports`.
 - Proven runs: `41609325812` (commit `7c7f775`) and `41609592971` (commit `45cf93d`) both succeeded.
-- The DR-MAYS-04 branch is authorized for a single feature-branch push at the end; no merge. Verify any CI result from the actual run. Docker smoke checks are local and separate from CI.
+- The DR-MAYS-04 branch was pushed; GitHub Actions run `41633916815` on `fe5fe21` succeeded. Verify future runs separately; Docker smoke remains local.
 
 ## Audit workflow (from `docs/AI_AUDITLOG.md`)
 

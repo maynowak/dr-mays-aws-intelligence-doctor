@@ -6,7 +6,7 @@
 - Base commit: `21e5b4327ecf10002ec724eba95e2a902a8f3206`
 - Local status: **GREEN**
 - Live AWS scans: **NOT EXECUTED** — out of scope
-- CI status: **NOT VERIFIED** at the time of this report; no push was made during implementation.
+- CI status: **PASS** — GitHub Actions run `41633916815` on commit `fe5fe21` succeeded.
 
 ## 1. Architecture
 
@@ -93,7 +93,7 @@ No real request was made. No AWS credentials were resolved or required.
 | 04E | `d76a160` | `feat: add fail-closed identity and discovery composition` |
 | 04H | current HEAD | Documentation, IAM concept, readiness and audit close-out |
 
-No push, merge, deployment or live AWS operation was performed during implementation.
+No merge, deployment or live AWS operation was performed. The feature branch was pushed and CI passed.
 
 ## 9. Open questions and risks
 

@@ -2,7 +2,9 @@
 
 ## 1. Current status
 
-`COMPLETE` — all local Maven, mocked AWS and Docker regression checks pass. No live AWS scan was executed; CI status is pending the authorized push.
+`COMPLETE` — all local Maven, mocked AWS, Docker regression and GitHub Actions checks pass. No live AWS scan was executed.
+
+- CI: run `41633916815` on `fe5fe21` — success.
 
 ## 2. Audit date/time
 
@@ -36,6 +38,7 @@ Build a simulated, read-only AWS discovery foundation in `dr-mays-aws`: contract
 - 04A–04E committed; documentation, IAM concept and readiness report prepared for 04H.
 - Final local verify: 179 tests, 0 failures; core 100 % / 98.08 %, API 97.83 % / 100 %, AWS 95.35 % / 84.55 %.
 - Docker regression passed; no live AWS call was made.
+- Feature branch pushed to `origin`; CI run `41633916815` passed on commit `fe5fe21`.
 
 ## 6. Actual findings
 
@@ -110,4 +113,4 @@ No production code or AWS configuration has been changed yet.
 - 04C commit: `c5a6419`
 - 04D commit: `55cad14`
 - 04E commit: `d76a160`
-- 04H commit: final commit containing docs/readiness (HEAD)
+- 04H commit: final docs/readiness commit (HEAD); CI run `41633916815` passed on `fe5fe21`.

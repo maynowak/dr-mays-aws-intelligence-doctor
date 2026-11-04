@@ -3,7 +3,7 @@
 ## Project status
 
 - **Core + API + Docker + simulated AWS + DNA + privacy-first mock AI implemented; live AWS and real model inference not started.** The reactor passes 411 local tests (86 core + 99 API + 64 AWS + 162 AI). No live AWS scan or real Ollama inference has run — never claim one.
-- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the verified baseline at `36ef4e5`; ORCH-01 work is on `feature/dr-mays-privacy-provider-orchestration-01`). PR #1 is merged. No push or merge is authorized for ORCH-01.
+- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the verified baseline at `36ef4e5`; ORCH-01/02A work is on `feature/dr-mays-privacy-provider-orchestration-01`, PR #2 open). PR #1 is merged. No merge is authorized; feature-branch CI is green for `10c953c`.
 - License is GPL-3.0 (`LICENSE`). Do not relicense without explicit confirmation.
 - Roadmap IDs use `DR-MAYS-<AREA>-<NN>` (phases 01–08). MVP gate is after phase 04: offline demo, inspectable checks, reproducible JSON diagnosis.
 

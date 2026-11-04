@@ -2,12 +2,12 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — ORCH-01C privacy engine implemented; provider layer next. No implementation, model call, external data transfer, push or merge yet.
+`IN PROGRESS` — ORCH-01D provider layer implemented; expertise next. No implementation, model call, external data transfer, push or merge yet.
 
 ## 2. Audit date/time
 
 - Started: 2026-11-04T08:02:34+01:00
-- Last updated: 2026-11-04T08:19:00+01:00
+- Last updated: 2026-11-04T08:26:29+01:00
 
 ## 3. Git branch and HEAD
 
@@ -33,6 +33,8 @@ Controlled privacy-first architecture with BYOK/provider contracts, mock-only pr
 - Froze ADR-0011 and the architecture contract.
 - Implemented the privacy engine: allowlist projection, HMAC aliases, validation, safe preview and server-side approval gate.
 - Added and ran 44 privacy tests successfully.
+- Implemented provider contracts, mock provider, allowlist router, logical credential references and a disabled OpenCode CLI adapter.
+- Added and ran 33 provider tests successfully; no process execution or credential read.
 
 ## 6. Actual findings
 
@@ -48,6 +50,7 @@ Controlled privacy-first architecture with BYOK/provider contracts, mock-only pr
 - Remote provider payload is `SanitizedExpertiseRequest` only; approval is server-side, exact-payload-bound, TTL-limited and single-use.
 - Mock is the only enabled provider; OpenCode live remains BLOCKED.
 - Privacy tests removed raw account/SG/VPC/email/host/IP values from the provider payload and failed closed on invalid approval/token/privacy states.
+- Provider tests verify allowlisting, no fallback, disabled remote execution, bounded argv/environment and mock-only success.
 
 ## 7. Evidence and file references
 
@@ -87,6 +90,7 @@ Clean at branch creation.
 - Modified: `docs/AI_AUDITINDEX.md`.
 - Added: ADR-0011, architecture contract and ORCH-01B report.
 - Added: privacy engine classes and 44 tests; `DR-MAYS-ORCHESTRATION-01C-PRIVACY-ENGINE.md`.
+- Added: provider contracts/router/mock/CLI-disabled adapter, 33 tests and `DR-MAYS-ORCHESTRATION-01D-PROVIDER-ADAPTER.md`.
 
 ## 12. Explicit no-change confirmation
 
@@ -115,4 +119,4 @@ No production code changed yet. No model/provider/AWS/credential/network call oc
 
 ## 16. Current resume point
 
-Start ORCH-01D Provider Contracts. Privacy engine green (44 new tests); no provider call.
+Start ORCH-01E AI Expertise. Provider package green (33 new tests); no live provider.

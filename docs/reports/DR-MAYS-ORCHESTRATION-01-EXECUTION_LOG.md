@@ -2,12 +2,12 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — ORCH-01A discovery complete. No implementation, model call, external data transfer, push or merge yet.
+`IN PROGRESS` — ORCH-01A discovery complete; ORCH-01B contract frozen. No implementation, model call, external data transfer, push or merge yet.
 
 ## 2. Audit date/time
 
 - Started: 2026-11-04T08:02:34+01:00
-- Last updated: 2026-11-04T08:08:00+01:00
+- Last updated: 2026-11-04T08:13:24+01:00
 
 ## 3. Git branch and HEAD
 
@@ -29,6 +29,8 @@ Controlled privacy-first architecture with BYOK/provider contracts, mock-only pr
 - Persisted three independent 16-point reports and a synthesis report.
 - Resolved the architecture direction: new packages in `dr-mays-ai`, no new Maven module.
 - Confirmed OpenCode live execution as BLOCKED; mock-only adapter path approved for implementation.
+- Re-ran `./mvnw -B clean verify`: BUILD SUCCESS, 263 tests, 8/8 modules.
+- Froze ADR-0011 and the architecture contract.
 
 ## 6. Actual findings
 
@@ -39,7 +41,10 @@ Controlled privacy-first architecture with BYOK/provider contracts, mock-only pr
 - No real model call, API key use, AWS call or external data transfer has occurred.
 - OpenCode installed version: 2.0.24; default tools/permissions and session persistence make live execution unsuitable without OS isolation.
 - Security discovery: raw account/resource/VPC/SG IDs currently reach the prompt; approval/preview gate absent; provider path remains ORANGE until fixed.
-- Baseline artifacts still show 263 tests; the baseline must be re-run on this branch.
+- Baseline re-verified on this branch: 263 tests, 0 failures/errors, all 8 modules SUCCESS.
+- Contract decision: privacy/provider/approval/expertise packages in `dr-mays-ai`; no new module.
+- Remote provider payload is `SanitizedExpertiseRequest` only; approval is server-side, exact-payload-bound, TTL-limited and single-use.
+- Mock is the only enabled provider; OpenCode live remains BLOCKED.
 
 ## 7. Evidence and file references
 
@@ -56,10 +61,13 @@ Controlled privacy-first architecture with BYOK/provider contracts, mock-only pr
 - `dr-mays-api/src/main/java/io/github/maynowak/drmays/api/v1/`
 - `docs/reports/DR-MAYS-ORCHESTRATION-01A-*.md`
 - `docs/reports/DR-MAYS-ORCHESTRATION-01A-DISCOVERY-SYNTHESIS.md`
+- `docs/decisions/ADR-0011-privacy-first-provider-orchestration.md`
+- `docs/architecture/PRIVACY_FIRST_PROVIDER_CONTRACT.md`
+- `docs/reports/DR-MAYS-ORCHESTRATION-01B-CONTRACT-FREEZE.md`
 
 ## 8. Classification
 
-`YELLOW` — discovery complete; baseline not yet re-verified; implementation pending.
+`YELLOW` — discovery/contract complete; baseline 263 PASS; implementation pending.
 
 ## 9. Terraform checks and results
 
@@ -74,6 +82,7 @@ Clean at branch creation.
 - Added: this execution log.
 - Added: three discovery reports and the discovery synthesis.
 - Modified: `docs/AI_AUDITINDEX.md`.
+- Added: ADR-0011, architecture contract and ORCH-01B report.
 
 ## 12. Explicit no-change confirmation
 
@@ -102,4 +111,4 @@ No production code changed yet. No model/provider/AWS/credential/network call oc
 
 ## 16. Current resume point
 
-ORCH-01B Architecture Contract Freeze. Base `36ef4e5`; discovery artifacts pending commit; no production code changed.
+Start ORCH-01C Privacy Engine. Contract frozen; baseline 263 PASS; no production code changed.

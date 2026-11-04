@@ -1,11 +1,16 @@
 # Dr. Mays — AI Audit Index
 
-Current Branch: `main`
-Latest recorded HEAD: `e11881b` (merge commit; audit docs commit is HEAD)
-Last updated: 2026-11-03T17:47:31+01:00
+Current Branch: `feature/dr-mays-privacy-provider-orchestration-01`
+Latest recorded HEAD: `36ef4e5` (ORCH-01 base; discovery commit follows)
+Last updated: 2026-11-04T08:08:00+01:00
 
 | Task ID | Report | Status |
 | --- | --- | --- |
+| `DR-MAYS-ORCHESTRATION-01` | `docs/reports/DR-MAYS-ORCHESTRATION-01-EXECUTION_LOG.md` | IN PROGRESS — discovery complete |
+| `DR-MAYS-ORCHESTRATION-01A` | `docs/reports/DR-MAYS-ORCHESTRATION-01A-DISCOVERY-SYNTHESIS.md` | COMPLETE — YELLOW |
+| `DR-MAYS-ORCHESTRATION-01A` | `docs/reports/DR-MAYS-ORCHESTRATION-01A-JAVA-ARCHITECTURE-EXECUTION_LOG.md` | COMPLETE — read-only |
+| `DR-MAYS-ORCHESTRATION-01A` | `docs/reports/DR-MAYS-ORCHESTRATION-01A-OPENCODE-RESEARCH-EXECUTION_LOG.md` | COMPLETE — live CLI BLOCKED |
+| `DR-MAYS-ORCHESTRATION-01A` | `docs/reports/DR-MAYS-ORCHESTRATION-01A-SECURITY-RESEARCH-EXECUTION_LOG.md` | COMPLETE — provider path ORANGE |
 | `DR-MAYS-00` | `docs/reports/DR-MAYS-00-INITIAL-PROJECT-FOUNDATION-EXECUTION_LOG.md` | COMPLETE |
 | `DR-MAYS-00` | `docs/reports/DR-MAYS-00-INITIAL-PROJECT-FOUNDATION-READINESS.md` | COMPLETE — READY for DR-MAYS-01 |
 | `DR-MAYS-00-CI-01` | `docs/reports/DR-MAYS-00-CI-01-GITHUB-ACTIONS-EXECUTION_LOG.md` | COMPLETE — run `41609325812` success |

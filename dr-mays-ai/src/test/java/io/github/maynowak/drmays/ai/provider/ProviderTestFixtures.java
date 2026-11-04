@@ -83,8 +83,13 @@ final class ProviderTestFixtures {
   static AuthorizedRequest authorizedRequest(String providerId, String modelId) {
     var source = new IntelligenceRequest(List.of(), List.of(), GraphCompleteness.COMPLETE);
     var processed = new PrivacyProcessor(PrivacyPolicy.defaultPolicy()).process(source);
-    var gate = new PrivacyGate();
-    var preview = gate.register(source, processed, providerId, modelId, "standard", false);
+    var gate =
+        new PrivacyGate(
+            java.time.Duration.ofMinutes(5),
+            java.time.Duration.ofMinutes(5),
+            java.time.Clock.systemUTC(),
+            id -> false);
+    var preview = gate.register(source, processed, providerId, modelId, "standard");
     var invocation = gate.consume(preview.previewId(), null).invocation().orElseThrow();
     var request =
         new ModelInvocationRequest(

@@ -16,6 +16,7 @@ public final class ProviderInvocationAuthorization {
   private final String modelId;
   private final String expertiseId;
   private final String policyVersion;
+  private final boolean approvalRequired;
   private final Instant expiresAt;
 
   ProviderInvocationAuthorization(
@@ -25,6 +26,7 @@ public final class ProviderInvocationAuthorization {
       String modelId,
       String expertiseId,
       String policyVersion,
+      boolean approvalRequired,
       Instant expiresAt) {
     this.nonce = DomainChecks.requireText(nonce, "nonce");
     this.payloadHash = DomainChecks.requireText(payloadHash, "payloadHash");
@@ -32,6 +34,7 @@ public final class ProviderInvocationAuthorization {
     this.modelId = DomainChecks.requireText(modelId, "modelId");
     this.expertiseId = DomainChecks.requireText(expertiseId, "expertiseId");
     this.policyVersion = DomainChecks.requireText(policyVersion, "policyVersion");
+    this.approvalRequired = approvalRequired;
     this.expiresAt = Objects.requireNonNull(expiresAt, "expiresAt");
   }
 
@@ -57,6 +60,10 @@ public final class ProviderInvocationAuthorization {
 
   public String policyVersion() {
     return policyVersion;
+  }
+
+  public boolean approvalRequired() {
+    return approvalRequired;
   }
 
   public Instant expiresAt() {

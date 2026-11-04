@@ -12,6 +12,7 @@ import java.util.Objects;
  * @param providerId approved provider
  * @param modelId approved model
  * @param expertiseId approved expertise profile
+ * @param approvalRequired gate-owned approval decision
  * @param authorization server-minted, payload-bound invocation authorization
  */
 public record ApprovedInvocation(
@@ -20,6 +21,7 @@ public record ApprovedInvocation(
     String providerId,
     String modelId,
     String expertiseId,
+    boolean approvalRequired,
     ProviderInvocationAuthorization authorization) {
 
   public ApprovedInvocation {

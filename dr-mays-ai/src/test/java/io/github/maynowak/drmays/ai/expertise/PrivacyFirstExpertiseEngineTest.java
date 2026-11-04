@@ -14,7 +14,7 @@ import io.github.maynowak.drmays.ai.provider.ModelInvocationRequest;
 import io.github.maynowak.drmays.ai.provider.ModelInvocationResult;
 import io.github.maynowak.drmays.ai.provider.ModelProvider;
 import io.github.maynowak.drmays.ai.provider.ModelProviderDescriptor;
-import io.github.maynowak.drmays.ai.provider.ProviderApprovalPolicy;
+import io.github.maynowak.drmays.ai.provider.ProviderEnablement;
 import io.github.maynowak.drmays.ai.provider.ProviderExecutionStatus;
 import io.github.maynowak.drmays.ai.provider.ProviderModelPolicy;
 import io.github.maynowak.drmays.ai.provider.ProviderRegistry;
@@ -174,7 +174,7 @@ class PrivacyFirstExpertiseEngineTest {
         new ExpertiseParser(),
         new ExpertiseValidator(),
         ProviderModelPolicy.of(Map.of("fake", Set.of("m"))),
-        ProviderApprovalPolicy.forRegistry(registry));
+        ProviderEnablement.of(registry, Set.of("fake")));
   }
 
   private static String validJson(ModelInvocationRequest request) {

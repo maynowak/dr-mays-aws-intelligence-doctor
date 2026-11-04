@@ -32,14 +32,15 @@ public final class PrivacyGate {
   private final Duration previewTtl;
   private final Duration approvalTtl;
   private final Clock clock;
+  private final ApprovalRequirement approvalRequirement;
   private final SecureRandom random;
   private final Map<String, Pending> pending = new HashMap<>();
   private final Map<String, ApprovalRecord> approvals = new HashMap<>();
   private final Set<String> consumed = new LinkedHashSet<>();
 
-  /** Creates a gate with five-minute lifetimes. */
+  /** Creates a strict gate with five-minute lifetimes. */
   public PrivacyGate() {
-    this(Duration.ofMinutes(5), Duration.ofMinutes(5), Clock.systemUTC());
+    this(Duration.ofMinutes(5), Duration.ofMinutes(5), Clock.systemUTC(), providerId -> true);
   }
 
   /**
@@ -50,9 +51,26 @@ public final class PrivacyGate {
    * @param clock clock used for expiry
    */
   public PrivacyGate(Duration previewTtl, Duration approvalTtl, Clock clock) {
+    this(previewTtl, approvalTtl, clock, providerId -> true);
+  }
+
+  /**
+   * Creates a gate with a server-owned approval requirement.
+   *
+   * @param previewTtl preview lifetime
+   * @param approvalTtl approval lifetime
+   * @param clock clock used for expiry
+   * @param approvalRequirement trusted approval policy
+   */
+  public PrivacyGate(
+      Duration previewTtl,
+      Duration approvalTtl,
+      Clock clock,
+      ApprovalRequirement approvalRequirement) {
     this.previewTtl = requirePositive(previewTtl, "previewTtl");
     this.approvalTtl = requirePositive(approvalTtl, "approvalTtl");
     this.clock = Objects.requireNonNull(clock, "clock");
+    this.approvalRequirement = Objects.requireNonNull(approvalRequirement, "approvalRequirement");
     this.random = new SecureRandom();
   }
 
@@ -64,7 +82,6 @@ public final class PrivacyGate {
    * @param providerId selected provider
    * @param modelId selected model
    * @param expertiseId selected expertise profile
-   * @param approvalRequired whether execution requires an approval token
    * @return safe preview
    */
   public synchronized PrivacyPreview register(
@@ -72,14 +89,14 @@ public final class PrivacyGate {
       PrivacyProcessingResult processed,
       String providerId,
       String modelId,
-      String expertiseId,
-      boolean approvalRequired) {
+      String expertiseId) {
     prune();
     if (pending.size() >= MAX_PENDING) {
       throw new IllegalStateException("approval store is full");
     }
     var previewId = randomToken(PREVIEW_ID_BYTES);
     var expiresAt = clock.instant().plus(previewTtl);
+    var approvalRequired = approvalRequirement.requiresApproval(providerId);
     pending.put(
         previewId,
         new Pending(
@@ -189,6 +206,7 @@ public final class PrivacyGate {
             preview.modelId(),
             preview.expertiseId(),
             preview.processed().policy().version(),
+            preview.approvalRequired(),
             earlier(clock.instant().plus(AUTHORIZATION_TTL), preview.expiresAt()));
     return ApprovalDecision.approved(
         new ApprovedInvocation(
@@ -197,6 +215,7 @@ public final class PrivacyGate {
             preview.providerId(),
             preview.modelId(),
             preview.expertiseId(),
+            preview.approvalRequired(),
             authorization));
   }
 

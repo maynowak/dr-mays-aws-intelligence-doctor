@@ -49,8 +49,14 @@ class ProviderApprovalPolicyTest {
   void realMockStillGetsAuthorizationAtRouter() {
     var source = new IntelligenceRequest(List.of(), List.of(), GraphCompleteness.COMPLETE);
     var processed = new PrivacyProcessor(PrivacyPolicy.defaultPolicy()).process(source);
-    var gate = new PrivacyGate();
-    var preview = gate.register(source, processed, "mock", "deterministic-v1", "standard", false);
+    var registry = new ProviderRegistry(List.of(new MockModelProvider()));
+    var gate =
+        new PrivacyGate(
+            java.time.Duration.ofMinutes(5),
+            java.time.Duration.ofMinutes(5),
+            java.time.Clock.systemUTC(),
+            ProviderApprovalPolicy.forRegistry(registry));
+    var preview = gate.register(source, processed, "mock", "deterministic-v1", "standard");
     var invocation = gate.consume(preview.previewId(), null).invocation().orElseThrow();
 
     assertThat(invocation.authorization()).isNotNull();

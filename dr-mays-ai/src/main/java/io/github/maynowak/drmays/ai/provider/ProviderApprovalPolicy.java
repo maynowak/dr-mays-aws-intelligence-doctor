@@ -8,7 +8,8 @@ import java.util.Set;
  * Server-owned approval policy. Only the exact deterministic mock implementation is exempt; no
  * descriptor flag or provider ID can grant the exemption.
  */
-public final class ProviderApprovalPolicy {
+public final class ProviderApprovalPolicy
+    implements io.github.maynowak.drmays.ai.privacy.ApprovalRequirement {
 
   private final Set<String> exemptProviderIds;
 

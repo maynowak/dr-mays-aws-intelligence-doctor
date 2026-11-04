@@ -16,6 +16,7 @@ import io.github.maynowak.drmays.ai.provider.MockModelProvider;
 import io.github.maynowak.drmays.ai.provider.ModelInvocationRequest;
 import io.github.maynowak.drmays.ai.provider.ProviderApprovalPolicy;
 import io.github.maynowak.drmays.ai.provider.ProviderCredentialReference;
+import io.github.maynowak.drmays.ai.provider.ProviderEnablement;
 import io.github.maynowak.drmays.ai.provider.ProviderExecutionStatus;
 import io.github.maynowak.drmays.ai.provider.ProviderModelPolicy;
 import io.github.maynowak.drmays.ai.provider.ProviderRegistry;
@@ -43,7 +44,7 @@ public final class PrivacyFirstExpertiseEngine {
   private final ProviderRegistry registry;
   private final ProviderRouter router;
   private final ProviderModelPolicy modelPolicy;
-  private final ProviderApprovalPolicy approvalPolicy;
+  private final ProviderEnablement enablement;
   private final ExpertiseCatalog catalog;
   private final PrivacyProcessor privacyProcessor;
   private final PrivacyGate gate;
@@ -52,17 +53,70 @@ public final class PrivacyFirstExpertiseEngine {
 
   /** Creates the default mock-only engine. */
   public PrivacyFirstExpertiseEngine() {
+    this(defaults());
+  }
+
+  private PrivacyFirstExpertiseEngine(Defaults defaults) {
     this(
-        defaultRegistry(),
+        defaults.registry(),
         new ExpertiseCatalog(),
         new PrivacyProcessor(PrivacyPolicy.defaultPolicy()),
-        new PrivacyGate(),
+        new PrivacyGate(
+            java.time.Duration.ofMinutes(5),
+            java.time.Duration.ofMinutes(5),
+            java.time.Clock.systemUTC(),
+            defaults.approvalPolicy()),
         new ExpertiseParser(),
-        new ExpertiseValidator());
+        new ExpertiseValidator(),
+        ProviderModelPolicy.mockOnly(),
+        ProviderEnablement.mockOnly());
+  }
+
+  private static Defaults defaults() {
+    var registry = defaultRegistry();
+    return new Defaults(registry, ProviderApprovalPolicy.forRegistry(registry));
   }
 
   /**
    * Creates an engine with explicit dependencies for tests and integration.
+   *
+   * @param registry provider registry
+   * @param catalog expertise catalog
+   * @param privacyProcessor privacy projector
+   * @param gate approval gate
+   * @param parser model response parser
+   * @param validator expertise validator
+   * @param modelPolicy exact provider/model allowlist
+   * @param enablement trusted provider enablement
+   */
+  public PrivacyFirstExpertiseEngine(
+      ProviderRegistry registry,
+      ExpertiseCatalog catalog,
+      PrivacyProcessor privacyProcessor,
+      PrivacyGate gate,
+      ExpertiseParser parser,
+      ExpertiseValidator validator,
+      ProviderModelPolicy modelPolicy,
+      ProviderEnablement enablement) {
+    this.registry = Objects.requireNonNull(registry, "registry");
+    this.catalog = Objects.requireNonNull(catalog, "catalog");
+    this.privacyProcessor = Objects.requireNonNull(privacyProcessor, "privacyProcessor");
+    this.gate = Objects.requireNonNull(gate, "gate");
+    this.parser = Objects.requireNonNull(parser, "parser");
+    this.validator = Objects.requireNonNull(validator, "validator");
+    this.modelPolicy = Objects.requireNonNull(modelPolicy, "modelPolicy");
+    this.enablement = Objects.requireNonNull(enablement, "enablement");
+    this.router =
+        new ProviderRouter(
+            registry,
+            enablement.enabledProviderIds(),
+            modelPolicy,
+            CredentialResolutionPolicy.disabled(),
+            java.time.Clock.systemUTC());
+  }
+
+  /**
+   * Creates a mock-only engine with a caller-supplied gate for tests.
    *
    * @param registry provider registry
    * @param catalog expertise catalog
@@ -86,45 +140,7 @@ public final class PrivacyFirstExpertiseEngine {
         parser,
         validator,
         ProviderModelPolicy.mockOnly(),
-        ProviderApprovalPolicy.forRegistry(registry));
-  }
-
-  /**
-   * Creates an engine with explicit provider security policies.
-   *
-   * @param registry provider registry
-   * @param catalog expertise catalog
-   * @param privacyProcessor privacy projector
-   * @param gate approval gate
-   * @param parser model response parser
-   * @param validator expertise validator
-   * @param modelPolicy exact provider/model allowlist
-   * @param approvalPolicy server-owned approval policy
-   */
-  public PrivacyFirstExpertiseEngine(
-      ProviderRegistry registry,
-      ExpertiseCatalog catalog,
-      PrivacyProcessor privacyProcessor,
-      PrivacyGate gate,
-      ExpertiseParser parser,
-      ExpertiseValidator validator,
-      ProviderModelPolicy modelPolicy,
-      ProviderApprovalPolicy approvalPolicy) {
-    this.registry = Objects.requireNonNull(registry, "registry");
-    this.catalog = Objects.requireNonNull(catalog, "catalog");
-    this.privacyProcessor = Objects.requireNonNull(privacyProcessor, "privacyProcessor");
-    this.gate = Objects.requireNonNull(gate, "gate");
-    this.parser = Objects.requireNonNull(parser, "parser");
-    this.validator = Objects.requireNonNull(validator, "validator");
-    this.modelPolicy = Objects.requireNonNull(modelPolicy, "modelPolicy");
-    this.approvalPolicy = Objects.requireNonNull(approvalPolicy, "approvalPolicy");
-    this.router =
-        new ProviderRouter(
-            registry,
-            registry.ids(),
-            modelPolicy,
-            CredentialResolutionPolicy.disabled(),
-            java.time.Clock.systemUTC());
+        ProviderEnablement.mockOnly());
   }
 
   /**
@@ -140,7 +156,7 @@ public final class PrivacyFirstExpertiseEngine {
       IntelligenceRequest source, String providerId, String modelId, String expertiseId) {
     Objects.requireNonNull(source, "source");
     var selectedProvider = DomainChecks.requireText(providerId, "providerId");
-    if (!registry.contains(selectedProvider)) {
+    if (!registry.contains(selectedProvider) || !enablement.isEnabled(selectedProvider)) {
       throw new IllegalArgumentException("unknown provider");
     }
     var model = DomainChecks.requireText(modelId, "modelId");
@@ -152,13 +168,7 @@ public final class PrivacyFirstExpertiseEngine {
     }
     var expertise = catalog.require(DomainChecks.requireText(expertiseId, "expertiseId"));
     var processed = privacyProcessor.process(source);
-    return gate.register(
-        source,
-        processed,
-        selectedProvider,
-        model,
-        expertise.id(),
-        approvalPolicy.requiresApproval(selectedProvider));
+    return gate.register(source, processed, selectedProvider, model, expertise.id());
   }
 
   /**
@@ -193,9 +203,7 @@ public final class PrivacyFirstExpertiseEngine {
     var facts = facts(source);
     var metadata = new ModelMetadata(invocation.providerId(), invocation.modelId(), "1.0");
     var approvalStatus =
-        approvalPolicy.requiresApproval(invocation.providerId())
-            ? ApprovalStatus.APPROVED
-            : ApprovalStatus.NOT_REQUIRED;
+        invocation.approvalRequired() ? ApprovalStatus.APPROVED : ApprovalStatus.NOT_REQUIRED;
     var receipt =
         new PrivacyReceipt(
             processed.policy().version(),
@@ -310,6 +318,8 @@ public final class PrivacyFirstExpertiseEngine {
                 + finding.evidence().source())
         .toList();
   }
+
+  private record Defaults(ProviderRegistry registry, ProviderApprovalPolicy approvalPolicy) {}
 
   private static ProviderRegistry defaultRegistry() {
     var registry = new ProviderRegistry();

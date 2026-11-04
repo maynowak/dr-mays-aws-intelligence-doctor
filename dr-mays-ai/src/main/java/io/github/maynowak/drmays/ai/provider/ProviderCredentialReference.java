@@ -19,6 +19,10 @@ public record ProviderCredentialReference(
       throw new IllegalArgumentException("providerId is invalid");
     }
     kind = Objects.requireNonNull(kind, "kind");
+    if (kind == CredentialKind.FILE || kind == CredentialKind.KEYRING) {
+      throw new IllegalArgumentException(
+          "file/keyring credential references are disabled until a secure resolver is approved");
+    }
     reference = DomainChecks.requireText(reference, "reference");
     if (kind == CredentialKind.ENV && !reference.matches("DR_MAYS_[A-Z0-9_]{2,64}")) {
       throw new IllegalArgumentException("environment references must use the DR_MAYS_ prefix");

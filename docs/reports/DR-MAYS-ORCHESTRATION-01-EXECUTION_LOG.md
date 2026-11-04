@@ -2,12 +2,12 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — ORCH-01A discovery complete; ORCH-01B contract frozen. No implementation, model call, external data transfer, push or merge yet.
+`IN PROGRESS` — ORCH-01C privacy engine implemented; provider layer next. No implementation, model call, external data transfer, push or merge yet.
 
 ## 2. Audit date/time
 
 - Started: 2026-11-04T08:02:34+01:00
-- Last updated: 2026-11-04T08:13:24+01:00
+- Last updated: 2026-11-04T08:19:00+01:00
 
 ## 3. Git branch and HEAD
 
@@ -31,6 +31,8 @@ Controlled privacy-first architecture with BYOK/provider contracts, mock-only pr
 - Confirmed OpenCode live execution as BLOCKED; mock-only adapter path approved for implementation.
 - Re-ran `./mvnw -B clean verify`: BUILD SUCCESS, 263 tests, 8/8 modules.
 - Froze ADR-0011 and the architecture contract.
+- Implemented the privacy engine: allowlist projection, HMAC aliases, validation, safe preview and server-side approval gate.
+- Added and ran 44 privacy tests successfully.
 
 ## 6. Actual findings
 
@@ -45,6 +47,7 @@ Controlled privacy-first architecture with BYOK/provider contracts, mock-only pr
 - Contract decision: privacy/provider/approval/expertise packages in `dr-mays-ai`; no new module.
 - Remote provider payload is `SanitizedExpertiseRequest` only; approval is server-side, exact-payload-bound, TTL-limited and single-use.
 - Mock is the only enabled provider; OpenCode live remains BLOCKED.
+- Privacy tests removed raw account/SG/VPC/email/host/IP values from the provider payload and failed closed on invalid approval/token/privacy states.
 
 ## 7. Evidence and file references
 
@@ -83,6 +86,7 @@ Clean at branch creation.
 - Added: three discovery reports and the discovery synthesis.
 - Modified: `docs/AI_AUDITINDEX.md`.
 - Added: ADR-0011, architecture contract and ORCH-01B report.
+- Added: privacy engine classes and 44 tests; `DR-MAYS-ORCHESTRATION-01C-PRIVACY-ENGINE.md`.
 
 ## 12. Explicit no-change confirmation
 
@@ -111,4 +115,4 @@ No production code changed yet. No model/provider/AWS/credential/network call oc
 
 ## 16. Current resume point
 
-Start ORCH-01C Privacy Engine. Contract frozen; baseline 263 PASS; no production code changed.
+Start ORCH-01D Provider Contracts. Privacy engine green (44 new tests); no provider call.

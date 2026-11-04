@@ -15,8 +15,8 @@ import java.util.List;
 /** Shared provider test data with aliases only. */
 final class ProviderTestFixtures {
 
-  static final String PAYLOAD_JSON = "{\"payloadVersion\":\"privacy-payload/v1\"}";
-  static final String PAYLOAD_HASH = "payload-hash";
+  static final String PAYLOAD_JSON = PayloadIntegrity.canonicalJson(payload());
+  static final String PAYLOAD_HASH = PayloadIntegrity.hash(PAYLOAD_JSON);
 
   private ProviderTestFixtures() {}
 

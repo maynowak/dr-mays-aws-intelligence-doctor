@@ -144,6 +144,8 @@ public final class ProviderRouter {
         && authorization.modelId().equals(request.modelId())
         && authorization.expertiseId().equals(request.expertiseId())
         && authorization.payloadHash().equals(request.payloadHash())
+        && authorization.payloadHash().equals(PayloadIntegrity.hash(request.payloadJson()))
+        && PayloadIntegrity.matches(request.payload(), request.payloadJson())
         && authorization.policyVersion().equals(request.payload().policyVersion());
   }
 

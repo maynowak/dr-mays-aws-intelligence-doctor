@@ -182,6 +182,30 @@ class ProviderRouterTest {
   }
 
   @Test
+  void rejectsPayloadJsonSubstitutionEvenWithMatchingHashField() {
+    var fake =
+        new FakeProvider(FAKE_DESCRIPTOR, ModelInvocationResult.success("fake", "m", "ok", 1));
+    var router = router(fake);
+    var authorized = ProviderTestFixtures.authorizedRequest("fake", "m");
+    var request = authorized.request();
+    var tampered =
+        new ModelInvocationRequest(
+            request.providerId(),
+            request.modelId(),
+            request.expertiseId(),
+            request.payload(),
+            "{\"tampered\":true}",
+            request.payloadHash(),
+            request.credentialReference(),
+            request.timeout(),
+            request.maxOutputChars());
+
+    assertThat(router.route(tampered, authorized.authorization()).status())
+        .isEqualTo(ProviderExecutionStatus.APPROVAL_REQUIRED);
+    assertThat(fake.calls()).isZero();
+  }
+
+  @Test
   void rejectsUnknownProvider() {
     var router =
         new ProviderRouter(

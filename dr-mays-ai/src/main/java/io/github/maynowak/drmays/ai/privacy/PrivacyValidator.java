@@ -10,13 +10,17 @@ public final class PrivacyValidator {
 
   private static final Pattern ACCOUNT_ID = Pattern.compile("\\b\\d{12}\\b");
   private static final Pattern RAW_RESOURCE_ID =
-      Pattern.compile("\\b(?:sg|vpc|subnet|i|vol)-[A-Za-z0-9]{8,}\\b");
+      Pattern.compile("\\b(?:sg|vpc|subnet|i|vol)-[A-Za-z0-9]{1,}\\b");
   private static final Pattern ARN = Pattern.compile("\\barn:(?:aws|aws-us-gov|aws-cn):[^\\s]+");
   private static final Pattern EMAIL =
       Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b");
   private static final Pattern IPV4 = Pattern.compile("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");
+  private static final Pattern IPV6 =
+      Pattern.compile("(?i)(?<![0-9a-f])(?:[0-9a-f]{0,4}:){2,}[0-9a-f]{0,4}(?![0-9a-f])");
+  private static final Pattern HOST_WITH_PORT =
+      Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}:\\d{1,5}\\b");
   private static final Pattern HOSTNAME =
-      Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}\\b");
+      Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}\\b(?![=:])");
   private static final Pattern SECRET =
       Pattern.compile(
           "(?i)(?:AKIA|ASIA)[0-9A-Z]{16}"
@@ -124,7 +128,10 @@ public final class PrivacyValidator {
         || RAW_RESOURCE_ID.matcher(value).find()
         || ARN.matcher(value).find()
         || EMAIL.matcher(value).find()
-        || IPV4.matcher(value).find();
+        || IPV4.matcher(value).find()
+        || IPV6.matcher(value).find()
+        || HOST_WITH_PORT.matcher(value).find()
+        || HOSTNAME.matcher(value).find();
   }
 
   private void check(
@@ -156,10 +163,10 @@ public final class PrivacyValidator {
       violations.add(
           new PrivacyViolation(PrivacyViolation.EMAIL_ADDRESS, field, "email address found"));
     }
-    if (IPV4.matcher(value).find()) {
+    if (IPV4.matcher(value).find() || IPV6.matcher(value).find()) {
       violations.add(new PrivacyViolation(PrivacyViolation.IP_ADDRESS, field, "IP address found"));
     }
-    if (checkHostname && HOSTNAME.matcher(value).find()) {
+    if (checkHostname && (HOST_WITH_PORT.matcher(value).find() || HOSTNAME.matcher(value).find())) {
       violations.add(new PrivacyViolation(PrivacyViolation.HOSTNAME, field, "hostname found"));
     }
   }

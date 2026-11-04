@@ -29,6 +29,21 @@ class IntelligenceServiceTest {
   }
 
   @Test
+  void failsClosedForLegacyExternalPath() {
+    var gated =
+        new IntelligenceService(
+            diagnosisService,
+            new io.github.maynowak.drmays.ai.PrivacyGatedLegacyAnalyzer(
+                new io.github.maynowak.drmays.ai.ModelMetadata(
+                    "legacy", "approval-required", "1.0")));
+
+    var response = gated.explain(new IntelligenceExplainRequest(List.of(network()), false));
+
+    assertThat(response.status()).isEqualTo("APPROVAL_REQUIRED");
+    assertThat(response.explanations()).isEmpty();
+  }
+
+  @Test
   void returnsNoExplanationsForHealthyResource() {
     var response = service.explain(new IntelligenceExplainRequest(List.of(healthyBucket()), false));
 

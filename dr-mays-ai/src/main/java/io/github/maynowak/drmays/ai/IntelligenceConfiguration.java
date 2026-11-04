@@ -1,16 +1,14 @@
 package io.github.maynowak.drmays.ai;
 
 import io.github.maynowak.drmays.ai.expertise.PrivacyFirstExpertiseEngine;
-import org.springframework.ai.chat.client.ChatClient;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
-import tools.jackson.databind.ObjectMapper;
 
 /**
- * Selects the deterministic mock by default and the Ollama adapter only when explicitly enabled.
+ * Selects the deterministic mock by default. The former raw Ollama path is fail-closed: external
+ * providers require the privacy preview/approval flow instead.
  */
 @Configuration
 public class IntelligenceConfiguration {
@@ -21,15 +19,15 @@ public class IntelligenceConfiguration {
     return new MockIntelligenceAnalyzer();
   }
 
+  /**
+   * Keeps the legacy endpoint from sending raw infrastructure data when AI is enabled.
+   *
+   * @return approval-required legacy analyzer
+   */
   @Bean
   @ConditionalOnProperty(name = "dr.mays.ai.enabled", havingValue = "true")
-  public IntelligenceAnalyzer ollamaIntelligenceAnalyzer(
-      ChatClient.Builder chatClientBuilder, @Value("${dr.mays.ai.model:llama3.2}") String model) {
-    return new OllamaIntelligenceAnalyzer(
-        new SpringAiChatCompletion(chatClientBuilder.build()),
-        new PromptBuilder(),
-        new ObjectMapper(),
-        new ModelMetadata("ollama", model, "1.0"));
+  public IntelligenceAnalyzer legacyPrivacyGate() {
+    return new PrivacyGatedLegacyAnalyzer(new ModelMetadata("legacy", "approval-required", "1.0"));
   }
 
   /**

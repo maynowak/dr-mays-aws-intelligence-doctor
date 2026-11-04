@@ -123,6 +123,51 @@ if data.get("metadata", {}).get("provider") != "mock":
 print("  AI mock checks passed: verified explanations and evidence references")
 PY
 
+echo
+echo "--- privacy-first expertise (mock-only preview and explain) ---"
+curl -fsS -X POST "$BASE_URL/api/v1/expertise/previews" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$FIXTURES_DIR/dna-sg-vpc.json" > "$TMP_DIR/expertise-preview.json"
+python3 -m json.tool < "$TMP_DIR/expertise-preview.json"
+python3 - "$TMP_DIR/expertise-preview.json" > "$TMP_DIR/expertise-approval-request.json" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
+if not data.get("validation", {}).get("valid"):
+    raise SystemExit(f"preview is not privacy-valid: {data.get('validation')}")
+if data.get("approvalRequired") is not False:
+    raise SystemExit(f"mock preview unexpectedly requires approval: {data}")
+payload = data.get("payloadJson", "")
+if "123456789012" in payload or "000000000000" in payload:
+    raise SystemExit("preview payload contains a raw account identifier")
+if "accountId" in payload or "vpc-" in payload or "sg-" in payload:
+    raise SystemExit("preview payload contains a raw resource identity")
+print(json.dumps({"previewId": data["previewId"]}))
+PY
+curl -fsS -X POST "$BASE_URL/api/v1/expertise/approvals" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$TMP_DIR/expertise-approval-request.json" > "$TMP_DIR/expertise-approval.json"
+python3 - "$TMP_DIR/expertise-preview.json" "$TMP_DIR/expertise-approval.json" > "$TMP_DIR/expertise-explain-request.json" <<'PY'
+import json, sys
+preview = json.load(open(sys.argv[1]))
+approval = json.load(open(sys.argv[2]))
+print(json.dumps({"previewId": preview["previewId"], "approvalToken": approval["approvalToken"]}))
+PY
+curl -fsS -X POST "$BASE_URL/api/v1/expertise/explain" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$TMP_DIR/expertise-explain-request.json" > "$TMP_DIR/expertise-explain.json"
+python3 -m json.tool < "$TMP_DIR/expertise-explain.json"
+python3 - "$TMP_DIR/expertise-explain.json" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
+if data.get("status") != "SUCCESS":
+    raise SystemExit(f"unexpected expertise status: {data.get('status')}")
+if not data.get("explanations"):
+    raise SystemExit("no expertise explanations returned")
+if data.get("privacyReceipt", {}).get("approvalStatus") != "NOT_REQUIRED":
+    raise SystemExit(f"unexpected approval receipt: {data.get('privacyReceipt')}")
+print("  Expertise preview/approval/explain checks passed (preview aliases only; local response resolves evidence)")
+PY
+
 # The same fixture must produce byte-identical JSON on a second run.
 curl -fsS -X POST "$BASE_URL/api/v1/diagnoses" \
   -H 'Content-Type: application/json' \
@@ -149,4 +194,4 @@ if data.get("title") != "Request validation failed":
 PY
 
 echo
-echo "DEMO PASSED: health, rules, 4 diagnosis fixtures, determinism and invalid-input handling"
+echo "DEMO PASSED: health, rules, 4 diagnosis fixtures, DNA, mock intelligence, privacy preview/approval/explain, determinism and invalid-input handling"

@@ -5,7 +5,7 @@ import java.util.List;
 /**
  * Structured AI response with explicit execution status.
  *
- * @param status SUCCESS, DISABLED, UNAVAILABLE, FAILED or INVALID_RESPONSE
+ * @param status SUCCESS, DISABLED, APPROVAL_REQUIRED, UNAVAILABLE, FAILED or INVALID_RESPONSE
  * @param metadata provider/model metadata
  * @param summary explanation summary
  * @param explanations explanations of existing findings

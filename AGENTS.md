@@ -2,15 +2,15 @@
 
 ## Project status
 
-- **Core + API + Docker + simulated AWS + DNA + AI intelligence (mock/default) implemented; live AWS and real model inference not started.** The reactor passes 263 local tests (86 core + 84 API + 64 AWS + 29 AI). No live AWS scan or real Ollama inference has run — never claim one.
-- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the upstream baseline; DR-MAYS-06 is on `feature/dr-mays-spring-ai-intelligence-06`, PR #1 open). Merge is not authorized without explicit approval.
+- **Core + API + Docker + simulated AWS + DNA + privacy-first mock AI implemented; live AWS and real model inference not started.** The reactor passes 392 local tests (86 core + 97 API + 64 AWS + 145 AI). No live AWS scan or real Ollama inference has run — never claim one.
+- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the verified baseline at `36ef4e5`; ORCH-01 work is on `feature/dr-mays-privacy-provider-orchestration-01`). PR #1 is merged. No push or merge is authorized for ORCH-01.
 - License is GPL-3.0 (`LICENSE`). Do not relicense without explicit confirmation.
 - Roadmap IDs use `DR-MAYS-<AREA>-<NN>` (phases 01–08). MVP gate is after phase 04: offline demo, inspectable checks, reproducible JSON diagnosis.
 
 ## Build and test commands
 
 - **Always use the wrapper** (`./mvnw`); the system Maven is 3.8.7 and the Enforcer rejects it. The wrapper pins Maven 3.9.16 and downloads it on first use.
-- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 263 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core, API, AWS and AI).
+- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 392 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core, API, AWS and AI).
 - Formatting: `./mvnw spotless:apply` to fix, `./mvnw spotless:check` to verify. Never auto-format in CI.
 - Static analysis: `./mvnw checkstyle:check` (0 violations required).
 - Coverage reports: `dr-mays-core/target/site/jacoco/`, `dr-mays-api/target/site/jacoco/`, `dr-mays-aws/target/site/jacoco/`, `dr-mays-ai/target/site/jacoco/`.
@@ -38,11 +38,12 @@
 - Docker: `compose.yaml` publishes only `127.0.0.1:18080`, runs UID/GID `10001`, read-only root with `/tmp` tmpfs, all capabilities dropped, `no-new-privileges`, no extra services. Image base digests are pinned in `docker/Dockerfile`; do not add curl/wget to the runtime image—health is external.
 - AWS discovery: SDK types live only in `dr-mays-aws`; core/api must stay AWS-free. No Spring wiring, no startup clients, no default profile, no live calls. `DiscoveryScope` requires explicit profile/account/regions/services/maxResources; STS mismatch fails closed. See `docs/development/AWS_DISCOVERY.md` and `docs/security/AWS_SCANNER_IAM.md`.
 - DNA graph: core package `dna` reuses `ResourceIdentity`/`Evidence`; edges only from explicit `vpc.id` or `ingress.referenced.securityGroupIds`; no inferred reachability. Referenced nodes are not inventoried. `GraphAnalyzer` traversal max radius is 10. API endpoint is `POST /api/v1/dna/graphs`; findings carry verified outgoing `relationships`. See `docs/development/INFRASTRUCTURE_DNA.md` and ADR-0009.
-- AI: contracts/mock/Spring AI adapter in `dr-mays-ai`; default is deterministic `MockIntelligenceAnalyzer`, Ollama only with `dr.mays.ai.enabled=true`. No tools, no startup connection, no model download. Validate all output against request evidence/relationships; reject unknown resources/evidence/edges. API endpoint `POST /api/v1/intelligence/explain`. See `docs/development/AI_INTELLIGENCE.md`, `docs/security/AI_MODEL_SECURITY.md`, ADR-0010.
+- AI: contracts/mock/Spring AI adapter in `dr-mays-ai`; default is deterministic `MockIntelligenceAnalyzer`. The raw Ollama path is fail-closed; with `dr.mays.ai.enabled=true` the legacy endpoint returns `APPROVAL_REQUIRED` without a provider call. No tools, no startup connection, no model download. Validate all output against request evidence/relationships; reject unknown resources/evidence/edges. API endpoint `POST /api/v1/intelligence/explain`. ORCH-01 adds `ai.privacy`, `ai.provider` and `ai.expertise` packages with allowlist pseudonymization, server-side preview/approval and a mock-only router. OpenCode live execution is BLOCKED; real BYOK resolution is disabled. See `docs/development/PRIVACY_FIRST_AI.md`, `docs/development/BYOK_PROVIDER_INTEGRATION.md`, `docs/architecture/PRIVACY_FIRST_PROVIDER_CONTRACT.md`, ADR-0011.
 - Fixtures live in `examples/fixtures` and are copied to the API test classpath by `dr-mays-api/pom.xml`. Keep them aligned with `docs/api/openapi.yaml`.
 - Spring AI is isolated to `dr-mays-ai`; CDK is version-managed but intentionally **not** on any module classpath yet (phase 07). Do not add CDK without the corresponding phase.
 - Add internal module versions in the root `dependencyManagement`; add new modules to `<modules>` and the internal dependency list.
-- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0010`. Verify any upgrade with `./mvnw clean verify`.
+- New API endpoints: `POST /api/v1/expertise/previews`, `/approvals`, `/explain`; preview never calls a provider, explain accepts only preview ID plus optional token. Keep the existing diagnosis/DNA/intelligence endpoints unchanged.
+- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0011`. Verify any upgrade with `./mvnw clean verify`.
 
 ## CI
 

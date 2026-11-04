@@ -67,11 +67,25 @@ POST /api/v1/intelligence/explain
   -> deterministic diagnosis + DNA edges
   -> IntelligenceRequest -> IntelligenceAnalyzer
        default: deterministic mock
-       opt-in: Spring AI/Ollama (disabled by default)
+       legacy enabled path: APPROVAL_REQUIRED (no raw external call)
   -> IntelligenceResultValidator -> versioned response
 ```
 
 The model only explains findings/evidence/relationships. Unknown resources, evidence or edges are rejected; technical diagnosis remains authoritative. See `docs/development/AI_INTELLIGENCE.md`, `docs/security/AI_MODEL_SECURITY.md` and ADR-0010.
+
+## Privacy-first provider orchestration (ORCH-01)
+
+```text
+verified IntelligenceRequest
+  -> PrivacyProcessor (allowlist, HMAC aliases, validation)
+  -> PrivacyGate preview + server-side approval (exact payload hash)
+  -> ProviderRouter (mock enabled; remote disabled)
+  -> ExpertiseParser -> alias resolution
+  -> IntelligenceResultValidator + ExpertiseValidator
+  -> local ExpertiseReport
+```
+
+`dr-mays-ai` now contains `privacy`, `provider` and `expertise` packages. `dr-mays-core` remains free of provider, Spring AI, OpenCode and credential types. Preview never invokes a provider; execution accepts only a stored preview ID and optional token. OpenCode live execution is BLOCKED. See `docs/architecture/PRIVACY_FIRST_PROVIDER_CONTRACT.md` and ADR-0011.
 
 ## Target flow
 

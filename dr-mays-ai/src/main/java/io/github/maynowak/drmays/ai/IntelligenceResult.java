@@ -51,6 +51,24 @@ public record IntelligenceResult(
         List.of());
   }
 
+  /**
+   * Returns an approval-required result without calling a provider.
+   *
+   * @param metadata provider/model metadata
+   * @return approval-required result
+   */
+  public static IntelligenceResult approvalRequired(ModelMetadata metadata) {
+    return new IntelligenceResult(
+        ModelExecutionStatus.APPROVAL_REQUIRED,
+        metadata,
+        "A privacy preview and approval are required before external model execution.",
+        List.of(),
+        List.of(),
+        List.of(),
+        List.of(),
+        List.of());
+  }
+
   public static IntelligenceResult unavailable(ModelMetadata metadata) {
     return new IntelligenceResult(
         ModelExecutionStatus.UNAVAILABLE,

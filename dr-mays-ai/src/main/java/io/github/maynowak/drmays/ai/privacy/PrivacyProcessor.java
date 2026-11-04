@@ -23,14 +23,29 @@ public final class PrivacyProcessor {
   private static final Pattern ACCOUNT_ID = Pattern.compile("\\b\\d{12}\\b");
   private static final Pattern ARN = Pattern.compile("arn:(?:aws|aws-us-gov|aws-cn):[^\\s]+");
   private static final Pattern AWS_ID =
-      Pattern.compile("\\b(sg|vpc|subnet|i|vol)-[0-9a-fA-F]{8,}\\b");
+      Pattern.compile("\\b(sg|vpc|subnet|i|vol)-[A-Za-z0-9]{1,}\\b");
   private static final Pattern EMAIL =
       Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b");
   private static final Pattern IPV4 = Pattern.compile("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");
   private static final Pattern IPV6 =
-      Pattern.compile("\\b(?:[0-9A-Fa-f]{0,4}:){2,}[0-9A-Fa-f]{0,4}\\b");
+      Pattern.compile("(?i)(?<![0-9a-f])(?:[0-9a-f]{0,4}:){2,}[0-9a-f]{0,4}(?![0-9a-f])");
+  private static final Pattern HOST_WITH_PORT =
+      Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}:\\d{1,5}\\b");
   private static final Pattern HOSTNAME =
-      Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}\\b");
+      Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}\\b(?![=:])");
+  private static final java.util.Set<String> SAFE_RESOURCE_TYPES =
+      java.util.Set.of(
+          "network",
+          "storage",
+          "s3-bucket",
+          "security-group",
+          "vpc",
+          "compute",
+          "database",
+          "lambda",
+          "iam-role",
+          "instance",
+          "unknown");
   private static final Pattern SECRET =
       Pattern.compile(
           "(?i)(?:AKIA|ASIA)[0-9A-Z]{16}"
@@ -130,7 +145,7 @@ public final class PrivacyProcessor {
         fieldText(PrivacyField.RULE_VERSION, finding.ruleVersion(), aliases),
         fieldText(PrivacyField.SEVERITY, finding.severity().name(), aliases),
         alias,
-        fieldText(PrivacyField.RESOURCE_TYPE, finding.resource().resourceType(), aliases),
+        resourceType(finding.resource().resourceType()),
         policy.allows(PrivacyField.REGION_CLASS) ? "REGION" : EXCLUDED,
         fieldText(PrivacyField.TITLE, finding.title(), aliases),
         fieldText(PrivacyField.DESCRIPTION, finding.description(), aliases),
@@ -149,6 +164,13 @@ public final class PrivacyProcessor {
         fieldText(PrivacyField.EVIDENCE_OBSERVED, edge.evidence().evidence().observed(), aliases));
   }
 
+  private String resourceType(String raw) {
+    if (!policy.allows(PrivacyField.RESOURCE_TYPE)) {
+      return EXCLUDED;
+    }
+    return SAFE_RESOURCE_TYPES.contains(raw) ? raw : "OTHER";
+  }
+
   private String fieldText(PrivacyField field, String raw, AliasMapping aliases) {
     if (!policy.allows(field)) {
       return EXCLUDED;
@@ -165,6 +187,7 @@ public final class PrivacyProcessor {
     value = EMAIL.matcher(value).replaceAll("[email]");
     value = IPV4.matcher(value).replaceAll("[ip]");
     value = IPV6.matcher(value).replaceAll("[ip]");
+    value = HOST_WITH_PORT.matcher(value).replaceAll("[host]");
     value = HOSTNAME.matcher(value).replaceAll("[host]");
     return value.replaceAll("\\p{Cntrl}", " ").strip();
   }

@@ -58,6 +58,25 @@ class PrivacyValidatorTest {
   }
 
   @Test
+  void rejectsIpv6Address() {
+    var result = validator.validate(payload(withObserved("host=2001:db8::1")), policy);
+
+    assertThat(result.valid()).isFalse();
+    assertThat(result.violations())
+        .anyMatch(violation -> violation.code().equals(PrivacyViolation.IP_ADDRESS));
+  }
+
+  @Test
+  void rejectsHostnameWithPort() {
+    var result =
+        validator.validate(payload(withObserved("host=db.internal.example.com:5432")), policy);
+
+    assertThat(result.valid()).isFalse();
+    assertThat(result.violations())
+        .anyMatch(violation -> violation.code().equals(PrivacyViolation.HOSTNAME));
+  }
+
+  @Test
   void rejectsSecretPattern() {
     var result = validator.validate(payload(withObserved("AKIAABCDEFGHIJKLMNOP")), policy);
 
@@ -115,6 +134,9 @@ class PrivacyValidatorTest {
     assertThat(validator.containsUnsafeText("sg-0abc1234")).isTrue();
     assertThat(validator.containsUnsafeText("alice@corp.example")).isTrue();
     assertThat(validator.containsUnsafeText("203.0.113.7")).isTrue();
+    assertThat(validator.containsUnsafeText("db.internal.example.com")).isTrue();
+    assertThat(validator.containsUnsafeText("2001:db8::1")).isTrue();
+    assertThat(validator.containsUnsafeText("db.internal.example.com:5432")).isTrue();
     assertThat(validator.containsUnsafeText("AKIAABCDEFGHIJKLMNOP")).isTrue();
     assertThat(validator.containsUnsafeText("The finding is HIGH.")).isFalse();
   }

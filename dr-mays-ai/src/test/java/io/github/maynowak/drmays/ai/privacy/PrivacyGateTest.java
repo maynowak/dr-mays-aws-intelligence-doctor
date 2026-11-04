@@ -127,6 +127,16 @@ class PrivacyGateTest {
   }
 
   @Test
+  void approvalsAreBounded() {
+    var preview = register(true, PREVIEW, processed);
+    for (int i = 0; i < 100; i++) {
+      assertThat(gate.approve(preview.previewId())).isPresent();
+    }
+
+    assertThat(gate.approve(preview.previewId())).isEmpty();
+  }
+
+  @Test
   void approvalTokenRedactsItsValue() {
     assertThat(new ApprovalToken("A".repeat(43)).toString()).isEqualTo("ApprovalToken[redacted]");
   }

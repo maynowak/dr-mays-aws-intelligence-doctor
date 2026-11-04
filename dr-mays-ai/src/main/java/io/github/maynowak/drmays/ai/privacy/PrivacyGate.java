@@ -8,7 +8,7 @@ import java.time.Duration;
 import java.time.Instant;
 import java.util.Base64;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.LinkedHashSet;
 import java.util.Map;
 import java.util.Objects;
 import java.util.Optional;
@@ -22,6 +22,8 @@ import java.util.Set;
 public final class PrivacyGate {
 
   private static final int MAX_PENDING = 100;
+  private static final int MAX_APPROVALS = 100;
+  private static final int MAX_CONSUMED = 1_000;
   private static final int PREVIEW_ID_BYTES = 16;
   private static final int TOKEN_BYTES = 32;
 
@@ -31,7 +33,7 @@ public final class PrivacyGate {
   private final SecureRandom random;
   private final Map<String, Pending> pending = new HashMap<>();
   private final Map<String, ApprovalRecord> approvals = new HashMap<>();
-  private final Set<String> consumed = new HashSet<>();
+  private final Set<String> consumed = new LinkedHashSet<>();
 
   /** Creates a gate with five-minute lifetimes. */
   public PrivacyGate() {
@@ -109,7 +111,7 @@ public final class PrivacyGate {
   public synchronized Optional<ApprovalToken> approve(String previewId) {
     prune();
     var preview = pending.get(DomainChecks.requireText(previewId, "previewId"));
-    if (preview == null) {
+    if (preview == null || approvals.size() >= MAX_APPROVALS) {
       return Optional.empty();
     }
     var now = clock.instant();
@@ -174,6 +176,9 @@ public final class PrivacyGate {
     }
     pending.remove(id);
     consumed.add(id);
+    if (consumed.size() > MAX_CONSUMED) {
+      consumed.remove(consumed.iterator().next());
+    }
     return ApprovalDecision.approved(
         new ApprovedInvocation(
             preview.source(),

@@ -28,7 +28,7 @@ public final class ExpertiseValidator {
     if (report.status() != ProviderExecutionStatus.SUCCESS) {
       return report;
     }
-    if (report.summary().length() > profile.maxTextChars()
+    if (!safe(report.summary(), profile)
         || report.explanations().size() > profile.maxExplanations()
         || report.recommendations().size() > profile.maxRecommendations()) {
       return invalid(report);

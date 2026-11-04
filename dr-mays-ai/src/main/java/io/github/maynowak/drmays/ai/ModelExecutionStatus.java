@@ -4,6 +4,7 @@ package io.github.maynowak.drmays.ai;
 public enum ModelExecutionStatus {
   SUCCESS,
   DISABLED,
+  APPROVAL_REQUIRED,
   UNAVAILABLE,
   FAILED,
   INVALID_RESPONSE

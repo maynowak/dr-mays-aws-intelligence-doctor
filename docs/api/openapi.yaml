@@ -182,6 +182,81 @@ paths:
             application/problem+json:
               schema:
                 $ref: '#/components/schemas/ProblemDetail'
+  /api/v1/expertise/previews:
+    post:
+      operationId: previewExpertise
+      summary: Create a sanitized provider payload preview
+      description: |
+        Builds deterministic findings and DNA server-side, then returns the exact sanitized
+        payload, field decisions and privacy validation. This endpoint never calls a provider.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpertisePreviewRequest'
+      responses:
+        '200':
+          description: Safe preview; approval is separate and never implicit
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpertisePreviewResponse'
+        '400':
+          description: Invalid request or unknown provider
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /api/v1/expertise/approvals:
+    post:
+      operationId: approveExpertisePreview
+      summary: Approve an exact preview payload
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpertiseApprovalRequest'
+      responses:
+        '200':
+          description: Single-use approval token
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpertiseApprovalResponse'
+        '400':
+          description: Unknown or expired preview
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /api/v1/expertise/explain:
+    post:
+      operationId: explainExpertise
+      summary: Execute an approved mock-only expertise preview
+      description: |
+        Accepts only a preview ID and optional approval token. It never accepts replacement
+        resources or payloads. Remote providers remain disabled in this phase.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/ExpertiseExplainRequest'
+      responses:
+        '200':
+          description: Structured expertise or explicit failure status
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/ExpertiseExplainResponse'
+        '400':
+          description: Invalid request or token
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
   /api/v1/rules:
     get:
       operationId: listRules
@@ -467,7 +542,7 @@ components:
       properties:
         status:
           type: string
-          enum: [SUCCESS, DISABLED, UNAVAILABLE, FAILED, INVALID_RESPONSE]
+          enum: [SUCCESS, DISABLED, APPROVAL_REQUIRED, UNAVAILABLE, FAILED, INVALID_RESPONSE]
         metadata:
           $ref: '#/components/schemas/IntelligenceMetadata'
         summary:
@@ -537,6 +612,181 @@ components:
         severity:
           type: string
           enum: [INFO, LOW, MEDIUM, HIGH, CRITICAL]
+    ExpertisePreviewRequest:
+      type: object
+      required: [resources]
+      properties:
+        resources:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ResourceRequest'
+        partialDiscovery:
+          type: boolean
+          default: false
+        providerId:
+          type: string
+          default: mock
+        modelId:
+          type: string
+          default: deterministic-v1
+        expertiseId:
+          type: string
+          default: standard
+    ExpertiseFieldDecision:
+      type: object
+      required: [field, classification, included, reason]
+      properties:
+        field:
+          type: string
+        classification:
+          type: string
+        included:
+          type: boolean
+        reason:
+          type: string
+    ExpertisePrivacyViolation:
+      type: object
+      required: [code, field, message]
+      properties:
+        code:
+          type: string
+        field:
+          type: string
+        message:
+          type: string
+    ExpertisePrivacyValidation:
+      type: object
+      required: [valid, violations]
+      properties:
+        valid:
+          type: boolean
+        violations:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpertisePrivacyViolation'
+    ExpertisePreviewResponse:
+      type: object
+      required:
+        [previewId, payloadHash, policyVersion, providerId, modelId, expertiseId,
+         approvalRequired, expiresAt, payloadJson, decisions, validation]
+      properties:
+        previewId:
+          type: string
+        payloadHash:
+          type: string
+        policyVersion:
+          type: string
+        providerId:
+          type: string
+        modelId:
+          type: string
+        expertiseId:
+          type: string
+        approvalRequired:
+          type: boolean
+        expiresAt:
+          type: string
+          format: date-time
+        payloadJson:
+          type: string
+          description: Exact sanitized JSON shown to the approver; contains aliases only.
+        decisions:
+          type: array
+          items:
+            $ref: '#/components/schemas/ExpertiseFieldDecision'
+        validation:
+          $ref: '#/components/schemas/ExpertisePrivacyValidation'
+    ExpertiseApprovalRequest:
+      type: object
+      required: [previewId]
+      properties:
+        previewId:
+          type: string
+    ExpertiseApprovalResponse:
+      type: object
+      required: [approvalToken]
+      properties:
+        approvalToken:
+          type: string
+          description: Single-use opaque token. Never log or reuse it.
+    ExpertiseExplainRequest:
+      type: object
+      required: [previewId]
+      properties:
+        previewId:
+          type: string
+        approvalToken:
+          type: string
+          description: Required only for providers that require approval.
+    ExpertisePrivacyReceipt:
+      type: object
+      required:
+        [policyVersion, payloadHash, approvalStatus, providerId, modelId, expertiseId]
+      properties:
+        policyVersion:
+          type: string
+        payloadHash:
+          type: string
+        approvalStatus:
+          type: string
+        providerId:
+          type: string
+        modelId:
+          type: string
+        expertiseId:
+          type: string
+    ExpertiseExplainResponse:
+      type: object
+      required:
+        [status, metadata, summary, facts, explanations, recommendations, assumptions,
+         missingInformation, evidenceReferences, verifiedRelationships, uncertainties,
+         privacyReceipt]
+      properties:
+        status:
+          type: string
+          enum:
+            [SUCCESS, DISABLED, UNAVAILABLE, FAILED, INVALID_RESPONSE, APPROVAL_REQUIRED,
+             PRIVACY_REJECTED, NOT_ALLOWED, CREDENTIAL_UNAVAILABLE, TIMEOUT]
+        metadata:
+          $ref: '#/components/schemas/IntelligenceMetadata'
+        summary:
+          type: string
+        facts:
+          type: array
+          items:
+            type: string
+        explanations:
+          type: array
+          items:
+            $ref: '#/components/schemas/IntelligenceExplanation'
+        recommendations:
+          type: array
+          items:
+            $ref: '#/components/schemas/AiRecommendation'
+        assumptions:
+          type: array
+          items:
+            type: string
+        missingInformation:
+          type: array
+          items:
+            type: string
+        evidenceReferences:
+          type: array
+          items:
+            $ref: '#/components/schemas/EvidenceReference'
+        verifiedRelationships:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphEdge'
+        uncertainties:
+          type: array
+          items:
+            type: string
+        privacyReceipt:
+          $ref: '#/components/schemas/ExpertisePrivacyReceipt'
     ProblemDetail:
       type: object
       required: [type, title, status]

@@ -34,6 +34,40 @@ class PrivacyProcessorTest {
   }
 
   @Test
+  void removesPlaceholderStyleResourceIdentifiers() {
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+            .process(PrivacyTestFixtures.requestWithObserved("vpc.id=vpc-unknown sg-unknown"));
+
+    assertThat(processed.payloadJson()).doesNotContain("vpc-unknown").doesNotContain("sg-unknown");
+    assertThat(processed.validation().valid()).isTrue();
+  }
+
+  @Test
+  void redactsHostnameWithPort() {
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+            .process(PrivacyTestFixtures.requestWithObserved("host=db.internal.example.com:5432"));
+
+    assertThat(processed.payloadJson()).doesNotContain("db.internal.example.com:5432");
+  }
+
+  @Test
+  void preservesAttributeNamesWhileRedactingHostnames() {
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+            .process(
+                PrivacyTestFixtures.requestWithObserved(
+                    "ingress.public=true vpc.id=vpc-0def5678 host=db.internal.example.com"));
+    var observed = processed.payload().findings().getFirst().observed();
+
+    assertThat(observed)
+        .contains("ingress.public=true")
+        .contains("vpc.id=")
+        .doesNotContain("db.internal.example.com");
+  }
+
+  @Test
   void usesCoarseRegionInsteadOfRawRegion() {
     var processed = PrivacyTestFixtures.processed();
 

@@ -103,6 +103,28 @@ class ExpertiseValidatorTest {
   }
 
   @Test
+  void rejectsUnsafeSummary() {
+    var base = ExpertiseTestFixtures.report();
+    var report =
+        new ExpertiseReport(
+            base.status(),
+            base.metadata(),
+            "account 123456789012",
+            base.facts(),
+            base.explanations(),
+            base.recommendations(),
+            base.assumptions(),
+            base.missingInformation(),
+            base.evidenceReferences(),
+            base.verifiedRelationships(),
+            base.uncertainties(),
+            base.privacyReceipt());
+
+    assertThat(validator.validate(request(), report, profile).status())
+        .isEqualTo(ProviderExecutionStatus.INVALID_RESPONSE);
+  }
+
+  @Test
   void rejectsTooManyExplanationsForProfile() {
     var tiny = new ExpertiseProfile("tiny", 1, 1, 4_000);
     var explanation = ExpertiseTestFixtures.report().explanations().getFirst();

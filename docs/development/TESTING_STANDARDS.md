@@ -62,7 +62,7 @@ Coverage must not be improved by meaningless tests, exclusions, deleting product
 
 ## Minimum test volume
 
-DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. DR-MAYS-03 requires at least 12 new fixture/demo tests. DR-MAYS-04 requires at least 30 new AWS discovery tests. DR-MAYS-05 requires at least 35 new DNA tests. DR-MAYS-06 requires at least 35 new AI/API tests. The current suite has 263 tests: 86 core, 84 API, 64 AWS and 29 AI.
+DR-MAYS-01 requires at least 40 passing tests, with at least 30 new meaningful tests over DR-MAYS-00. DR-MAYS-02 requires at least 25 new meaningful API tests. DR-MAYS-03 requires at least 12 new fixture/demo tests. DR-MAYS-04 requires at least 30 new AWS discovery tests. DR-MAYS-05 requires at least 35 new DNA tests. DR-MAYS-06 requires at least 35 new AI/API tests. The current suite has 392 tests: 86 core, 97 API, 64 AWS and 145 AI.
 
 ## Commands
 

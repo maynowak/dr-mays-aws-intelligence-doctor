@@ -41,7 +41,7 @@ No other `route` overload may exist. `ModelProvider.invoke` remains a provider S
 
 ## 3. Mock exception
 
-`ProviderApprovalPolicy` derives exemption from exact `MockModelProvider` class, not descriptor flags. Unknown provider → approval required. Registry rejects id `mock` from any other implementation. Mock still requires a server-issued authorization at router level, but no human approval token.
+`ProviderApprovalPolicy` derives exemption from exact `MockModelProvider` class, not descriptor flags. Unknown provider → approval required. Registry rejects id `mock` from any other implementation. Mock still requires a server-issued authorization at router level, but no human approval token. `ProviderEnablement` separately gates registered providers; `mockOnly()` is the default and registration is not enablement.
 
 ## 4. Model allowlist
 

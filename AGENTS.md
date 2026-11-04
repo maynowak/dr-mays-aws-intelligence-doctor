@@ -2,7 +2,7 @@
 
 ## Project status
 
-- **Core + API + Docker + simulated AWS + DNA + privacy-first mock AI implemented; live AWS and real model inference not started.** The reactor passes 455 local tests (86 core + 102 API + 64 AWS + 203 AI). No live AWS scan or real Ollama inference has run — never claim one.
+- **Core + API + Docker + simulated AWS + DNA + privacy-first mock AI implemented; live AWS and real model inference not started.** The reactor passes 467 local tests (86 core + 102 API + 64 AWS + 215 AI). No live AWS scan or real Ollama inference has run — never claim one.
 - Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the verified baseline at `3ec0e3b`; ORCH-01/02A/02C are merged. PROVIDER-SECURITY-03 is on `feature/dr-mays-provider-security-03`). PR #1 and PR #2 are merged. No push or merge is authorized for the new branch.
 - License is GPL-3.0 (`LICENSE`). Do not relicense without explicit confirmation.
 - Roadmap IDs use `DR-MAYS-<AREA>-<NN>` (phases 01–08). MVP gate is after phase 04: offline demo, inspectable checks, reproducible JSON diagnosis.
@@ -10,7 +10,7 @@
 ## Build and test commands
 
 - **Always use the wrapper** (`./mvnw`); the system Maven is 3.8.7 and the Enforcer rejects it. The wrapper pins Maven 3.9.16 and downloads it on first use.
-- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 455 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core, API, AWS and AI).
+- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 467 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core, API, AWS and AI).
 - Formatting: `./mvnw spotless:apply` to fix, `./mvnw spotless:check` to verify. Never auto-format in CI.
 - Static analysis: `./mvnw checkstyle:check` (0 violations required).
 - Coverage reports: `dr-mays-core/target/site/jacoco/`, `dr-mays-api/target/site/jacoco/`, `dr-mays-aws/target/site/jacoco/`, `dr-mays-ai/target/site/jacoco/`.

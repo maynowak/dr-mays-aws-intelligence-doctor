@@ -21,6 +21,14 @@ router -> only route(request, authorization)
 
 `ProviderInvocationAuthorization` is not a public record and has no public constructor. REST DTOs cannot carry it; unknown JSON fields are rejected. The previous unauthenticated `ProviderRouter.route(request)` overload no longer exists.
 
+## Gate-owned approval
+
+`PrivacyGate.register` has no approval boolean. The gate evaluates a server-owned `ApprovalRequirement`; the default gate is strict and production uses exact-mock `ProviderApprovalPolicy`. Approval basis is carried on `ApprovedInvocation` and the server-minted authorization, so the receipt reflects the gate decision.
+
+## Explicit enablement
+
+`ProviderEnablement` separates registration from execution. `mockOnly()` is the default; explicit `of(registry, ids)` rejects unknown/wildcard/unregistered IDs. Registration never enables a provider, and `enabledByDefault` is not an enablement authority.
+
 ## Mock exception
 
 Only the exact final `MockModelProvider` class is exempt from a human approval token. `ProviderApprovalPolicy` derives this from the concrete class, not `requiresApproval` or `kind` descriptor flags. `ProviderRegistry` rejects ID `mock` for any other implementation. The mock still requires a server-minted authorization at the router.

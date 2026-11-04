@@ -57,5 +57,5 @@ Approval is server-side and binds the exact payload hash, provider, model, exper
 
 - No real provider call, credential use, API key or external transfer occurred.
 - Secret/IP/hostname checks are pattern-based; they reduce risk but do not prove absence of all sensitive values.
-- Mock-only preview/approval/explain and sanitized payload tests pass (455 total project tests).
+- Mock-only preview/approval/explain and sanitized payload tests pass (467 total project tests).
 - Complete anonymity is not claimed.

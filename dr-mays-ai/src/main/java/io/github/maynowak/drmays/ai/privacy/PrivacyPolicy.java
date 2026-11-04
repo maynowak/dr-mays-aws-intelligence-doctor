@@ -1,7 +1,6 @@
 package io.github.maynowak.drmays.ai.privacy;
 
 import io.github.maynowak.drmays.core.validation.DomainChecks;
-import java.util.EnumSet;
 import java.util.Objects;
 import java.util.Set;
 
@@ -14,8 +13,18 @@ import java.util.Set;
  */
 public record PrivacyPolicy(String version, Set<PrivacyField> allowedFields, int maxPayloadChars) {
 
-  public static final String DEFAULT_VERSION = "privacy-v1";
+  public static final String DEFAULT_VERSION = "privacy-v2";
   public static final int DEFAULT_MAX_PAYLOAD_CHARS = 32_000;
+  public static final Set<PrivacyField> DEFAULT_ALLOWED_FIELDS =
+      Set.of(
+          PrivacyField.RULE_ID,
+          PrivacyField.SEVERITY,
+          PrivacyField.RESOURCE_ALIAS,
+          PrivacyField.EVIDENCE_SOURCE,
+          PrivacyField.EVIDENCE_OBSERVED,
+          PrivacyField.EVIDENCE_EXPECTED,
+          PrivacyField.COMPLETENESS,
+          PrivacyField.UNCERTAINTIES);
 
   public PrivacyPolicy {
     version = DomainChecks.requireText(version, "version");
@@ -30,13 +39,12 @@ public record PrivacyPolicy(String version, Set<PrivacyField> allowedFields, int
   }
 
   /**
-   * Returns the default policy with every supported field allowed.
+   * Returns the deny-by-default policy used for provider transmission.
    *
-   * @return default policy
+   * @return minimal default policy
    */
   public static PrivacyPolicy defaultPolicy() {
-    return new PrivacyPolicy(
-        DEFAULT_VERSION, EnumSet.allOf(PrivacyField.class), DEFAULT_MAX_PAYLOAD_CHARS);
+    return new PrivacyPolicy(DEFAULT_VERSION, DEFAULT_ALLOWED_FIELDS, DEFAULT_MAX_PAYLOAD_CHARS);
   }
 
   /**

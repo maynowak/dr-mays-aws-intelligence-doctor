@@ -45,6 +45,8 @@ class PrivacyGateTest {
     assertThat(decision.invocation()).isPresent();
     assertThat(decision.invocation().orElseThrow().source())
         .isEqualTo(PrivacyTestFixtures.request());
+    assertThat(decision.invocation().orElseThrow().authorization().payloadHash())
+        .isEqualTo(processed.payloadHash());
   }
 
   @Test
@@ -164,6 +166,31 @@ class PrivacyGateTest {
     } finally {
       pool.shutdownNow();
     }
+  }
+
+  @Test
+  void authorizationCannotBeConstructedPubliclyAndRedactsToString() {
+    var preview = register(false, PREVIEW, processed);
+    var authorization =
+        gate.consume(preview.previewId(), null).invocation().orElseThrow().authorization();
+
+    assertThat(ProviderInvocationAuthorization.class.getConstructors()).isEmpty();
+    assertThat(authorization.toString()).isEqualTo("ProviderInvocationAuthorization[redacted]");
+  }
+
+  @Test
+  void authorizationBindsProviderModelExpertisePolicyAndHash() {
+    var preview = register(false, PREVIEW, processed);
+    var authorization =
+        gate.consume(preview.previewId(), null).invocation().orElseThrow().authorization();
+
+    assertThat(authorization.providerId()).isEqualTo("mock");
+    assertThat(authorization.modelId()).isEqualTo(PREVIEW);
+    assertThat(authorization.expertiseId()).isEqualTo("standard");
+    assertThat(authorization.policyVersion()).isEqualTo(PrivacyPolicy.defaultPolicy().version());
+    assertThat(authorization.payloadHash()).isEqualTo(processed.payloadHash());
+    assertThat(authorization.expired(clock.instant())).isFalse();
+    assertThat(authorization.expired(clock.instant().plus(Duration.ofSeconds(31)))).isTrue();
   }
 
   @Test

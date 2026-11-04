@@ -12,13 +12,15 @@ import java.util.Objects;
  * @param providerId approved provider
  * @param modelId approved model
  * @param expertiseId approved expertise profile
+ * @param authorization server-minted, payload-bound invocation authorization
  */
 public record ApprovedInvocation(
     IntelligenceRequest source,
     PrivacyProcessingResult processed,
     String providerId,
     String modelId,
-    String expertiseId) {
+    String expertiseId,
+    ProviderInvocationAuthorization authorization) {
 
   public ApprovedInvocation {
     source = Objects.requireNonNull(source, "source");
@@ -26,5 +28,6 @@ public record ApprovedInvocation(
     providerId = DomainChecks.requireText(providerId, "providerId");
     modelId = DomainChecks.requireText(modelId, "modelId");
     expertiseId = DomainChecks.requireText(expertiseId, "expertiseId");
+    authorization = Objects.requireNonNull(authorization, "authorization");
   }
 }

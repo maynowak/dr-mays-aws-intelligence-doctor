@@ -10,8 +10,10 @@ import java.util.Objects;
  *
  * @param providerId selected provider
  * @param modelId selected model
+ * @param expertiseId selected expertise profile
  * @param payload sanitized provider payload
  * @param payloadJson exact serialized payload used for size checks
+ * @param payloadHash exact sanitized payload hash
  * @param credentialReference logical credential reference
  * @param timeout hard invocation timeout
  * @param maxOutputChars maximum accepted output
@@ -19,8 +21,10 @@ import java.util.Objects;
 public record ModelInvocationRequest(
     String providerId,
     String modelId,
+    String expertiseId,
     SanitizedExpertiseRequest payload,
     String payloadJson,
+    String payloadHash,
     ProviderCredentialReference credentialReference,
     Duration timeout,
     int maxOutputChars) {
@@ -31,8 +35,10 @@ public record ModelInvocationRequest(
     if (!modelId.matches("[A-Za-z0-9._:/-]{1,128}")) {
       throw new IllegalArgumentException("modelId is invalid");
     }
+    expertiseId = DomainChecks.requireText(expertiseId, "expertiseId");
     payload = Objects.requireNonNull(payload, "payload");
     payloadJson = DomainChecks.requireText(payloadJson, "payloadJson");
+    payloadHash = DomainChecks.requireText(payloadHash, "payloadHash");
     credentialReference = Objects.requireNonNull(credentialReference, "credentialReference");
     timeout = Objects.requireNonNull(timeout, "timeout");
     if (timeout.isZero() || timeout.isNegative()) {

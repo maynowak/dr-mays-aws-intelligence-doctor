@@ -56,7 +56,8 @@ class OpenCodeCliAdapterTest {
             command -> {
               captured.set(command);
               return new CliProcessResult(0, "{\"status\":\"ok\"}", "");
-            });
+            },
+            OpenCodeSandboxPolicy.allControlsSatisfiedForTest());
 
     var result = adapter.invoke(request());
 
@@ -70,7 +71,12 @@ class OpenCodeCliAdapterTest {
   void nonzeroExitIsFailure() {
     var adapter =
         new OpenCodeCliAdapter(
-            true, BINARY, HOME, WORK, command -> new CliProcessResult(7, "", "denied"));
+            true,
+            BINARY,
+            HOME,
+            WORK,
+            command -> new CliProcessResult(7, "", "denied"),
+            OpenCodeSandboxPolicy.allControlsSatisfiedForTest());
 
     assertThat(adapter.invoke(request()).status()).isEqualTo(ProviderExecutionStatus.FAILED);
   }
@@ -79,7 +85,12 @@ class OpenCodeCliAdapterTest {
   void oversizedOutputIsRejected() {
     var adapter =
         new OpenCodeCliAdapter(
-            true, BINARY, HOME, WORK, command -> new CliProcessResult(0, "x".repeat(70_000), ""));
+            true,
+            BINARY,
+            HOME,
+            WORK,
+            command -> new CliProcessResult(0, "x".repeat(70_000), ""),
+            OpenCodeSandboxPolicy.allControlsSatisfiedForTest());
 
     assertThat(adapter.invoke(request()).status())
         .isEqualTo(ProviderExecutionStatus.INVALID_RESPONSE);
@@ -89,7 +100,12 @@ class OpenCodeCliAdapterTest {
   void blankOutputIsRejected() {
     var adapter =
         new OpenCodeCliAdapter(
-            true, BINARY, HOME, WORK, command -> new CliProcessResult(0, " ", ""));
+            true,
+            BINARY,
+            HOME,
+            WORK,
+            command -> new CliProcessResult(0, " ", ""),
+            OpenCodeSandboxPolicy.allControlsSatisfiedForTest());
 
     assertThat(adapter.invoke(request()).status())
         .isEqualTo(ProviderExecutionStatus.INVALID_RESPONSE);

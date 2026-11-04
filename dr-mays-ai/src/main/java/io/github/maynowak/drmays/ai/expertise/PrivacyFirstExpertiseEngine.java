@@ -11,10 +11,13 @@ import io.github.maynowak.drmays.ai.privacy.PrivacyGate;
 import io.github.maynowak.drmays.ai.privacy.PrivacyPolicy;
 import io.github.maynowak.drmays.ai.privacy.PrivacyPreview;
 import io.github.maynowak.drmays.ai.privacy.PrivacyProcessor;
+import io.github.maynowak.drmays.ai.provider.CredentialResolutionPolicy;
 import io.github.maynowak.drmays.ai.provider.MockModelProvider;
 import io.github.maynowak.drmays.ai.provider.ModelInvocationRequest;
+import io.github.maynowak.drmays.ai.provider.ProviderApprovalPolicy;
 import io.github.maynowak.drmays.ai.provider.ProviderCredentialReference;
 import io.github.maynowak.drmays.ai.provider.ProviderExecutionStatus;
+import io.github.maynowak.drmays.ai.provider.ProviderModelPolicy;
 import io.github.maynowak.drmays.ai.provider.ProviderRegistry;
 import io.github.maynowak.drmays.ai.provider.ProviderRouter;
 import io.github.maynowak.drmays.core.dna.GraphCompleteness;
@@ -27,7 +30,6 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
-import java.util.Set;
 
 /**
  * Mock-first orchestration of privacy projection, preview/approval, provider routing and expertise
@@ -40,6 +42,8 @@ public final class PrivacyFirstExpertiseEngine {
 
   private final ProviderRegistry registry;
   private final ProviderRouter router;
+  private final ProviderModelPolicy modelPolicy;
+  private final ProviderApprovalPolicy approvalPolicy;
   private final ExpertiseCatalog catalog;
   private final PrivacyProcessor privacyProcessor;
   private final PrivacyGate gate;
@@ -74,13 +78,53 @@ public final class PrivacyFirstExpertiseEngine {
       PrivacyGate gate,
       ExpertiseParser parser,
       ExpertiseValidator validator) {
+    this(
+        registry,
+        catalog,
+        privacyProcessor,
+        gate,
+        parser,
+        validator,
+        ProviderModelPolicy.mockOnly(),
+        ProviderApprovalPolicy.forRegistry(registry));
+  }
+
+  /**
+   * Creates an engine with explicit provider security policies.
+   *
+   * @param registry provider registry
+   * @param catalog expertise catalog
+   * @param privacyProcessor privacy projector
+   * @param gate approval gate
+   * @param parser model response parser
+   * @param validator expertise validator
+   * @param modelPolicy exact provider/model allowlist
+   * @param approvalPolicy server-owned approval policy
+   */
+  public PrivacyFirstExpertiseEngine(
+      ProviderRegistry registry,
+      ExpertiseCatalog catalog,
+      PrivacyProcessor privacyProcessor,
+      PrivacyGate gate,
+      ExpertiseParser parser,
+      ExpertiseValidator validator,
+      ProviderModelPolicy modelPolicy,
+      ProviderApprovalPolicy approvalPolicy) {
     this.registry = Objects.requireNonNull(registry, "registry");
     this.catalog = Objects.requireNonNull(catalog, "catalog");
     this.privacyProcessor = Objects.requireNonNull(privacyProcessor, "privacyProcessor");
     this.gate = Objects.requireNonNull(gate, "gate");
     this.parser = Objects.requireNonNull(parser, "parser");
     this.validator = Objects.requireNonNull(validator, "validator");
-    this.router = new ProviderRouter(registry, Set.of("mock"));
+    this.modelPolicy = Objects.requireNonNull(modelPolicy, "modelPolicy");
+    this.approvalPolicy = Objects.requireNonNull(approvalPolicy, "approvalPolicy");
+    this.router =
+        new ProviderRouter(
+            registry,
+            registry.ids(),
+            modelPolicy,
+            CredentialResolutionPolicy.disabled(),
+            java.time.Clock.systemUTC());
   }
 
   /**
@@ -95,23 +139,26 @@ public final class PrivacyFirstExpertiseEngine {
   public PrivacyPreview preview(
       IntelligenceRequest source, String providerId, String modelId, String expertiseId) {
     Objects.requireNonNull(source, "source");
-    var provider =
-        registry
-            .find(DomainChecks.requireText(providerId, "providerId"))
-            .orElseThrow(() -> new IllegalArgumentException("unknown provider"));
+    var selectedProvider = DomainChecks.requireText(providerId, "providerId");
+    if (!registry.contains(selectedProvider)) {
+      throw new IllegalArgumentException("unknown provider");
+    }
     var model = DomainChecks.requireText(modelId, "modelId");
     if (!model.matches("[A-Za-z0-9._:/-]{1,128}")) {
       throw new IllegalArgumentException("modelId is invalid");
+    }
+    if (!modelPolicy.allows(selectedProvider, model)) {
+      throw new IllegalArgumentException("model is not allowlisted");
     }
     var expertise = catalog.require(DomainChecks.requireText(expertiseId, "expertiseId"));
     var processed = privacyProcessor.process(source);
     return gate.register(
         source,
         processed,
-        providerId,
+        selectedProvider,
         model,
         expertise.id(),
-        provider.descriptor().requiresApproval());
+        approvalPolicy.requiresApproval(selectedProvider));
   }
 
   /**
@@ -145,9 +192,8 @@ public final class PrivacyFirstExpertiseEngine {
     var processed = invocation.processed();
     var facts = facts(source);
     var metadata = new ModelMetadata(invocation.providerId(), invocation.modelId(), "1.0");
-    var provider = registry.find(invocation.providerId()).orElse(null);
     var approvalStatus =
-        provider != null && provider.descriptor().requiresApproval()
+        approvalPolicy.requiresApproval(invocation.providerId())
             ? ApprovalStatus.APPROVED
             : ApprovalStatus.NOT_REQUIRED;
     var receipt =
@@ -170,12 +216,14 @@ public final class PrivacyFirstExpertiseEngine {
         new ModelInvocationRequest(
             invocation.providerId(),
             invocation.modelId(),
+            invocation.expertiseId(),
             processed.payload(),
             processed.payloadJson(),
+            processed.payloadHash(),
             ProviderCredentialReference.none(invocation.providerId()),
             INVOCATION_TIMEOUT,
             MAX_OUTPUT_CHARS);
-    var result = router.route(request);
+    var result = router.route(request, invocation.authorization());
     if (result.status() != ProviderExecutionStatus.SUCCESS) {
       return ExpertiseReport.failure(result.status(), metadata, facts, receipt);
     }

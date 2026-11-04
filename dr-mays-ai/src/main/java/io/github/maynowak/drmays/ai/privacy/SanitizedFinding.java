@@ -1,7 +1,6 @@
 package io.github.maynowak.drmays.ai.privacy;
 
 import io.github.maynowak.drmays.core.validation.DomainChecks;
-import java.util.Objects;
 
 /**
  * Provider-facing finding with identifiers replaced by aliases.
@@ -43,26 +42,5 @@ public record SanitizedFinding(
     evidenceSource = DomainChecks.requireText(evidenceSource, "evidenceSource");
     observed = DomainChecks.requireText(observed, "observed");
     expected = DomainChecks.requireText(expected, "expected");
-  }
-
-  /**
-   * Replaces the sanitized title when the field is excluded by policy.
-   *
-   * @param value replacement text
-   * @return copy with replacement title
-   */
-  public SanitizedFinding withTitle(String value) {
-    return new SanitizedFinding(
-        ruleId,
-        ruleVersion,
-        severity,
-        resourceAlias,
-        resourceType,
-        regionClass,
-        Objects.requireNonNull(value, "value"),
-        description,
-        evidenceSource,
-        observed,
-        expected);
   }
 }

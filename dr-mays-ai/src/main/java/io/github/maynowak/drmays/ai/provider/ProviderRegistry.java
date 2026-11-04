@@ -32,6 +32,9 @@ public final class ProviderRegistry {
   public void register(ModelProvider provider) {
     var value = Objects.requireNonNull(provider, "provider");
     var id = value.descriptor().id();
+    if ("mock".equals(id) && value.getClass() != MockModelProvider.class) {
+      throw new IllegalArgumentException("provider id mock is reserved for MockModelProvider");
+    }
     if (providers.putIfAbsent(id, value) != null) {
       throw new IllegalArgumentException("duplicate provider: " + id);
     }
@@ -43,8 +46,18 @@ public final class ProviderRegistry {
    * @param id provider identifier
    * @return provider when registered
    */
-  public Optional<ModelProvider> find(String id) {
+  Optional<ModelProvider> find(String id) {
     return Optional.ofNullable(providers.get(Objects.requireNonNull(id, "id")));
+  }
+
+  /**
+   * Returns whether a provider ID is registered.
+   *
+   * @param id provider identifier
+   * @return true when registered
+   */
+  public boolean contains(String id) {
+    return providers.containsKey(Objects.requireNonNull(id, "id"));
   }
 
   /** Returns registered provider descriptors in registration order. */

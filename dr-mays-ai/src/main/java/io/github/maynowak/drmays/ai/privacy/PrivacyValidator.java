@@ -57,6 +57,17 @@ public final class PrivacyValidator {
               PrivacyViolation.INVALID_FIELD, "policyVersion", "policy version mismatch"));
     }
     for (var finding : payload.findings()) {
+      checkAllowed(policy, PrivacyField.RULE_ID, finding.ruleId(), violations);
+      checkAllowed(policy, PrivacyField.RULE_VERSION, finding.ruleVersion(), violations);
+      checkAllowed(policy, PrivacyField.SEVERITY, finding.severity(), violations);
+      checkAllowed(policy, PrivacyField.RESOURCE_ALIAS, finding.resourceAlias(), violations);
+      checkAllowed(policy, PrivacyField.RESOURCE_TYPE, finding.resourceType(), violations);
+      checkAllowed(policy, PrivacyField.REGION_CLASS, finding.regionClass(), violations);
+      checkAllowed(policy, PrivacyField.TITLE, finding.title(), violations);
+      checkAllowed(policy, PrivacyField.DESCRIPTION, finding.description(), violations);
+      checkAllowed(policy, PrivacyField.EVIDENCE_SOURCE, finding.evidenceSource(), violations);
+      checkAllowed(policy, PrivacyField.EVIDENCE_OBSERVED, finding.observed(), violations);
+      checkAllowed(policy, PrivacyField.EVIDENCE_EXPECTED, finding.expected(), violations);
       check("ruleId", finding.ruleId(), violations, false);
       check("ruleVersion", finding.ruleVersion(), violations, false);
       check("severity", finding.severity(), violations, false);
@@ -70,14 +81,21 @@ public final class PrivacyValidator {
       checkEvidence("expected", finding.expected(), violations);
     }
     for (var relationship : payload.relationships()) {
+      checkAllowed(policy, PrivacyField.RELATIONSHIP_TYPE, relationship.type(), violations);
+      checkAllowed(policy, PrivacyField.RESOURCE_ALIAS, relationship.fromAlias(), violations);
+      checkAllowed(policy, PrivacyField.RESOURCE_ALIAS, relationship.toAlias(), violations);
+      checkAllowed(policy, PrivacyField.EVIDENCE_SOURCE, relationship.evidenceSource(), violations);
+      checkAllowed(policy, PrivacyField.EVIDENCE_OBSERVED, relationship.observed(), violations);
       check("type", relationship.type(), violations, false);
       check("fromAlias", relationship.fromAlias(), violations, false);
       check("toAlias", relationship.toAlias(), violations, false);
       check("evidenceSource", relationship.evidenceSource(), violations, true);
       checkEvidence("observed", relationship.observed(), violations);
     }
+    checkAllowed(policy, PrivacyField.COMPLETENESS, payload.completeness(), violations);
     check("completeness", payload.completeness(), violations, false);
     for (var uncertainty : payload.uncertainties()) {
+      checkAllowed(policy, PrivacyField.UNCERTAINTIES, uncertainty, violations);
       check("uncertainties", uncertainty, violations, true);
     }
     return new PrivacyValidationResult(true, violations);
@@ -192,6 +210,15 @@ public final class PrivacyValidator {
     }
     if (checkHostname && (HOST_WITH_PORT.matcher(value).find() || HOSTNAME.matcher(value).find())) {
       violations.add(new PrivacyViolation(PrivacyViolation.HOSTNAME, field, "hostname found"));
+    }
+  }
+
+  private void checkAllowed(
+      PrivacyPolicy policy, PrivacyField field, String value, List<PrivacyViolation> violations) {
+    if (!policy.allows(field) && !"[excluded]".equals(value)) {
+      violations.add(
+          new PrivacyViolation(
+              PrivacyViolation.FIELD_NOT_ALLOWED, field.name(), "field is excluded by policy"));
     }
   }
 

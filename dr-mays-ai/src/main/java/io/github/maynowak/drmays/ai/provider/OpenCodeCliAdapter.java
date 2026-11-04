@@ -14,6 +14,7 @@ public final class OpenCodeCliAdapter implements ModelProvider {
   private final Path isolatedHome;
   private final Path workingDirectory;
   private final CliProcessRunner runner;
+  private final OpenCodeSandboxPolicy sandboxPolicy;
 
   /**
    * Creates a disabled adapter with explicit isolation paths.
@@ -25,7 +26,7 @@ public final class OpenCodeCliAdapter implements ModelProvider {
    */
   public OpenCodeCliAdapter(
       Path binary, Path isolatedHome, Path workingDirectory, CliProcessRunner runner) {
-    this(false, binary, isolatedHome, workingDirectory, runner);
+    this(false, binary, isolatedHome, workingDirectory, runner, OpenCodeSandboxPolicy.blocked());
   }
 
   /**
@@ -43,11 +44,38 @@ public final class OpenCodeCliAdapter implements ModelProvider {
       Path isolatedHome,
       Path workingDirectory,
       CliProcessRunner runner) {
+    this(
+        liveExecutionEnabled,
+        binary,
+        isolatedHome,
+        workingDirectory,
+        runner,
+        OpenCodeSandboxPolicy.blocked());
+  }
+
+  /**
+   * Creates an adapter with an explicit sandbox readiness policy.
+   *
+   * @param liveExecutionEnabled must remain false in this phase
+   * @param binary absolute CLI binary
+   * @param isolatedHome private temporary home
+   * @param workingDirectory controlled empty directory
+   * @param runner process runner
+   * @param sandboxPolicy required OS isolation controls
+   */
+  public OpenCodeCliAdapter(
+      boolean liveExecutionEnabled,
+      Path binary,
+      Path isolatedHome,
+      Path workingDirectory,
+      CliProcessRunner runner,
+      OpenCodeSandboxPolicy sandboxPolicy) {
     this.liveExecutionEnabled = liveExecutionEnabled;
     this.binary = binary;
     this.isolatedHome = isolatedHome;
     this.workingDirectory = workingDirectory;
     this.runner = Objects.requireNonNull(runner, "runner");
+    this.sandboxPolicy = Objects.requireNonNull(sandboxPolicy, "sandboxPolicy");
   }
 
   @Override
@@ -58,7 +86,7 @@ public final class OpenCodeCliAdapter implements ModelProvider {
   @Override
   public ModelInvocationResult invoke(ModelInvocationRequest request) {
     Objects.requireNonNull(request, "request");
-    if (!liveExecutionEnabled) {
+    if (!liveExecutionEnabled || !sandboxPolicy.ready()) {
       return ModelInvocationResult.failure(
           ProviderExecutionStatus.DISABLED,
           request.providerId(),

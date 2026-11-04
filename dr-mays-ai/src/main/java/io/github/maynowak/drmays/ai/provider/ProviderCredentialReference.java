@@ -30,6 +30,14 @@ public record ProviderCredentialReference(
         && !reference.matches("[A-Za-z0-9._-]{1,128}")) {
       throw new IllegalArgumentException("file/keyring references must be simple logical names");
     }
+    if (kind == CredentialKind.FILE
+        && (reference.equals(".")
+            || reference.equals("..")
+            || reference.equalsIgnoreCase("auth.json")
+            || reference.equalsIgnoreCase("credentials")
+            || reference.equalsIgnoreCase("config.json"))) {
+      throw new IllegalArgumentException("file reference is reserved");
+    }
   }
 
   @Override

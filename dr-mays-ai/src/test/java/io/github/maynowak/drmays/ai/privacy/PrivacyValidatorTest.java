@@ -67,6 +67,21 @@ class PrivacyValidatorTest {
   }
 
   @Test
+  void acceptsExcludedPlaceholdersInDefaultPayload() {
+    assertThat(validator.validate(PrivacyTestFixtures.processed().payload(), policy).valid())
+        .isTrue();
+  }
+
+  @Test
+  void rejectsPopulatedExcludedField() {
+    var result = validator.validate(payload(withUniqueTitle("Public ingress")), policy);
+
+    assertThat(result.valid()).isFalse();
+    assertThat(result.violations())
+        .anyMatch(violation -> violation.code().equals(PrivacyViolation.FIELD_NOT_ALLOWED));
+  }
+
+  @Test
   void rejectsAdditionalResourcePrefixes() {
     var result =
         validator.validate(payload(withObserved("igw-0abc1234 eni-0123456789abcdef0")), policy);
@@ -231,7 +246,7 @@ class PrivacyValidatorTest {
   private static SanitizedExpertiseRequest payload(SanitizedFinding finding) {
     return new SanitizedExpertiseRequest(
         SanitizedExpertiseRequest.CURRENT_PAYLOAD_VERSION,
-        "privacy-v1",
+        PrivacyPolicy.DEFAULT_VERSION,
         List.of(finding),
         List.of(),
         "COMPLETE",

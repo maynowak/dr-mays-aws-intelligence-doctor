@@ -26,6 +26,8 @@ public final class PrivacyGate {
   private static final int MAX_CONSUMED = 1_000;
   private static final int PREVIEW_ID_BYTES = 16;
   private static final int TOKEN_BYTES = 32;
+  private static final int AUTHORIZATION_NONCE_BYTES = 16;
+  private static final Duration AUTHORIZATION_TTL = Duration.ofSeconds(30);
 
   private final Duration previewTtl;
   private final Duration approvalTtl;
@@ -179,13 +181,23 @@ public final class PrivacyGate {
     if (consumed.size() > MAX_CONSUMED) {
       consumed.remove(consumed.iterator().next());
     }
+    var authorization =
+        new ProviderInvocationAuthorization(
+            randomToken(AUTHORIZATION_NONCE_BYTES),
+            preview.processed().payloadHash(),
+            preview.providerId(),
+            preview.modelId(),
+            preview.expertiseId(),
+            preview.processed().policy().version(),
+            earlier(clock.instant().plus(AUTHORIZATION_TTL), preview.expiresAt()));
     return ApprovalDecision.approved(
         new ApprovedInvocation(
             preview.source(),
             preview.processed(),
             preview.providerId(),
             preview.modelId(),
-            preview.expertiseId()));
+            preview.expertiseId(),
+            authorization));
   }
 
   /** Removes expired state. */

@@ -93,6 +93,13 @@ final class PrivacyTestFixtures {
     return processor(PrivacyPolicy.defaultPolicy()).process(partialRequest());
   }
 
+  static PrivacyPolicy relationshipPolicy() {
+    var fields = java.util.EnumSet.copyOf(PrivacyPolicy.DEFAULT_ALLOWED_FIELDS);
+    fields.add(PrivacyField.RELATIONSHIP_TYPE);
+    return new PrivacyPolicy(
+        PrivacyPolicy.DEFAULT_VERSION, fields, PrivacyPolicy.DEFAULT_MAX_PAYLOAD_CHARS);
+  }
+
   static PrivacyProcessor processor(PrivacyPolicy policy) {
     return new PrivacyProcessor(policy, new ObjectMapper(), () -> AliasMapping.withKey(KEY));
   }

@@ -28,7 +28,7 @@ Status: **adapter mock-verified; live execution BLOCKED.**
   `binary run --format json --model <model>`.
 - Isolated `HOME`, XDG dirs and `OPENCODE_CONFIG_DIR`; project config/update/model fetch disabled.
 - Minimal `PATH`; no AWS/OpenAI credentials.
-- Bounded stdin/stdout and a 30-second timeout.
+- Command descriptor carries bounded stdin/stdout/timeout metadata; no production runner enforces it because live execution is blocked.
 - `CliProcessRunner` is an interface exercised only with simulated results.
 - Live execution remains false; a call returns `DISABLED` with `OPENCODE_LIVE_EXECUTION_BLOCKED`.
 - Nonzero exit, oversized output and blank output map to explicit failure statuses.
@@ -44,4 +44,4 @@ Status: **adapter mock-verified; live execution BLOCKED.**
 7. Exit/output/JSONL completeness canary.
 8. Separate explicit approval and audit log.
 
-Until all are proven: direct Spring AI/provider adapters remain the regular inference path, and OpenCode live execution stays **BLOCKED**.
+Until all are proven: the deterministic mock remains the only enabled provider; direct adapters remain the future regular path once approved, and OpenCode live execution stays **BLOCKED**.

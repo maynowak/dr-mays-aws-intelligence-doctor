@@ -2,52 +2,60 @@
 
 ## 1. Current status
 
-`IN PROGRESS — DISCOVERY/CONTRACT FREEZE GREEN.` Implementation of router authorization, privacy v2, model allowlist and credential/OpenCode contracts pending.
+`COMPLETE — GREEN (local security hardening).` No live provider/credential/OpenCode execution; no push/merge.
 
 ## 2. Audit date/time
 
 - Started: 2026-11-04T14:55:25+01:00
 - Discovery: 14:58–15:20
-- Contract freeze: 15:20+01:00
+- Final verify: 2026-11-04T15:32:10+01:00
+- Final Docker: 15:33 (approx.)
 
 ## 3. Git branch and HEAD
 
 - Branch: `feature/dr-mays-provider-security-03`
 - Baseline/main: `3ec0e3b3d5063e8620e0b1f622c06a5280f2eabf`
-- Working tree clean before discovery.
+- Contract: `9b5b6fe`
+- Implementation: `d8cbb7d`
+- Hash-hardening: `2933aee`
+- Final audit commit follows.
 
-## 4. Audit scope
+## 4. Scope
 
-Provider authorization, privacy policy minimization, model allowlisting, BYOK contracts and OpenCode readiness. Local only; no push/merge/external calls.
+Router authorization, privacy v2, model allowlisting, disabled credential policy, OpenCode sandbox readiness, tests, reviews, Docker and audit. Local only.
 
 ## 5. Completed work steps
 
-- Verified baseline/branch.
-- Completed three read-only discovery agents and synthesis.
-- Froze ADR-0012 and authorization contract.
-- Identified P0/P1 implementation order.
+- Three read-only discovery agents + synthesis.
+- ADR-0012 and provider authorization contract.
+- Privacy v2 minimal default/versioning/validator/relationship omission.
+- Server-minted authorization + single authorized router path + payload integrity.
+- Exact model allowlist and exact-mock approval policy.
+- Disabled credential policy/resolver and reference hardening.
+- OpenCode sandbox policy and adapter gate.
+- 44 additional tests (411 -> 455), full verify and Docker.
+- Two independent security reviews; hash gap fixed.
 
 ## 6. Actual findings
 
-- Router has no own authorization; engine-only enforcement.
-- Mock exemption trusts descriptor/caller flags.
-- Model IDs are syntax-only.
-- Default policy allows all fields; excluded-field validator gap.
-- Credential resolver/CLI sandbox controls latent; live disabled.
-- No current live external provider path.
+- No HIGH/CRITICAL after fixes.
+- `PrivacyGate.register` caller boolean remains a documented in-process residual.
+- Future FILE/KEYRING denylist, credential binding, explicit enablement, OpenCode runner enforcement remain preconditions.
+- Current path is mock-only; no external provider or credential access.
 
 ## 7. Evidence/file references
 
 - `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-AGENT-A-PROVIDER-ARCHITECTURE.md`
 - `...AGENT-B-PRIVACY-POLICY.md`
 - `...AGENT-C-CREDENTIAL-OPENCODE.md`
-- `...DISCOVERY.md`
+- `...REVIEW-A-AUTHORIZATION.md`, `...REVIEW-B-CREDENTIAL-CLI.md`
 - `docs/decisions/ADR-0012-enforced-provider-authorization.md`
 - `docs/architecture/PROVIDER_AUTHORIZATION_CONTRACT.md`
+- `/tmp/opencode/ps03-final-verify.log`, `/tmp/opencode/ps03-final-docker.log`
 
 ## 8. Classification
 
-`YELLOW` current hardening state; contract frozen, implementation pending.
+`GREEN (local)` for mock-only hardening; `BLOCKED` for live provider/BYOK/OpenCode/AWS/CI/public deployment.
 
 ## 9. Terraform checks and results
 
@@ -55,28 +63,40 @@ N/A — none executed.
 
 ## 10. Git status
 
-Discovery/contract files pending commit; no code changed.
+- Code committed; docs commit pending.
+- No push, merge, rebase, reset or deployment.
 
 ## 11. Files changed
 
-- Added three discovery reports, synthesis, ADR-0012 and contract.
+- Privacy v2 classes/tests; provider authorization/policy/credential/OpenCode classes/tests; API tests; docs/ADR/audit.
+- No new module/dependency/provider activation.
 
 ## 12. Explicit no-change confirmation
 
-No model/provider/AWS/credential/OpenCode/network call; no push/merge/deployment.
+No real model/provider/AWS/credential/OpenCode live call; no external data transfer; no push/merge/deployment.
 
 ## 13. Open questions
 
-Exact authorization class naming/placement, policy test updates, credential/OpenCode contract depth.
+- Gate-internal approval derivation.
+- Credential reference binding/denylist expansion.
+- Explicit enabled-provider set.
+- OpenCode real runner/OS isolation.
+- CI/PR authorization.
 
 ## 14. Risks
 
-Latent router bypass, broad policy, model misattribution, future credential/CLI exposure.
+- In-process gate-flag residual.
+- Pattern-based privacy limitations.
+- Future provider/CLI activation without additional controls.
+- Stale docs/CI absent.
 
 ## 15. Recommended next actions
 
-Implement privacy v2, authorization/router, model allowlist, credential policy, sandbox policy, tests/reviews/docs.
+1. Keep mock-only.
+2. Move approval policy into gate and bind credential reference before BYOK.
+3. Expand denylist and implement runner controls before OpenCode.
+4. Authorize CI/PR separately; no merge.
 
 ## 16. Current resume point
 
-ORCH-03A implementation; contract frozen at `3ec0e3b`.
+Local hardening complete at `2933aee`; final docs audit commit next. No push/merge.

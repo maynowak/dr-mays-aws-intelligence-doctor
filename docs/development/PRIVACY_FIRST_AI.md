@@ -42,12 +42,7 @@ Preview never invokes a provider. The expertise explain endpoint accepts only th
 
 ## Allowed provider payload
 
-- Rule ID/version, severity, coarse resource type, coarse region class.
-- Resource alias only.
-- Sanitized rule title/description.
-- Evidence source and sanitized observed/expected values.
-- Relationship type, aliases and sanitized evidence.
-- Completeness, sanitized uncertainties.
+`privacy-v2` allows only: rule ID, severity, resource alias, evidence source, sanitized observed/expected, completeness and uncertainties. Rule version, resource type, region class, title, description and relationship fields are excluded by default. Relationships are omitted when denied. See `PRIVACY_POLICY_HARDENING.md`.
 
 ## Never sent
 
@@ -85,7 +80,7 @@ All endpoints remain loopback-only, unauthenticated and unsuitable for public de
 - Alias consistency is tested across findings and relationships.
 - Preview tampering, wrong token, token reuse, expiry and invalid privacy state are tested.
 - Unknown findings/evidence/relationships/aliases are rejected as `INVALID_RESPONSE`.
-- Current suite: 411 tests; AI/API coverage gates pass.
+- Current suite: 455 tests; AI/API coverage gates pass.
 
 ## Limitations
 

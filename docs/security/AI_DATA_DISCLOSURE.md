@@ -8,14 +8,14 @@ Status: no external data transfer is enabled. The only executable provider is th
 | --- | --- | --- |
 | Account identifier | AWS account ID | Replaced with `acct_` alias |
 | Resource identity | ARN, SG/VPC/subnet/instance ID, S3 name | Replaced with `res_`/`sg_`/`vpc_`/`arn_` alias |
-| Region | `eu-west-1` | Coarse `REGION` class |
+| Region | `eu-west-1` | Excluded by default in `privacy-v2` |
 | Tags/attributes | owner, application, topology metadata | Excluded |
 | Evidence details | raw attribute map | Excluded |
 | Email | owner/contact | Redacted/rejected |
 | Hostname/IP | DNS names, IPv4/IPv6 | Redacted/rejected |
 | Secrets | API keys, tokens, private keys | Rejected; payload invalid |
 | Rule/finding semantics | rule ID, severity, title, description | Sanitized allowlisted text |
-| DNA relationships | type and alias endpoints | Allowed; no inferred reachability |
+| DNA relationships | type and alias endpoints | Excluded by default; omitted from payload |
 
 ## What the preview shows
 
@@ -57,5 +57,5 @@ Approval is server-side and binds the exact payload hash, provider, model, exper
 
 - No real provider call, credential use, API key or external transfer occurred.
 - Secret/IP/hostname checks are pattern-based; they reduce risk but do not prove absence of all sensitive values.
-- Mock-only preview/approval/explain and sanitized payload tests pass (411 total project tests).
+- Mock-only preview/approval/explain and sanitized payload tests pass (455 total project tests).
 - Complete anonymity is not claimed.

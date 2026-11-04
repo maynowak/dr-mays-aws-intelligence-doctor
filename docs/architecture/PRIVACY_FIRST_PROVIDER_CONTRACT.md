@@ -1,6 +1,6 @@
 # Privacy-First Provider Orchestration Contract
 
-Status: frozen for ORCH-01 (2026-11-04)
+Status: ORCH-01 baseline; superseded in hardened details by `PROVIDER_AUTHORIZATION_CONTRACT.md` / ADR-0012 (2026-11-04)
 Decision: ADR-0011
 Scope: `dr-mays-ai`, `dr-mays-api`
 
@@ -58,7 +58,7 @@ New packages in `dr-mays-ai`:
 
 ### Payload allowlist
 
-Allowed: rule ID/version, severity, resource type, coarse region class, resource alias, rule title/description after sanitization, evidence source/observed/expected after sanitization, relationship type/aliases/source/observed, completeness, sanitized uncertainties, counts.
+Allowed by `privacy-v2`: rule ID, severity, resource alias, evidence source, observed/expected after sanitization, completeness, sanitized uncertainties. Other fields and relationships are denied by default; see ADR-0012.
 
 Forbidden: account ID, raw resource ID, ARN, VPC/SG/host ID, tags, attributes, `Evidence.details`, emails, IPs, hostnames, secrets, URLs, free-form metadata, credentials.
 
@@ -88,7 +88,7 @@ Forbidden: account ID, raw resource ID, ARN, VPC/SG/host ID, tags, attributes, `
 | `ProviderKind` | `DETERMINISTIC_MOCK`, `LOCAL_MODEL`, `EXTERNAL_MODEL`, `CLI_AGENT` |
 | `ProviderCapabilities` | JSON support, local-only flag, tools flag, payload/output caps |
 | `ModelProviderDescriptor` | Provider identity, kind, capabilities, approval/credential requirements |
-| `ProviderExecutionStatus` | `SUCCESS`, `DISABLED`, `UNAVAILABLE`, `FAILED`, `INVALID_RESPONSE`, `APPROVAL_REQUIRED`, `PRIVACY_REJECTED`, `NOT_ALLOWED`, `CREDENTIAL_UNAVAILABLE`, `TIMEOUT` |
+| `ProviderExecutionStatus` | `SUCCESS`, `DISABLED`, `UNAVAILABLE`, `FAILED`, `INVALID_RESPONSE`, `APPROVAL_REQUIRED`, `PRIVACY_REJECTED`, `NOT_ALLOWED`, `MODEL_NOT_ALLOWED`, `CREDENTIAL_UNAVAILABLE`, `TIMEOUT` |
 | `ProviderCredentialReference` | Logical reference only; no secret |
 | `ModelInvocationRequest` | Provider/model, sanitized payload, credential reference, timeout/output cap |
 | `ModelInvocationResult` | Status, content, metadata, bounded lengths, safe error code |

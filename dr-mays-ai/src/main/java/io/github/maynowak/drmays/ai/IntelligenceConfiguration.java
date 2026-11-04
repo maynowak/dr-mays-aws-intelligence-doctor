@@ -1,7 +1,9 @@
 package io.github.maynowak.drmays.ai;
 
+import io.github.maynowak.drmays.ai.expertise.PrivacyFirstExpertiseEngine;
 import org.springframework.ai.chat.client.ChatClient;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.boot.autoconfigure.condition.ConditionalOnMissingBean;
 import org.springframework.boot.autoconfigure.condition.ConditionalOnProperty;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -28,5 +30,16 @@ public class IntelligenceConfiguration {
         new PromptBuilder(),
         new ObjectMapper(),
         new ModelMetadata("ollama", model, "1.0"));
+  }
+
+  /**
+   * Provides the mock-first privacy orchestration engine without contacting a provider.
+   *
+   * @return privacy-first expertise engine
+   */
+  @Bean
+  @ConditionalOnMissingBean
+  public PrivacyFirstExpertiseEngine privacyFirstExpertiseEngine() {
+    return new PrivacyFirstExpertiseEngine();
   }
 }

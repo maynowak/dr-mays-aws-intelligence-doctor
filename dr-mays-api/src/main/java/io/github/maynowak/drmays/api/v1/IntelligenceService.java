@@ -3,22 +3,37 @@ package io.github.maynowak.drmays.api.v1;
 import io.github.maynowak.drmays.ai.EvidenceReference;
 import io.github.maynowak.drmays.ai.FindingExplanation;
 import io.github.maynowak.drmays.ai.IntelligenceAnalyzer;
-import io.github.maynowak.drmays.ai.IntelligenceRequest;
 import io.github.maynowak.drmays.ai.IntelligenceResult;
 import io.github.maynowak.drmays.ai.Recommendation;
-import io.github.maynowak.drmays.core.dna.GraphCompleteness;
-import io.github.maynowak.drmays.core.dna.InfrastructureGraphBuilder;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 /** Builds verified intelligence input server-side and calls the configured analyzer. */
 @Service
 public class IntelligenceService {
 
-  private final DiagnosisService diagnosisService;
+  private final IntelligenceInputFactory inputFactory;
   private final IntelligenceAnalyzer analyzer;
 
+  /**
+   * Creates the service from existing dependencies.
+   *
+   * @param diagnosisService deterministic diagnosis service
+   * @param analyzer configured intelligence analyzer
+   */
   public IntelligenceService(DiagnosisService diagnosisService, IntelligenceAnalyzer analyzer) {
-    this.diagnosisService = diagnosisService;
+    this(new IntelligenceInputFactory(diagnosisService), analyzer);
+  }
+
+  /**
+   * Creates the service with an explicit input factory.
+   *
+   * @param inputFactory verified input factory
+   * @param analyzer configured intelligence analyzer
+   */
+  @Autowired
+  public IntelligenceService(IntelligenceInputFactory inputFactory, IntelligenceAnalyzer analyzer) {
+    this.inputFactory = inputFactory;
     this.analyzer = analyzer;
   }
 
@@ -29,21 +44,10 @@ public class IntelligenceService {
    * @return structured AI response
    */
   public IntelligenceExplainResponse explain(IntelligenceExplainRequest request) {
-    var diagnosisRequest = new DiagnosisRequest(request.resources());
-    var resources = diagnosisService.toResources(diagnosisRequest);
-    var diagnosis = diagnosisService.diagnoseDomain(diagnosisRequest);
-    var graph =
-        new InfrastructureGraphBuilder()
-            .build(resources, Boolean.TRUE.equals(request.partialDiscovery()))
-            .graph();
-    var intelligenceRequest =
-        new IntelligenceRequest(
-            diagnosis.findings(),
-            graph.edges(),
-            Boolean.TRUE.equals(request.partialDiscovery())
-                ? GraphCompleteness.PARTIAL
-                : GraphCompleteness.COMPLETE);
-    var result = analyzer.analyze(intelligenceRequest);
+    var result =
+        analyzer.analyze(
+            inputFactory.build(
+                request.resources(), Boolean.TRUE.equals(request.partialDiscovery())));
     return toResponse(result);
   }
 

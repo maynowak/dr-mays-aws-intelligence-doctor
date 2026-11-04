@@ -2,12 +2,12 @@
 
 ## 1. Current status
 
-`IN PROGRESS` — ORCH-01E expertise layer implemented; API integration next. No implementation, model call, external data transfer, push or merge yet.
+`IN PROGRESS` — ORCH-01F additive API integrated; documentation/quality next. No implementation, model call, external data transfer, push or merge yet.
 
 ## 2. Audit date/time
 
 - Started: 2026-11-04T08:02:34+01:00
-- Last updated: 2026-11-04T08:27:31+01:00
+- Last updated: 2026-11-04T08:31:29+01:00
 
 ## 3. Git branch and HEAD
 
@@ -37,6 +37,8 @@ Controlled privacy-first architecture with BYOK/provider contracts, mock-only pr
 - Added and ran 33 provider tests successfully; no process execution or credential read.
 - Implemented expertise profiles, parser, report, validator and mock-only privacy-first engine.
 - Added and ran 31 expertise tests; AI module total 137 tests; AI JaCoCo/Spotless/Checkstyle PASS.
+- Added additive preview/approval/explain API, shared verified input factory and 12 API tests.
+- API module total 96 tests; API JaCoCo/Spotless/Checkstyle PASS.
 
 ## 6. Actual findings
 
@@ -54,6 +56,7 @@ Controlled privacy-first architecture with BYOK/provider contracts, mock-only pr
 - Privacy tests removed raw account/SG/VPC/email/host/IP values from the provider payload and failed closed on invalid approval/token/privacy states.
 - Provider tests verify allowlisting, no fallback, disabled remote execution, bounded argv/environment and mock-only success.
 - Expertise tests verify unknown finding/evidence/relationship/alias rejection, duplicate and unsafe-content rejection, provider failure/malformed output, partial discovery and single-use execution.
+- API tests verify sanitized preview, deterministic mock explain, approval flow, unknown preview/provider handling, malformed input and unchanged existing intelligence endpoint.
 
 ## 7. Evidence and file references
 
@@ -95,6 +98,7 @@ Clean at branch creation.
 - Added: privacy engine classes and 44 tests; `DR-MAYS-ORCHESTRATION-01C-PRIVACY-ENGINE.md`.
 - Added: provider contracts/router/mock/CLI-disabled adapter, 33 tests and `DR-MAYS-ORCHESTRATION-01D-PROVIDER-ADAPTER.md`.
 - Added: expertise package, 31 tests and `DR-MAYS-ORCHESTRATION-01E-AI-EXPERTISE.md`.
+- Added: additive expertise API, 12 tests and `DR-MAYS-ORCHESTRATION-01F-API-INTEGRATION.md`.
 
 ## 12. Explicit no-change confirmation
 
@@ -123,4 +127,4 @@ No production code changed yet. No model/provider/AWS/credential/network call oc
 
 ## 16. Current resume point
 
-Start ORCH-01F API integration. AI module green with 137 tests; no live provider.
+Start ORCH-01G documentation, full verify and Docker regression. API module green with 96 tests; no live provider.

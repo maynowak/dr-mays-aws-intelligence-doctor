@@ -49,7 +49,7 @@ public final class AliasMapping {
    * @param key HMAC key
    * @return new alias map
    */
-  public static AliasMapping withKey(byte[] key) {
+  static AliasMapping withKey(byte[] key) {
     return new AliasMapping(Objects.requireNonNull(key, "key").clone());
   }
 

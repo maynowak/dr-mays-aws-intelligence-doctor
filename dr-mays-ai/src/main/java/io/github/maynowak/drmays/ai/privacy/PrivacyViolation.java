@@ -17,6 +17,7 @@ public record PrivacyViolation(String code, String field, String message) {
   public static final String EMAIL_ADDRESS = "EMAIL_ADDRESS";
   public static final String IP_ADDRESS = "IP_ADDRESS";
   public static final String HOSTNAME = "HOSTNAME";
+  public static final String URL = "URL";
   public static final String SECRET_PATTERN = "SECRET_PATTERN";
   public static final String CONTROL_CHARACTER = "CONTROL_CHARACTER";
   public static final String PAYLOAD_TOO_LARGE = "PAYLOAD_TOO_LARGE";

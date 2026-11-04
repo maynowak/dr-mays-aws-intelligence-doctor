@@ -44,6 +44,96 @@ class PrivacyProcessorTest {
   }
 
   @Test
+  void aliasesArbitraryRelationshipEvidenceValues() {
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+            .process(
+                PrivacyTestFixtures.requestWithRelationshipObserved(
+                    "ingress.referenced.securityGroupIds=prod-app-sg"));
+
+    assertThat(processed.payloadJson())
+        .doesNotContain("prod-app-sg")
+        .contains("ingress.referenced.securityGroupIds=sg_");
+    assertThat(processed.validation().valid()).isTrue();
+  }
+
+  @Test
+  void aliasesNonVpcRelationshipIdentifiers() {
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+            .process(PrivacyTestFixtures.requestWithRelationshipObserved("vpc.id=igw-0abc1234"));
+
+    assertThat(processed.payloadJson()).doesNotContain("igw-0abc1234");
+  }
+
+  @Test
+  void aliasesNonStandardArnPartitions() {
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+            .process(
+                PrivacyTestFixtures.requestWithObserved(
+                    "role=arn:aws-iso:iam::123456789012:role/example"));
+
+    assertThat(processed.payloadJson()).doesNotContain("aws-iso").doesNotContain("123456789012");
+    assertThat(processed.validation().valid()).isTrue();
+  }
+
+  @Test
+  void rejectsExpandedSecretFamilies() {
+    for (var secret :
+        java.util.List.of(
+            "aws_secret_access_key=wJalrXUtnFEMI/K7MDENG/bPxRfiCYEXAMPLEKEY",
+            "token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abc",
+            "password=Sup3rS3cret!",
+            "ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQC",
+            "github_pat_11ABCDEFG0123456789_abcdefghijklmnopqrstuvwxyz",
+            "glpat-abcdefghijklmnopqrst",
+            "AIzaSyA1234567890abcdefghijklmnopqrstu",
+            "sk-proj-abcdefghijklmnopqrstuvwx")) {
+      var processed =
+          PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+              .process(PrivacyTestFixtures.requestWithObserved(secret));
+      assertThat(processed.validation().valid()).as(secret).isFalse();
+      assertThat(processed.validation().violations())
+          .as(secret)
+          .anyMatch(violation -> violation.code().equals(PrivacyViolation.SECRET_PATTERN));
+    }
+  }
+
+  @Test
+  void rejectsSecretInRelationshipEvidence() {
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+            .process(
+                PrivacyTestFixtures.requestWithRelationshipObserved(
+                    "vpc.id=token=eyJhbGciOiJIUzI1NiJ9.eyJzdWIiOiIxMjM0NTY3ODkwIn0.abc"));
+
+    assertThat(processed.validation().valid()).isFalse();
+    assertThat(processed.validation().violations())
+        .anyMatch(violation -> violation.code().equals(PrivacyViolation.SECRET_PATTERN));
+  }
+
+  @Test
+  void redactsUrls() {
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+            .process(
+                PrivacyTestFixtures.requestWithObserved(
+                    "endpoint=https://localhost:8080/admin/customer-123"));
+
+    assertThat(processed.payloadJson()).doesNotContain("https://").doesNotContain("customer-123");
+  }
+
+  @Test
+  void preservesSchemaKeyEvidence() {
+    var processed = PrivacyTestFixtures.processed();
+
+    assertThat(processed.payload().findings().getFirst().expected())
+        .isEqualTo("ingress.public=false");
+    assertThat(processed.payload().relationships().getFirst().observed()).startsWith("vpc.id=");
+  }
+
+  @Test
   void redactsHostnameWithPort() {
     var processed =
         PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())

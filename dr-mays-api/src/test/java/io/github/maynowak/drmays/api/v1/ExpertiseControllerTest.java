@@ -125,6 +125,17 @@ class ExpertiseControllerTest {
   }
 
   @Test
+  void rejectsUnknownJsonProperties() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/v1/expertise/previews")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"unexpected\":true,\"resources\":[" + RESOURCE + "]}"))
+        .andExpect(status().isBadRequest())
+        .andExpect(jsonPath("$.title").value("Invalid request body"));
+  }
+
+  @Test
   void existingIntelligenceEndpointStillWorks() throws Exception {
     mockMvc
         .perform(

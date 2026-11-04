@@ -9,6 +9,7 @@ import java.util.ArrayList;
 import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.List;
+import java.util.Locale;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.regex.MatchResult;
@@ -21,18 +22,20 @@ public final class PrivacyProcessor {
 
   private static final String EXCLUDED = "[excluded]";
   private static final Pattern ACCOUNT_ID = Pattern.compile("\\b\\d{12}\\b");
-  private static final Pattern ARN = Pattern.compile("arn:(?:aws|aws-us-gov|aws-cn):[^\\s]+");
+  private static final Pattern ARN = Pattern.compile("arn:[a-z0-9-]+:[^\\s]+");
   private static final Pattern AWS_ID =
-      Pattern.compile("\\b(sg|vpc|subnet|i|vol)-[A-Za-z0-9]{1,}\\b");
-  private static final Pattern EMAIL =
-      Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b");
-  private static final Pattern IPV4 = Pattern.compile("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");
+      Pattern.compile(
+          "\\b(sg|vpc|subnet|i|vol|igw|eni|rtb|ami|snap|nat|tgw|vpce|dbi|fs|lt|eipalloc|eip|acl|pcx|pl|elb|awseb)-[A-Za-z0-9]{1,}\\b");
+  private static final Pattern EMAIL = Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\b");
+  private static final Pattern IPV4 =
+      Pattern.compile("(?<![0-9A-Za-z.])(?:\\d{1,3}\\.){3}\\d{1,3}(?![0-9.])");
   private static final Pattern IPV6 =
-      Pattern.compile("(?i)(?<![0-9a-f])(?:[0-9a-f]{0,4}:){2,}[0-9a-f]{0,4}(?![0-9a-f])");
+      Pattern.compile(
+          "(?i)(?<![0-9a-f])(?:[0-9a-f]{0,4}:){2,}[0-9a-f]{0,4}(?:%[A-Za-z0-9._-]+)?(?![0-9a-f])");
   private static final Pattern HOST_WITH_PORT =
       Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}:\\d{1,5}\\b");
   private static final Pattern HOSTNAME =
-      Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}\\b(?![=:])");
+      Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)++[A-Za-z]{2,}\\b(?![=:])");
   private static final java.util.Set<String> SAFE_RESOURCE_TYPES =
       java.util.Set.of(
           "network",
@@ -49,11 +52,20 @@ public final class PrivacyProcessor {
   private static final Pattern SECRET =
       Pattern.compile(
           "(?i)(?:AKIA|ASIA)[0-9A-Z]{16}"
-              + "|ghp_[A-Za-z0-9]{20,}"
+              + "|(?:aws_secret_access_key|secret_access_key|password|passwd|client_secret|token)\\s*[=:]\\s*\\S+"
+              + "|eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+"
+              + "|ssh-(?:rsa|ed25519)\\s+AAAA[A-Za-z0-9+/=]+"
+              + "|github_pat_[A-Za-z0-9_]{20,}"
+              + "|glpat-[A-Za-z0-9_-]{20,}"
+              + "|AIza[0-9A-Za-z_-]{20,}"
+              + "|sk_(?:live|test)_[A-Za-z0-9]{16,}"
+              + "|sk-proj-[A-Za-z0-9_-]{20,}"
               + "|sk-[A-Za-z0-9]{20,}"
               + "|xox[baprs]-[A-Za-z0-9-]{10,}"
               + "|-----BEGIN [A-Z ]+PRIVATE KEY-----"
               + "|Bearer\\s+[A-Za-z0-9._-]{12,}");
+  private static final Pattern URL = Pattern.compile("https?://\\S+");
+  private static final Pattern KEY_VALUE = Pattern.compile("([A-Za-z0-9._-]{1,128})=([^\\s]+)");
 
   private final PrivacyPolicy policy;
   private final PrivacyValidator validator;
@@ -150,8 +162,8 @@ public final class PrivacyProcessor {
         fieldText(PrivacyField.TITLE, finding.title(), aliases),
         fieldText(PrivacyField.DESCRIPTION, finding.description(), aliases),
         fieldText(PrivacyField.EVIDENCE_SOURCE, finding.evidence().source(), aliases),
-        fieldText(PrivacyField.EVIDENCE_OBSERVED, finding.evidence().observed(), aliases),
-        fieldText(PrivacyField.EVIDENCE_EXPECTED, finding.evidence().expected(), aliases));
+        evidenceText(PrivacyField.EVIDENCE_OBSERVED, finding.evidence().observed(), aliases),
+        evidenceText(PrivacyField.EVIDENCE_EXPECTED, finding.evidence().expected(), aliases));
   }
 
   private SanitizedRelationship sanitizeRelationship(
@@ -161,7 +173,8 @@ public final class PrivacyProcessor {
         policy.allows(PrivacyField.RESOURCE_ALIAS) ? aliases.aliasFor(edge.from()) : EXCLUDED,
         policy.allows(PrivacyField.RESOURCE_ALIAS) ? aliases.aliasFor(edge.to()) : EXCLUDED,
         fieldText(PrivacyField.EVIDENCE_SOURCE, edge.evidence().evidence().source(), aliases),
-        fieldText(PrivacyField.EVIDENCE_OBSERVED, edge.evidence().evidence().observed(), aliases));
+        evidenceText(
+            PrivacyField.EVIDENCE_OBSERVED, edge.evidence().evidence().observed(), aliases));
   }
 
   private String resourceType(String raw) {
@@ -178,9 +191,51 @@ public final class PrivacyProcessor {
     return sanitize(raw, aliases);
   }
 
+  private String evidenceText(PrivacyField field, String raw, AliasMapping aliases) {
+    if (!policy.allows(field)) {
+      return EXCLUDED;
+    }
+    return sanitizeEvidence(raw, aliases);
+  }
+
+  private static String sanitizeEvidence(String raw, AliasMapping aliases) {
+    var value = Objects.requireNonNull(raw, "raw");
+    var matcher = KEY_VALUE.matcher(value);
+    var builder = new StringBuilder();
+    var replaced = false;
+    while (matcher.find()) {
+      var key = matcher.group(1);
+      var candidate = matcher.group(2);
+      var safeKey = key.matches("[A-Za-z0-9._-]{1,128}") ? key : "[key]";
+      var replacement =
+          candidate.matches("(?i)true|false|absent|blank|present|enabled|disabled|public|private")
+              ? safeKey + "=" + candidate
+              : safeKey
+                  + "="
+                  + aliases.aliasFor(
+                      safeKey.contains("vpc")
+                          ? "vpc"
+                          : safeKey.toLowerCase(Locale.ROOT).contains("securitygroupids")
+                              ? "sg"
+                              : "attr",
+                      candidate);
+      matcher.appendReplacement(builder, java.util.regex.Matcher.quoteReplacement(replacement));
+      replaced = true;
+    }
+    if (replaced) {
+      matcher.appendTail(builder);
+      return sanitize(builder.toString(), aliases);
+    }
+    if (value.matches("[A-Za-z0-9._-]{1,128}")) {
+      return value;
+    }
+    return sanitize(value, aliases);
+  }
+
   private static String sanitize(String raw, AliasMapping aliases) {
     var value = Objects.requireNonNull(raw, "raw");
     value = SECRET.matcher(value).replaceAll("[SECRET_REDACTED]");
+    value = URL.matcher(value).replaceAll("[url]");
     value = ACCOUNT_ID.matcher(value).replaceAll(match -> aliases.aliasFor("acct", match.group()));
     value = ARN.matcher(value).replaceAll(match -> aliases.aliasFor("arn", match.group()));
     value = AWS_ID.matcher(value).replaceAll(match -> aliasAwsId(match, aliases));

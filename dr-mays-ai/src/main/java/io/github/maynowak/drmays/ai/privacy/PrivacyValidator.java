@@ -10,26 +10,36 @@ public final class PrivacyValidator {
 
   private static final Pattern ACCOUNT_ID = Pattern.compile("\\b\\d{12}\\b");
   private static final Pattern RAW_RESOURCE_ID =
-      Pattern.compile("\\b(?:sg|vpc|subnet|i|vol)-[A-Za-z0-9]{1,}\\b");
-  private static final Pattern ARN = Pattern.compile("\\barn:(?:aws|aws-us-gov|aws-cn):[^\\s]+");
-  private static final Pattern EMAIL =
-      Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}\\b");
-  private static final Pattern IPV4 = Pattern.compile("\\b(?:\\d{1,3}\\.){3}\\d{1,3}\\b");
+      Pattern.compile(
+          "\\b(?:sg|vpc|subnet|i|vol|igw|eni|rtb|ami|snap|nat|tgw|vpce|dbi|fs|lt|eipalloc|eip|acl|pcx|pl|elb|awseb)-[A-Za-z0-9]{1,}\\b");
+  private static final Pattern ARN = Pattern.compile("\\barn:[a-z0-9-]+:[^\\s]+");
+  private static final Pattern EMAIL = Pattern.compile("\\b[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\b");
+  private static final Pattern IPV4 =
+      Pattern.compile("(?<![0-9A-Za-z.])(?:\\d{1,3}\\.){3}\\d{1,3}(?![0-9.])");
   private static final Pattern IPV6 =
-      Pattern.compile("(?i)(?<![0-9a-f])(?:[0-9a-f]{0,4}:){2,}[0-9a-f]{0,4}(?![0-9a-f])");
+      Pattern.compile(
+          "(?i)(?<![0-9a-f])(?:[0-9a-f]{0,4}:){2,}[0-9a-f]{0,4}(?:%[A-Za-z0-9._-]+)?(?![0-9a-f])");
   private static final Pattern HOST_WITH_PORT =
       Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}:\\d{1,5}\\b");
   private static final Pattern HOSTNAME =
-      Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)+[A-Za-z]{2,}\\b(?![=:])");
+      Pattern.compile("\\b(?:[A-Za-z0-9-]+\\.)++[A-Za-z]{2,}\\b(?![=:])");
   private static final Pattern SECRET =
       Pattern.compile(
           "(?i)(?:AKIA|ASIA)[0-9A-Z]{16}"
-              + "|ghp_[A-Za-z0-9]{20,}"
+              + "|(?:aws_secret_access_key|secret_access_key|password|passwd|client_secret|token)\\s*[=:]\\s*\\S+"
+              + "|eyJ[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+\\.[A-Za-z0-9_-]+"
+              + "|ssh-(?:rsa|ed25519)\\s+AAAA[A-Za-z0-9+/=]+"
+              + "|github_pat_[A-Za-z0-9_]{20,}"
+              + "|glpat-[A-Za-z0-9_-]{20,}"
+              + "|AIza[0-9A-Za-z_-]{20,}"
+              + "|sk_(?:live|test)_[A-Za-z0-9]{16,}"
+              + "|sk-proj-[A-Za-z0-9_-]{20,}"
               + "|sk-[A-Za-z0-9]{20,}"
               + "|xox[baprs]-[A-Za-z0-9-]{10,}"
               + "|-----BEGIN [A-Z ]+PRIVATE KEY-----"
               + "|Bearer\\s+[A-Za-z0-9._-]{12,}"
               + "|SECRET_REDACTED");
+  private static final Pattern URL = Pattern.compile("https?://\\S+");
   private static final Pattern CONTROL = Pattern.compile("\\p{Cntrl}");
 
   /**
@@ -56,15 +66,15 @@ public final class PrivacyValidator {
       check("title", finding.title(), violations, true);
       check("description", finding.description(), violations, true);
       check("evidenceSource", finding.evidenceSource(), violations, true);
-      check("observed", finding.observed(), violations, true);
-      check("expected", finding.expected(), violations, true);
+      checkEvidence("observed", finding.observed(), violations);
+      checkEvidence("expected", finding.expected(), violations);
     }
     for (var relationship : payload.relationships()) {
       check("type", relationship.type(), violations, false);
       check("fromAlias", relationship.fromAlias(), violations, false);
       check("toAlias", relationship.toAlias(), violations, false);
       check("evidenceSource", relationship.evidenceSource(), violations, true);
-      check("observed", relationship.observed(), violations, true);
+      checkEvidence("observed", relationship.observed(), violations);
     }
     check("completeness", payload.completeness(), violations, false);
     for (var uncertainty : payload.uncertainties()) {
@@ -110,6 +120,16 @@ public final class PrivacyValidator {
         checkSecret("details", detail, violations);
       }
     }
+    for (var relationship : request.relationships()) {
+      checkSecret("relationshipSource", relationship.evidence().evidence().source(), violations);
+      checkSecret(
+          "relationshipObserved", relationship.evidence().evidence().observed(), violations);
+      checkSecret(
+          "relationshipExpected", relationship.evidence().evidence().expected(), violations);
+      for (var detail : relationship.evidence().evidence().details().values()) {
+        checkSecret("relationshipDetails", detail, violations);
+      }
+    }
     return new PrivacyValidationResult(true, violations);
   }
 
@@ -130,6 +150,7 @@ public final class PrivacyValidator {
         || EMAIL.matcher(value).find()
         || IPV4.matcher(value).find()
         || IPV6.matcher(value).find()
+        || URL.matcher(value).find()
         || HOST_WITH_PORT.matcher(value).find()
         || HOSTNAME.matcher(value).find();
   }
@@ -166,8 +187,19 @@ public final class PrivacyValidator {
     if (IPV4.matcher(value).find() || IPV6.matcher(value).find()) {
       violations.add(new PrivacyViolation(PrivacyViolation.IP_ADDRESS, field, "IP address found"));
     }
+    if (URL.matcher(value).find()) {
+      violations.add(new PrivacyViolation(PrivacyViolation.URL, field, "URL found"));
+    }
     if (checkHostname && (HOST_WITH_PORT.matcher(value).find() || HOSTNAME.matcher(value).find())) {
       violations.add(new PrivacyViolation(PrivacyViolation.HOSTNAME, field, "hostname found"));
+    }
+  }
+
+  private void checkEvidence(String field, String value, List<PrivacyViolation> violations) {
+    check(field, value, violations, false);
+    var keyValue = Pattern.compile("([A-Za-z0-9._-]{1,128})=([^\\s]+)").matcher(value);
+    while (keyValue.find()) {
+      check(field, keyValue.group(2), violations, true);
     }
   }
 

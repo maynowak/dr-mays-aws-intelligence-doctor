@@ -47,11 +47,11 @@ The mock provider is deterministic and offline. It receives the same sanitized p
 
 ## Configuration
 
-Current production default is mock-only. Ollama remains opt-in through the existing `dr.mays.ai.enabled=true` path; it is not used by the new expertise engine. OpenCode is not registered for execution.
+Current production default is mock-only. The legacy `dr.mays.ai.enabled=true` path is fail-closed and returns `APPROVAL_REQUIRED` without constructing or calling Ollama; the new expertise engine is also mock-only. OpenCode is not registered for execution.
 
 Future provider configuration must be explicit, allowlisted and approval-bound. It must not use a user-supplied base URL or arbitrary model/provider strings without validation.
 
 ## Test evidence
 
-- 33 provider-specific tests cover descriptors, credential references, registry duplicates, allowlisting, no fallback, payload/output bounds, mock output and disabled OpenCode execution.
+- 36 provider-specific tests cover descriptors, credential references, registry duplicates, allowlisting, no fallback, payload/output bounds, mock output and disabled OpenCode execution.
 - No real provider or credential was used.

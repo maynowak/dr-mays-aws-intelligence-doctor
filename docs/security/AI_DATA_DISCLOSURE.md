@@ -24,7 +24,7 @@ Status: no external data transfer is enabled. The only executable provider is th
 - Field decisions and privacy violations.
 - Expiry and whether approval is required.
 
-Preview does not call a provider. Explain accepts only the preview ID, so a changed client payload cannot be sent.
+Preview does not call a provider. The expertise explain endpoint accepts only the preview ID, so a changed client payload cannot be sent. The legacy intelligence endpoint returns `APPROVAL_REQUIRED` when external AI is enabled.
 
 ## What is never disclosed
 
@@ -57,5 +57,5 @@ Approval is server-side and binds the exact payload hash, provider, model, exper
 
 - No real provider call, credential use, API key or external transfer occurred.
 - Secret/IP/hostname checks are pattern-based; they reduce risk but do not prove absence of all sensitive values.
-- Mock-only preview/approval/explain and sanitized payload tests pass (392 total project tests).
+- Mock-only preview/approval/explain and sanitized payload tests pass (409 total project tests).
 - Complete anonymity is not claimed.

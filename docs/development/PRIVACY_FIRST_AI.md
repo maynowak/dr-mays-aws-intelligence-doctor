@@ -26,7 +26,7 @@ POST /api/v1/expertise/previews
        -> local report
 ```
 
-Preview never invokes a provider. Explain accepts only the preview ID and an optional approval token; clients cannot substitute a new resource payload.
+Preview never invokes a provider. The expertise explain endpoint accepts only the preview ID and an optional approval token; clients cannot substitute a new resource payload. The legacy intelligence endpoint is mock-capable but fail-closed when external AI is enabled.
 
 ## Contracts
 
@@ -85,7 +85,7 @@ All endpoints remain loopback-only, unauthenticated and unsuitable for public de
 - Alias consistency is tested across findings and relationships.
 - Preview tampering, wrong token, token reuse, expiry and invalid privacy state are tested.
 - Unknown findings/evidence/relationships/aliases are rejected as `INVALID_RESPONSE`.
-- Current suite: 392 tests; AI/API coverage gates pass.
+- Current suite: 409 tests; AI/API coverage gates pass.
 
 ## Limitations
 

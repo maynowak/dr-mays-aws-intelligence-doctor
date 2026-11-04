@@ -52,17 +52,17 @@ final class PrivacyTestFixtures {
   }
 
   static ResourceEdge relationship() {
+    return relationship("vpc.id=vpc-0def5678");
+  }
+
+  static ResourceEdge relationship(String observed) {
     return new ResourceEdge(
         SG,
         VPC,
         RelationshipType.SECURITY_GROUP_IN_VPC,
         new RelationshipEvidence(
             new Evidence(
-                SG,
-                "resource-attribute",
-                "vpc.id=vpc-0def5678",
-                "vpc.id",
-                Map.of("attribute", "vpc.id"))));
+                SG, "resource-attribute", observed, "vpc.id", Map.of("attribute", "vpc.id"))));
   }
 
   static IntelligenceRequest request() {
@@ -73,6 +73,11 @@ final class PrivacyTestFixtures {
   static IntelligenceRequest requestWithObserved(String observed) {
     return new IntelligenceRequest(
         List.of(finding(observed)), List.of(relationship()), GraphCompleteness.COMPLETE);
+  }
+
+  static IntelligenceRequest requestWithRelationshipObserved(String observed) {
+    return new IntelligenceRequest(
+        List.of(finding()), List.of(relationship(observed)), GraphCompleteness.COMPLETE);
   }
 
   static IntelligenceRequest partialRequest() {

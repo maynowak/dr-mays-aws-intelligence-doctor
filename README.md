@@ -189,7 +189,7 @@ The core domain, local REST API and Docker offline demo are implemented today. O
 **Core domain, local REST API and Docker offline demo available; AWS discovery is not implemented yet.** JDK 25 is required. Maven is pinned through the wrapper, so no global Maven 3.9 installation is needed.
 
 ```bash
-# Full reactor verification (compile + 392 tests + quality gates)
+# Full reactor verification (compile + 409 tests + quality gates)
 ./mvnw -B clean verify
 
 # Format and verify
@@ -210,7 +210,7 @@ java -jar dr-mays-api/target/dr-mays-api-0.1.0-SNAPSHOT.jar
 
 Endpoints: `POST /api/v1/diagnoses`, `GET /api/v1/rules`, `POST /api/v1/dna/graphs`, `POST /api/v1/intelligence/explain`, `GET /actuator/health`. Contract and examples: `docs/api/README.md` and `docs/api/openapi.yaml`. AI: `docs/development/AI_INTELLIGENCE.md` and `docs/security/AI_MODEL_SECURITY.md`.
 
-Quality gates: Spotless/Google Java Format, Checkstyle, 392 tests, and JaCoCo with 85 % line / 75 % branch minimums. Current coverage: core 99.36 % / 95.65 %, API 97.83 % / 79.59 %, AWS discovery 95.25 % / 83.93 %, AI 94.31 % / 78.27 %. Reports are under each module's `target/site/jacoco/`.
+Quality gates: Spotless/Google Java Format, Checkstyle, 409 tests, and JaCoCo with 85 % line / 75 % branch minimums. Current coverage: core 99.36 % / 95.65 %, API 97.83 % / 79.59 %, AWS discovery 95.25 % / 83.93 %, AI 94.47 % / 79.09 %. Reports are under each module's `target/site/jacoco/`.
 
 The build and tests require no AWS credentials. The AWS discovery layer uses mocked SDK clients only; the first live scan requires a separate explicit approval. Details: `docs/development/AWS_DISCOVERY.md` and `docs/security/AWS_SCANNER_IAM.md`.
 

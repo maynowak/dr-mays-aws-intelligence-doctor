@@ -61,6 +61,26 @@ class CredentialReferenceTest {
   }
 
   @Test
+  void rejectsPathLikeFileReference() {
+    assertThatThrownBy(() ->
+            new ProviderCredentialReference("opencode", CredentialKind.FILE, "../../auth.json"))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void rejectsNonLiteralNoneReference() {
+    assertThatThrownBy(() -> new ProviderCredentialReference("mock", CredentialKind.NONE, "other"))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
+  void redactsReferenceToString() {
+    var reference = ProviderCredentialReference.environment("opencode", "DR_MAYS_OPENCODE_KEY");
+
+    assertThat(reference.toString()).contains("reference=redacted");
+  }
+
+  @Test
   void rejectsInvalidProviderId() {
     assertThatThrownBy(() -> ProviderCredentialReference.none("Invalid"))
         .isInstanceOf(IllegalArgumentException.class);

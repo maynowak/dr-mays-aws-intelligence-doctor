@@ -67,6 +67,47 @@ class PrivacyValidatorTest {
   }
 
   @Test
+  void rejectsAdditionalResourcePrefixes() {
+    var result =
+        validator.validate(payload(withObserved("igw-0abc1234 eni-0123456789abcdef0")), policy);
+
+    assertThat(result.valid()).isFalse();
+    assertThat(result.violations())
+        .anyMatch(violation -> violation.code().equals(PrivacyViolation.RAW_RESOURCE_ID));
+  }
+
+  @Test
+  void rejectsLocalEmailAndIpv6Zone() {
+    var email = validator.validate(payload(withObserved("owner=alice@localhost")), policy);
+    var ipv6 = validator.validate(payload(withObserved("host=fe80::1%eth0")), policy);
+
+    assertThat(email.valid()).isFalse();
+    assertThat(email.violations())
+        .anyMatch(violation -> violation.code().equals(PrivacyViolation.EMAIL_ADDRESS));
+    assertThat(ipv6.valid()).isFalse();
+    assertThat(ipv6.violations())
+        .anyMatch(violation -> violation.code().equals(PrivacyViolation.IP_ADDRESS));
+  }
+
+  @Test
+  void detectsIpv4AfterUnderscore() {
+    var result = validator.validate(payload(withObserved("src_ip_10.0.0.1")), policy);
+
+    assertThat(result.valid()).isFalse();
+    assertThat(result.violations())
+        .anyMatch(violation -> violation.code().equals(PrivacyViolation.IP_ADDRESS));
+  }
+
+  @Test
+  void rejectsUrl() {
+    var result = validator.validate(payload(withObserved("https://localhost:8080/admin")), policy);
+
+    assertThat(result.valid()).isFalse();
+    assertThat(result.violations())
+        .anyMatch(violation -> violation.code().equals(PrivacyViolation.URL));
+  }
+
+  @Test
   void rejectsHostnameWithPort() {
     var result =
         validator.validate(payload(withObserved("host=db.internal.example.com:5432")), policy);
@@ -137,6 +178,13 @@ class PrivacyValidatorTest {
     assertThat(validator.containsUnsafeText("db.internal.example.com")).isTrue();
     assertThat(validator.containsUnsafeText("2001:db8::1")).isTrue();
     assertThat(validator.containsUnsafeText("db.internal.example.com:5432")).isTrue();
+    assertThat(validator.containsUnsafeText("alice@localhost")).isTrue();
+    assertThat(validator.containsUnsafeText("fe80::1%eth0")).isTrue();
+    assertThat(validator.containsUnsafeText("https://localhost:8080/admin")).isTrue();
+    assertThat(
+            validator.containsUnsafeText(
+                "github_pat_11ABCDEFG0123456789_abcdefghijklmnopqrstuvwxyz"))
+        .isTrue();
     assertThat(validator.containsUnsafeText("AKIAABCDEFGHIJKLMNOP")).isTrue();
     assertThat(validator.containsUnsafeText("The finding is HIGH.")).isFalse();
   }

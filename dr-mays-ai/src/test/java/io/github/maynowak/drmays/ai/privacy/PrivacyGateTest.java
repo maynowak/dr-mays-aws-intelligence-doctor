@@ -7,6 +7,10 @@ import java.time.Duration;
 import java.time.Instant;
 import java.time.ZoneId;
 import java.time.ZoneOffset;
+import java.util.List;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executors;
+import java.util.concurrent.TimeUnit;
 import org.junit.jupiter.api.Test;
 
 class PrivacyGateTest {
@@ -134,6 +138,32 @@ class PrivacyGateTest {
     }
 
     assertThat(gate.approve(preview.previewId())).isEmpty();
+  }
+
+  @Test
+  void concurrentConsumptionAllowsExactlyOneExecution() throws Exception {
+    var preview = register(true, PREVIEW, processed);
+    var token = gate.approve(preview.previewId()).orElseThrow();
+    var start = new CountDownLatch(1);
+    var pool = Executors.newFixedThreadPool(2);
+    try {
+      var first =
+          pool.submit(() -> {
+            start.await();
+            return gate.consume(preview.previewId(), token).status();
+          });
+      var second =
+          pool.submit(() -> {
+            start.await();
+            return gate.consume(preview.previewId(), token).status();
+          });
+      start.countDown();
+
+      assertThat(List.of(first.get(5, TimeUnit.SECONDS), second.get(5, TimeUnit.SECONDS)))
+          .containsExactlyInAnyOrder(ApprovalStatus.APPROVED, ApprovalStatus.CONSUMED);
+    } finally {
+      pool.shutdownNow();
+    }
   }
 
   @Test

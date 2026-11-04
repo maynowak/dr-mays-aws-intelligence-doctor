@@ -23,6 +23,22 @@ public record ProviderCredentialReference(
     if (kind == CredentialKind.ENV && !reference.matches("DR_MAYS_[A-Z0-9_]{2,64}")) {
       throw new IllegalArgumentException("environment references must use the DR_MAYS_ prefix");
     }
+    if (kind == CredentialKind.NONE && !reference.equals("none")) {
+      throw new IllegalArgumentException("NONE references must use the literal none");
+    }
+    if ((kind == CredentialKind.FILE || kind == CredentialKind.KEYRING)
+        && !reference.matches("[A-Za-z0-9._-]{1,128}")) {
+      throw new IllegalArgumentException("file/keyring references must be simple logical names");
+    }
+  }
+
+  @Override
+  public String toString() {
+    return "ProviderCredentialReference[providerId="
+        + providerId
+        + ", kind="
+        + kind
+        + ", reference=redacted]";
   }
 
   /**

@@ -18,7 +18,7 @@ POST /api/v1/intelligence/explain
 
 - Core engine remains authoritative.
 - Default analyzer is the deterministic mock; Docker/CI require no model or Internet.
-- Spring AI 2.0.2 and the Ollama starter are confined to `dr-mays-ai`; the API imports only the `IntelligenceAnalyzer` contract.
+- Spring AI 2.0.2 and the Ollama starter are confined to `dr-mays-ai`; the API imports AI contracts and the privacy-first engine, not provider internals.
 - ORCH-01 fail-closes the legacy raw path: with `dr.mays.ai.enabled=true`, `/api/v1/intelligence/explain` returns `APPROVAL_REQUIRED` and makes no provider call. The Ollama adapter class remains isolated for a future approved integration. No connection at startup, no model download, no tools.
 
 ## Contracts
@@ -31,7 +31,7 @@ POST /api/v1/intelligence/explain
 | `FindingExplanation` | Explanation tied to an existing finding |
 | `Recommendation` | Suggested action, separate from findings |
 | `EvidenceReference` | Existing evidence only |
-| `ModelExecutionStatus` | `SUCCESS`, `DISABLED`, `UNAVAILABLE`, `FAILED`, `INVALID_RESPONSE` |
+| `ModelExecutionStatus` | `SUCCESS`, `DISABLED`, `APPROVAL_REQUIRED`, `UNAVAILABLE`, `FAILED`, `INVALID_RESPONSE` |
 | `ModelMetadata` | Provider/model/version |
 
 ## Mock analyzer

@@ -1,8 +1,8 @@
 # Dr. Mays — AI Audit Index
 
 Current Branch: `feature/dr-mays-privacy-provider-orchestration-01`
-Latest recorded HEAD: `10c953c` (final code/PR SHA; audit commit follows)
-Last updated: 2026-11-04T12:30:00+01:00
+Latest recorded HEAD: `8bcee48` (code/PR; 02C pre-merge audit commit follows)
+Last updated: 2026-11-04T12:32:00+01:00
 
 | Task ID | Report | Status |
 | --- | --- | --- |
@@ -12,6 +12,8 @@ Last updated: 2026-11-04T12:30:00+01:00
 | `DR-MAYS-ORCHESTRATION-02B` | `docs/reports/DR-MAYS-ORCHESTRATION-02B-EXECUTION_LOG.md` | COMPLETE — READY FOR MAIN MERGE REVIEW; no merge |
 | `DR-MAYS-ORCHESTRATION-02B` | `docs/reports/DR-MAYS-ORCHESTRATION-02B-CI-READINESS.md` | READY FOR MAIN MERGE REVIEW; 411 tests; CI PASS |
 | `DR-MAYS-ORCHESTRATION-02B` | `docs/reports/DR-MAYS-ORCHESTRATION-02B-PR-REVIEW.md` | COMPLETE — no HIGH/CRITICAL; PR #2 |
+| `DR-MAYS-ORCHESTRATION-02C` | `docs/reports/DR-MAYS-ORCHESTRATION-02C-EXECUTION_LOG.md` | IN PROGRESS — pre-merge green; merge pending |
+| `DR-MAYS-ORCHESTRATION-02C` | `docs/reports/DR-MAYS-ORCHESTRATION-02C-PREMERGE-READINESS.md` | READY FOR MERGE after docs-commit CI |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-REST-APPROVAL-REVIEW.md` | COMPLETE — approval PASS; residual documented |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-PRIVACY-REVIEW.md` | COMPLETE — initial ORANGE; defects fixed |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-CREDENTIAL-CLI-REVIEW.md` | COMPLETE — no active credential/CLI exposure |

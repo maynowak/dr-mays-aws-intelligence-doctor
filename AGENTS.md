@@ -43,7 +43,7 @@
 - Spring AI is isolated to `dr-mays-ai`; CDK is version-managed but intentionally **not** on any module classpath yet (phase 07). Do not add CDK without the corresponding phase.
 - Add internal module versions in the root `dependencyManagement`; add new modules to `<modules>` and the internal dependency list.
 - New API endpoints: `POST /api/v1/expertise/previews`, `/approvals`, `/explain`; preview never calls a provider, explain accepts only preview ID plus optional token. Keep the existing diagnosis/DNA/intelligence endpoints unchanged.
-- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0011`. Verify any upgrade with `./mvnw clean verify`.
+- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0013`. Verify any upgrade with `./mvnw clean verify`.
 
 ## CI
 

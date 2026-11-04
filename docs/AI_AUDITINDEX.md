@@ -1,8 +1,8 @@
 # Dr. Mays — AI Audit Index
 
-Current Branch: `feature/dr-mays-privacy-provider-orchestration-01`
-Latest recorded HEAD: `cc6fe1c` (03I code; final audit commit follows)
-Last updated: 2026-11-04T17:34:00+01:00
+Current Branch: `feature/dr-mays-provider-security-03`
+Latest recorded HEAD: `5b1fe6a` (03-CI audit commit follows)
+Last updated: 2026-11-04T18:05:00+01:00
 
 | Task ID | Report | Status |
 | --- | --- | --- |
@@ -14,7 +14,6 @@ Last updated: 2026-11-04T17:34:00+01:00
 | `DR-MAYS-ORCHESTRATION-02B` | `docs/reports/DR-MAYS-ORCHESTRATION-02B-PR-REVIEW.md` | COMPLETE — no HIGH/CRITICAL; PR #2 |
 | `DR-MAYS-ORCHESTRATION-02C` | `docs/reports/DR-MAYS-ORCHESTRATION-02C-EXECUTION_LOG.md` | IN PROGRESS — pre-merge green; merge pending |
 | `DR-MAYS-ORCHESTRATION-02C` | `docs/reports/DR-MAYS-ORCHESTRATION-02C-PREMERGE-READINESS.md` | READY FOR MERGE after docs-commit CI |
-| `DR-MAYS-PROVIDER-SECURITY-03` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-EXECUTION_LOG.md` | IN PROGRESS — contract frozen |
 | `DR-MAYS-PROVIDER-SECURITY-03` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-DISCOVERY.md` | COMPLETE — YELLOW |
 | `DR-MAYS-PROVIDER-SECURITY-03` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-READINESS.md` | COMPLETE — GREEN (local); 455 tests; Docker PASS |
 | `DR-MAYS-PROVIDER-SECURITY-03` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-EXECUTION_LOG.md` | COMPLETE — GREEN (local) |
@@ -30,6 +29,9 @@ Last updated: 2026-11-04T17:34:00+01:00
 | `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-EXECUTION_LOG.md` | COMPLETE — GREEN (local) |
 | `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-REVIEW-A.md` | COMPLETE — no HIGH/CRITICAL |
 | `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-REVIEW-B.md` | COMPLETE — no HIGH/CRITICAL |
+| `DR-MAYS-PROVIDER-SECURITY-03-CI` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-CI-EXECUTION_LOG.md` | PRE-PUSH AUDIT — local GREEN; CI/PR pending |
+| `DR-MAYS-PROVIDER-SECURITY-03-CI` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-CI-READINESS.md` | PRE-PUSH READINESS — local GREEN |
+| `DR-MAYS-PROVIDER-SECURITY-03-CI` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-CI-PR-REVIEW.md` | COMPLETE — no HIGH/CRITICAL; CI pending |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-REST-APPROVAL-REVIEW.md` | COMPLETE — approval PASS; residual documented |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-PRIVACY-REVIEW.md` | COMPLETE — initial ORANGE; defects fixed |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-CREDENTIAL-CLI-REVIEW.md` | COMPLETE — no active credential/CLI exposure |

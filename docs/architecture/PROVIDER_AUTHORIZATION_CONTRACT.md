@@ -33,7 +33,7 @@ No other `route` overload may exist. `ModelProvider.invoke` remains a provider S
 
 `ProviderInvocationAuthorization`:
 - final class, package-private constructor in `ai.privacy`;
-- fields: nonce, payload hash, provider ID, model ID, expertise ID, policy version, expiry;
+- fields: nonce, payload hash, provider ID, model ID, expertise ID, policy version, `approvalRequired`, credential binding, expiry;
 - public read-only accessors only; no JSON/Jackson annotations;
 - `toString()` redacted;
 - `PrivacyGate` is the only mint site, after successful consume;

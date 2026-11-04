@@ -176,7 +176,13 @@ class PrivacyGateTest {
   void defaultGateIsStrictForEvenTheMockProvider() {
     var strict = new PrivacyGate(Duration.ofMinutes(5), Duration.ofMinutes(5), clock, id -> true);
     var preview =
-        strict.register(PrivacyTestFixtures.request(), processed, "mock", PREVIEW, "standard");
+        strict.register(
+            PrivacyTestFixtures.request(),
+            processed,
+            "mock",
+            PREVIEW,
+            "standard",
+            io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding.none("mock"));
 
     assertThat(strict.consume(preview.previewId(), null).status())
         .isEqualTo(ApprovalStatus.APPROVAL_REQUIRED);
@@ -192,9 +198,21 @@ class PrivacyGateTest {
             clock,
             ProviderApprovalPolicy.forRegistry(registry));
     var mockPreview =
-        policyGate.register(PrivacyTestFixtures.request(), processed, "mock", PREVIEW, "standard");
+        policyGate.register(
+            PrivacyTestFixtures.request(),
+            processed,
+            "mock",
+            PREVIEW,
+            "standard",
+            io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding.none("mock"));
     var fakePreview =
-        policyGate.register(PrivacyTestFixtures.request(), processed, "fake", PREVIEW, "standard");
+        policyGate.register(
+            PrivacyTestFixtures.request(),
+            processed,
+            "fake",
+            PREVIEW,
+            "standard",
+            io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding.none("fake"));
 
     assertThat(policyGate.consume(mockPreview.previewId(), null).status())
         .isEqualTo(ApprovalStatus.APPROVED);
@@ -207,7 +225,10 @@ class PrivacyGateTest {
     assertThat(
             java.util.Arrays.stream(PrivacyGate.class.getMethods())
                 .filter(method -> method.getName().equals("register"))
-                .allMatch(method -> method.getParameterCount() == 5))
+                .allMatch(method ->
+                    method.getParameterCount() == 6
+                        && java.util.Arrays.stream(method.getParameterTypes())
+                            .noneMatch(type -> type == boolean.class)))
         .isTrue();
   }
 
@@ -243,12 +264,14 @@ class PrivacyGateTest {
 
   private PrivacyPreview register(
       boolean approvalRequired, String modelId, PrivacyProcessingResult result) {
+    var provider = approvalRequired ? "remote" : "mock";
     return gate.register(
         PrivacyTestFixtures.request(),
         result,
-        approvalRequired ? "remote" : "mock",
+        provider,
         modelId,
-        "standard");
+        "standard",
+        io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding.none(provider));
   }
 
   private static final class MutableClock extends Clock {

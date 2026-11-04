@@ -46,6 +46,16 @@ class PrivacyFirstExpertiseEngineTest {
   }
 
   @Test
+  void previewCarriesServerOwnedCredentialBinding() {
+    var binding =
+        new io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding(
+            "binding-test", "mock", "DR_MAYS_TEST_KEY", 1, "");
+    var preview = engine.preview(request(), "mock", "deterministic-v1", "standard", binding);
+
+    assertThat(preview.credentialBinding()).isEqualTo(binding);
+  }
+
+  @Test
   void explainsMockPreviewWithVerifiedResourceAndEvidence() {
     var preview = engine.preview(request(), "mock", "deterministic-v1", "standard");
 

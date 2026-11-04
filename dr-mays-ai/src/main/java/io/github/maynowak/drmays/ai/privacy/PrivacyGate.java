@@ -1,6 +1,7 @@
 package io.github.maynowak.drmays.ai.privacy;
 
 import io.github.maynowak.drmays.ai.IntelligenceRequest;
+import io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding;
 import io.github.maynowak.drmays.core.validation.DomainChecks;
 import java.security.SecureRandom;
 import java.time.Clock;
@@ -82,6 +83,7 @@ public final class PrivacyGate {
    * @param providerId selected provider
    * @param modelId selected model
    * @param expertiseId selected expertise profile
+   * @param credentialBinding server-owned credential binding
    * @return safe preview
    */
   public synchronized PrivacyPreview register(
@@ -89,7 +91,8 @@ public final class PrivacyGate {
       PrivacyProcessingResult processed,
       String providerId,
       String modelId,
-      String expertiseId) {
+      String expertiseId,
+      ProviderCredentialBinding credentialBinding) {
     prune();
     if (pending.size() >= MAX_PENDING) {
       throw new IllegalStateException("approval store is full");
@@ -106,6 +109,7 @@ public final class PrivacyGate {
             DomainChecks.requireText(modelId, "modelId"),
             DomainChecks.requireText(expertiseId, "expertiseId"),
             approvalRequired,
+            Objects.requireNonNull(credentialBinding, "credentialBinding"),
             expiresAt));
     return new PrivacyPreview(
         previewId,
@@ -118,7 +122,8 @@ public final class PrivacyGate {
         approvalRequired,
         expiresAt,
         processed.validation(),
-        processed.decisions());
+        processed.decisions(),
+        credentialBinding);
   }
 
   /**
@@ -149,6 +154,7 @@ public final class PrivacyGate {
             preview.modelId(),
             preview.expertiseId(),
             preview.processed().policy().version(),
+            preview.credentialBinding(),
             expiresAt));
     return Optional.of(new ApprovalToken(token));
   }
@@ -207,6 +213,7 @@ public final class PrivacyGate {
             preview.expertiseId(),
             preview.processed().policy().version(),
             preview.approvalRequired(),
+            preview.credentialBinding(),
             earlier(clock.instant().plus(AUTHORIZATION_TTL), preview.expiresAt()));
     return ApprovalDecision.approved(
         new ApprovedInvocation(
@@ -237,7 +244,8 @@ public final class PrivacyGate {
         && record.providerId().equals(preview.providerId())
         && record.modelId().equals(preview.modelId())
         && record.expertiseId().equals(preview.expertiseId())
-        && record.policyVersion().equals(preview.processed().policy().version());
+        && record.policyVersion().equals(preview.processed().policy().version())
+        && record.credentialBinding().equals(preview.credentialBinding());
   }
 
   private String randomToken(int bytes) {
@@ -265,6 +273,7 @@ public final class PrivacyGate {
       String modelId,
       String expertiseId,
       boolean approvalRequired,
+      ProviderCredentialBinding credentialBinding,
       Instant expiresAt) {}
 
   private record ApprovalRecord(
@@ -274,5 +283,6 @@ public final class PrivacyGate {
       String modelId,
       String expertiseId,
       String policyVersion,
+      ProviderCredentialBinding credentialBinding,
       Instant expiresAt) {}
 }

@@ -3,7 +3,8 @@ package io.github.maynowak.drmays.ai.provider;
 import io.github.maynowak.drmays.ai.privacy.ProviderInvocationAuthorization;
 import java.time.Clock;
 import java.time.Instant;
-import java.util.LinkedHashSet;
+import java.util.HashMap;
+import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 
@@ -17,10 +18,11 @@ public final class ProviderRouter {
   private final ProviderModelPolicy modelPolicy;
   private final CredentialResolutionPolicy credentialPolicy;
   private final Clock clock;
+  private final int maxUsedAuthorizations;
   private final CredentialReferenceValidator credentialValidator =
       new CredentialReferenceValidator();
   private final DisabledCredentialResolver credentialResolver = new DisabledCredentialResolver();
-  private final Set<String> usedAuthorizations = new LinkedHashSet<>();
+  private final Map<String, Instant> usedAuthorizations = new HashMap<>();
 
   /**
    * Creates a router with the mock-only model policy and disabled credential resolution.
@@ -34,7 +36,8 @@ public final class ProviderRouter {
         enabledProviderIds,
         ProviderModelPolicy.mockOnly(),
         CredentialResolutionPolicy.disabled(),
-        Clock.systemUTC());
+        Clock.systemUTC(),
+        MAX_USED_AUTHORIZATIONS);
   }
 
   /**
@@ -52,7 +55,37 @@ public final class ProviderRouter {
       ProviderModelPolicy modelPolicy,
       CredentialResolutionPolicy credentialPolicy,
       Clock clock) {
+    this(
+        registry,
+        enabledProviderIds,
+        modelPolicy,
+        credentialPolicy,
+        clock,
+        MAX_USED_AUTHORIZATIONS);
+  }
+
+  /**
+   * Creates a router with an explicit replay-state cap (package-private for tests).
+   *
+   * @param registry provider registry
+   * @param enabledProviderIds explicitly enabled provider IDs
+   * @param modelPolicy exact model allowlist
+   * @param credentialPolicy credential policy
+   * @param clock expiration clock
+   * @param maxUsedAuthorizations replay-state cap
+   */
+  ProviderRouter(
+      ProviderRegistry registry,
+      Set<String> enabledProviderIds,
+      ProviderModelPolicy modelPolicy,
+      CredentialResolutionPolicy credentialPolicy,
+      Clock clock,
+      int maxUsedAuthorizations) {
     this.registry = Objects.requireNonNull(registry, "registry");
+    if (maxUsedAuthorizations <= 0) {
+      throw new IllegalArgumentException("maxUsedAuthorizations must be positive");
+    }
+    this.maxUsedAuthorizations = maxUsedAuthorizations;
     this.enabledProviderIds =
         Set.copyOf(Objects.requireNonNull(enabledProviderIds, "enabledProviderIds"));
     this.modelPolicy = Objects.requireNonNull(modelPolicy, "modelPolicy");
@@ -74,10 +107,12 @@ public final class ProviderRouter {
     if (authorization == null) {
       return failure(request, ProviderExecutionStatus.APPROVAL_REQUIRED, "AUTHORIZATION_MISSING");
     }
-    if (authorization.expired(clock.instant())) {
+    var now = clock.instant();
+    if (authorization.expired(now)) {
       return failure(request, ProviderExecutionStatus.APPROVAL_REQUIRED, "AUTHORIZATION_EXPIRED");
     }
-    if (usedAuthorizations.contains(authorization.nonce())) {
+    usedAuthorizations.entrySet().removeIf(entry -> !now.isBefore(entry.getValue()));
+    if (usedAuthorizations.containsKey(authorization.nonce())) {
       return failure(request, ProviderExecutionStatus.APPROVAL_REQUIRED, "AUTHORIZATION_CONSUMED");
     }
     var provider = registry.find(request.providerId());
@@ -96,6 +131,10 @@ public final class ProviderRouter {
     }
     if (!bindingMatches(request, authorization)) {
       return failure(request, ProviderExecutionStatus.APPROVAL_REQUIRED, "AUTHORIZATION_MISMATCH");
+    }
+    if (usedAuthorizations.size() >= maxUsedAuthorizations) {
+      return failure(
+          request, ProviderExecutionStatus.APPROVAL_REQUIRED, "AUTHORIZATION_STORE_FULL");
     }
     if (request.payloadJson().length() > descriptor.capabilities().maxPayloadChars()) {
       return failure(request, ProviderExecutionStatus.PRIVACY_REJECTED, "PAYLOAD_TOO_LARGE");
@@ -120,10 +159,7 @@ public final class ProviderRouter {
             "CREDENTIAL_RESOLVER_DISABLED");
       }
     }
-    usedAuthorizations.add(authorization.nonce());
-    if (usedAuthorizations.size() > MAX_USED_AUTHORIZATIONS) {
-      usedAuthorizations.remove(usedAuthorizations.iterator().next());
-    }
+    usedAuthorizations.put(authorization.nonce(), authorization.expiresAt());
     try {
       var result = provider.orElseThrow().invoke(request);
       if (result == null) {
@@ -146,7 +182,9 @@ public final class ProviderRouter {
         && authorization.payloadHash().equals(request.payloadHash())
         && authorization.payloadHash().equals(PayloadIntegrity.hash(request.payloadJson()))
         && PayloadIntegrity.matches(request.payload(), request.payloadJson())
-        && authorization.policyVersion().equals(request.payload().policyVersion());
+        && authorization.policyVersion().equals(request.payload().policyVersion())
+        && authorization.credentialBinding().equals(request.credentialBinding())
+        && request.credentialBinding().matches(request.credentialReference());
   }
 
   private static ModelInvocationResult failure(

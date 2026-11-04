@@ -1,5 +1,6 @@
 package io.github.maynowak.drmays.ai.privacy;
 
+import io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding;
 import io.github.maynowak.drmays.core.validation.DomainChecks;
 import java.time.Instant;
 import java.util.Objects;
@@ -17,6 +18,7 @@ public final class ProviderInvocationAuthorization {
   private final String expertiseId;
   private final String policyVersion;
   private final boolean approvalRequired;
+  private final ProviderCredentialBinding credentialBinding;
   private final Instant expiresAt;
 
   ProviderInvocationAuthorization(
@@ -27,6 +29,7 @@ public final class ProviderInvocationAuthorization {
       String expertiseId,
       String policyVersion,
       boolean approvalRequired,
+      ProviderCredentialBinding credentialBinding,
       Instant expiresAt) {
     this.nonce = DomainChecks.requireText(nonce, "nonce");
     this.payloadHash = DomainChecks.requireText(payloadHash, "payloadHash");
@@ -35,6 +38,7 @@ public final class ProviderInvocationAuthorization {
     this.expertiseId = DomainChecks.requireText(expertiseId, "expertiseId");
     this.policyVersion = DomainChecks.requireText(policyVersion, "policyVersion");
     this.approvalRequired = approvalRequired;
+    this.credentialBinding = Objects.requireNonNull(credentialBinding, "credentialBinding");
     this.expiresAt = Objects.requireNonNull(expiresAt, "expiresAt");
   }
 
@@ -64,6 +68,10 @@ public final class ProviderInvocationAuthorization {
 
   public boolean approvalRequired() {
     return approvalRequired;
+  }
+
+  public ProviderCredentialBinding credentialBinding() {
+    return credentialBinding;
   }
 
   public Instant expiresAt() {

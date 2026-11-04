@@ -158,6 +158,56 @@ class ProviderRouterTest {
   }
 
   @Test
+  void rejectsCredentialBindingMismatch() {
+    var fake =
+        new FakeProvider(FAKE_DESCRIPTOR, ModelInvocationResult.success("fake", "m", "ok", 1));
+    var router = router(fake);
+    var authorized = ProviderTestFixtures.authorizedRequest("fake", "m");
+    var request = authorized.request();
+    var rotated =
+        new ModelInvocationRequest(
+            request.providerId(),
+            request.modelId(),
+            request.expertiseId(),
+            request.payload(),
+            request.payloadJson(),
+            request.payloadHash(),
+            new ProviderCredentialBinding("binding-rotated", "fake", "none", 2, ""),
+            request.credentialReference(),
+            request.timeout(),
+            request.maxOutputChars());
+
+    assertThat(router.route(rotated, authorized.authorization()).status())
+        .isEqualTo(ProviderExecutionStatus.APPROVAL_REQUIRED);
+    assertThat(fake.calls()).isZero();
+  }
+
+  @Test
+  void replayStateCapacityFailsClosed() {
+    var fake =
+        new FakeProvider(FAKE_DESCRIPTOR, ModelInvocationResult.success("fake", "m", "ok", 1));
+    var router =
+        new ProviderRouter(
+            new ProviderRegistry(List.of(fake)),
+            Set.of("fake"),
+            ProviderModelPolicy.of(Map.of("fake", Set.of("m"))),
+            CredentialResolutionPolicy.disabled(),
+            Clock.systemUTC(),
+            2);
+    var first = ProviderTestFixtures.authorizedRequest("fake", "m");
+    var second = ProviderTestFixtures.authorizedRequest("fake", "m");
+    var third = ProviderTestFixtures.authorizedRequest("fake", "m");
+
+    assertThat(router.route(first.request(), first.authorization()).status())
+        .isEqualTo(ProviderExecutionStatus.SUCCESS);
+    assertThat(router.route(second.request(), second.authorization()).status())
+        .isEqualTo(ProviderExecutionStatus.SUCCESS);
+    assertThat(router.route(third.request(), third.authorization()).status())
+        .isEqualTo(ProviderExecutionStatus.APPROVAL_REQUIRED);
+    assertThat(fake.calls()).isEqualTo(2);
+  }
+
+  @Test
   void rejectsPayloadHashMismatch() {
     var fake =
         new FakeProvider(FAKE_DESCRIPTOR, ModelInvocationResult.success("fake", "m", "ok", 1));
@@ -172,6 +222,7 @@ class ProviderRouterTest {
             request.payload(),
             request.payloadJson(),
             "wrong-hash",
+            ProviderCredentialBinding.none(request.providerId()),
             request.credentialReference(),
             request.timeout(),
             request.maxOutputChars());
@@ -196,6 +247,7 @@ class ProviderRouterTest {
             request.payload(),
             "{\"tampered\":true}",
             request.payloadHash(),
+            ProviderCredentialBinding.none(request.providerId()),
             request.credentialReference(),
             request.timeout(),
             request.maxOutputChars());
@@ -271,6 +323,7 @@ class ProviderRouterTest {
             request.payload(),
             request.payloadJson(),
             request.payloadHash(),
+            ProviderCredentialBinding.none(request.providerId()),
             request.credentialReference(),
             request.timeout(),
             request.maxOutputChars());
@@ -295,6 +348,7 @@ class ProviderRouterTest {
             request.payload(),
             request.payloadJson(),
             request.payloadHash(),
+            ProviderCredentialBinding.none(request.providerId()),
             request.credentialReference(),
             request.timeout(),
             request.maxOutputChars());
@@ -328,6 +382,7 @@ class ProviderRouterTest {
             request.payload(),
             request.payloadJson(),
             request.payloadHash(),
+            ProviderCredentialBinding.none("mock"),
             ProviderCredentialReference.none("mock"),
             request.timeout(),
             request.maxOutputChars());

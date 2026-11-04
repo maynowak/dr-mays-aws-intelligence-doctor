@@ -1,5 +1,6 @@
 package io.github.maynowak.drmays.ai.privacy;
 
+import io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding;
 import io.github.maynowak.drmays.core.validation.DomainChecks;
 import java.time.Instant;
 import java.util.List;
@@ -19,6 +20,7 @@ import java.util.Objects;
  * @param expiresAt preview expiry
  * @param validation privacy validation outcome
  * @param decisions field decisions
+ * @param credentialBinding server-owned credential binding
  */
 public record PrivacyPreview(
     String previewId,
@@ -31,7 +33,8 @@ public record PrivacyPreview(
     boolean approvalRequired,
     Instant expiresAt,
     PrivacyValidationResult validation,
-    List<PrivacyFieldDecision> decisions) {
+    List<PrivacyFieldDecision> decisions,
+    ProviderCredentialBinding credentialBinding) {
 
   public PrivacyPreview {
     previewId = DomainChecks.requireText(previewId, "previewId");
@@ -44,5 +47,6 @@ public record PrivacyPreview(
     expiresAt = Objects.requireNonNull(expiresAt, "expiresAt");
     validation = Objects.requireNonNull(validation, "validation");
     decisions = List.copyOf(Objects.requireNonNull(decisions, "decisions"));
+    credentialBinding = Objects.requireNonNull(credentialBinding, "credentialBinding");
   }
 }

@@ -57,6 +57,7 @@ final class ProviderTestFixtures {
         payload(),
         PAYLOAD_JSON,
         PAYLOAD_HASH,
+        bindingFor(providerId, reference),
         reference,
         Duration.ofSeconds(5),
         64_000);
@@ -75,9 +76,17 @@ final class ProviderTestFixtures {
         payload(),
         payloadJson,
         PAYLOAD_HASH,
+        bindingFor(providerId, reference),
         reference,
         Duration.ofSeconds(5),
         maxOutputChars);
+  }
+
+  static ProviderCredentialBinding bindingFor(
+      String providerId, ProviderCredentialReference reference) {
+    return reference.kind() == CredentialKind.NONE
+        ? ProviderCredentialBinding.none(providerId)
+        : new ProviderCredentialBinding("binding-test", providerId, reference.reference(), 1, "");
   }
 
   static AuthorizedRequest authorizedRequest(String providerId, String modelId) {
@@ -89,7 +98,14 @@ final class ProviderTestFixtures {
             java.time.Duration.ofMinutes(5),
             java.time.Clock.systemUTC(),
             id -> false);
-    var preview = gate.register(source, processed, providerId, modelId, "standard");
+    var preview =
+        gate.register(
+            source,
+            processed,
+            providerId,
+            modelId,
+            "standard",
+            ProviderCredentialBinding.none(providerId));
     var invocation = gate.consume(preview.previewId(), null).invocation().orElseThrow();
     var request =
         new ModelInvocationRequest(
@@ -99,6 +115,7 @@ final class ProviderTestFixtures {
             processed.payload(),
             processed.payloadJson(),
             processed.payloadHash(),
+            ProviderCredentialBinding.none(providerId),
             ProviderCredentialReference.none(providerId),
             Duration.ofSeconds(5),
             64_000);

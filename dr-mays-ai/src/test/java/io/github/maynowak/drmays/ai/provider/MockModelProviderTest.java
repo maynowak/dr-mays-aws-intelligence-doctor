@@ -40,6 +40,7 @@ class MockModelProviderTest {
             payload,
             ProviderTestFixtures.PAYLOAD_JSON,
             ProviderTestFixtures.PAYLOAD_HASH,
+            ProviderCredentialBinding.none("mock"),
             ProviderCredentialReference.none("mock"),
             java.time.Duration.ofSeconds(1),
             64_000);

@@ -14,6 +14,7 @@ import java.util.Objects;
  * @param payload sanitized provider payload
  * @param payloadJson exact serialized payload used for size checks
  * @param payloadHash exact sanitized payload hash
+ * @param credentialBinding server-owned credential binding
  * @param credentialReference logical credential reference
  * @param timeout hard invocation timeout
  * @param maxOutputChars maximum accepted output
@@ -25,6 +26,7 @@ public record ModelInvocationRequest(
     SanitizedExpertiseRequest payload,
     String payloadJson,
     String payloadHash,
+    ProviderCredentialBinding credentialBinding,
     ProviderCredentialReference credentialReference,
     Duration timeout,
     int maxOutputChars) {
@@ -39,7 +41,11 @@ public record ModelInvocationRequest(
     payload = Objects.requireNonNull(payload, "payload");
     payloadJson = DomainChecks.requireText(payloadJson, "payloadJson");
     payloadHash = DomainChecks.requireText(payloadHash, "payloadHash");
+    credentialBinding = Objects.requireNonNull(credentialBinding, "credentialBinding");
     credentialReference = Objects.requireNonNull(credentialReference, "credentialReference");
+    if (!credentialBinding.matches(credentialReference)) {
+      throw new IllegalArgumentException("credential binding does not match credential reference");
+    }
     timeout = Objects.requireNonNull(timeout, "timeout");
     if (timeout.isZero() || timeout.isNegative()) {
       throw new IllegalArgumentException("timeout must be positive");

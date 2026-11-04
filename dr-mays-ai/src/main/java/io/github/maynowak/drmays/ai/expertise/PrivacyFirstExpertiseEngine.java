@@ -154,6 +154,26 @@ public final class PrivacyFirstExpertiseEngine {
    */
   public PrivacyPreview preview(
       IntelligenceRequest source, String providerId, String modelId, String expertiseId) {
+    var binding = io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding.none(providerId);
+    return preview(source, providerId, modelId, expertiseId, binding);
+  }
+
+  /**
+   * Creates a preview with an explicit server-owned credential binding.
+   *
+   * @param source verified intelligence request
+   * @param providerId provider identifier
+   * @param modelId model identifier
+   * @param expertiseId expertise profile
+   * @param credentialBinding server-owned credential binding
+   * @return safe preview
+   */
+  public PrivacyPreview preview(
+      IntelligenceRequest source,
+      String providerId,
+      String modelId,
+      String expertiseId,
+      io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding credentialBinding) {
     Objects.requireNonNull(source, "source");
     var selectedProvider = DomainChecks.requireText(providerId, "providerId");
     if (!registry.contains(selectedProvider) || !enablement.isEnabled(selectedProvider)) {
@@ -168,7 +188,8 @@ public final class PrivacyFirstExpertiseEngine {
     }
     var expertise = catalog.require(DomainChecks.requireText(expertiseId, "expertiseId"));
     var processed = privacyProcessor.process(source);
-    return gate.register(source, processed, selectedProvider, model, expertise.id());
+    return gate.register(
+        source, processed, selectedProvider, model, expertise.id(), credentialBinding);
   }
 
   /**
@@ -228,7 +249,8 @@ public final class PrivacyFirstExpertiseEngine {
             processed.payload(),
             processed.payloadJson(),
             processed.payloadHash(),
-            ProviderCredentialReference.none(invocation.providerId()),
+            invocation.authorization().credentialBinding(),
+            credentialReference(invocation.authorization().credentialBinding()),
             INVOCATION_TIMEOUT,
             MAX_OUTPUT_CHARS);
     var result = router.route(request, invocation.authorization());
@@ -290,6 +312,13 @@ public final class PrivacyFirstExpertiseEngine {
       return ExpertiseReport.failure(
           ProviderExecutionStatus.INVALID_RESPONSE, metadata, facts, receipt);
     }
+  }
+
+  private static ProviderCredentialReference credentialReference(
+      io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding binding) {
+    return "none".equals(binding.reference())
+        ? ProviderCredentialReference.none(binding.providerId())
+        : ProviderCredentialReference.environment(binding.providerId(), binding.reference());
   }
 
   private ExpertiseReport approvalFailure(ApprovalStatus status) {

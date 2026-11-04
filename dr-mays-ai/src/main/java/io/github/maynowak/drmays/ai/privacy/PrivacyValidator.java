@@ -198,8 +198,13 @@ public final class PrivacyValidator {
   private void checkEvidence(String field, String value, List<PrivacyViolation> violations) {
     check(field, value, violations, false);
     var keyValue = Pattern.compile("([A-Za-z0-9._-]{1,128})=([^\\s]+)").matcher(value);
+    var found = false;
     while (keyValue.find()) {
       check(field, keyValue.group(2), violations, true);
+      found = true;
+    }
+    if (!found) {
+      check(field, value, violations, true);
     }
   }
 

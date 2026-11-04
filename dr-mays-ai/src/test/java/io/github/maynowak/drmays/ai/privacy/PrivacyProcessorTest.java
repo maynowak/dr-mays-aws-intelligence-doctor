@@ -125,6 +125,15 @@ class PrivacyProcessorTest {
   }
 
   @Test
+  void redactsBareHostnameEvidence() {
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+            .process(PrivacyTestFixtures.requestWithObserved("db.internal.example.com"));
+
+    assertThat(processed.payloadJson()).doesNotContain("db.internal.example.com");
+  }
+
+  @Test
   void preservesSchemaKeyEvidence() {
     var processed = PrivacyTestFixtures.processed();
 

@@ -66,6 +66,14 @@ public final class PrivacyProcessor {
               + "|Bearer\\s+[A-Za-z0-9._-]{12,}");
   private static final Pattern URL = Pattern.compile("https?://\\S+");
   private static final Pattern KEY_VALUE = Pattern.compile("([A-Za-z0-9._-]{1,128})=([^\\s]+)");
+  private static final java.util.Set<String> SAFE_EVIDENCE_KEYS =
+      java.util.Set.of(
+          "vpc.id",
+          "ingress.public",
+          "ingress.referenced.securityGroupIds",
+          "s3.versioning.status",
+          "owner",
+          "attribute");
 
   private final PrivacyPolicy policy;
   private final PrivacyValidator validator;
@@ -227,7 +235,7 @@ public final class PrivacyProcessor {
       return sanitize(builder.toString(), aliases);
     }
     if (value.matches("[A-Za-z0-9._-]{1,128}")) {
-      return value;
+      return SAFE_EVIDENCE_KEYS.contains(value) ? value : sanitize(value, aliases);
     }
     return sanitize(value, aliases);
   }

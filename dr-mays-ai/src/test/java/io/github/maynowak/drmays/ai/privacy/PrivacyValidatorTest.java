@@ -118,6 +118,15 @@ class PrivacyValidatorTest {
   }
 
   @Test
+  void rejectsBareHostnameEvidence() {
+    var result = validator.validate(payload(withObserved("db.internal.example.com")), policy);
+
+    assertThat(result.valid()).isFalse();
+    assertThat(result.violations())
+        .anyMatch(violation -> violation.code().equals(PrivacyViolation.HOSTNAME));
+  }
+
+  @Test
   void rejectsSecretPattern() {
     var result = validator.validate(payload(withObserved("AKIAABCDEFGHIJKLMNOP")), policy);
 

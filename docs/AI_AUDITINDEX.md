@@ -1,8 +1,8 @@
 # Dr. Mays — AI Audit Index
 
 Current Branch: `feature/dr-mays-privacy-provider-orchestration-01`
-Latest recorded HEAD: `c8d23bf` (03H code; final audit commit follows)
-Last updated: 2026-11-04T16:13:00+01:00
+Latest recorded HEAD: `cc6fe1c` (03I code; final audit commit follows)
+Last updated: 2026-11-04T17:34:00+01:00
 
 | Task ID | Report | Status |
 | --- | --- | --- |
@@ -25,6 +25,11 @@ Last updated: 2026-11-04T16:13:00+01:00
 | `DR-MAYS-PROVIDER-SECURITY-03H` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03H-EXECUTION_LOG.md` | COMPLETE — GREEN (local) |
 | `DR-MAYS-PROVIDER-SECURITY-03H` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03H-REVIEW-A-AUTHORIZATION.md` | COMPLETE — no HIGH/CRITICAL |
 | `DR-MAYS-PROVIDER-SECURITY-03H` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03H-REVIEW-B-CREDENTIAL-OPENCODE.md` | COMPLETE — no HIGH/CRITICAL |
+| `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-DISCOVERY.md` | COMPLETE — authorization discovery |
+| `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-READINESS.md` | COMPLETE — GREEN (local); 470 tests; Docker PASS |
+| `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-EXECUTION_LOG.md` | COMPLETE — GREEN (local) |
+| `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-REVIEW-A.md` | COMPLETE — no HIGH/CRITICAL |
+| `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-REVIEW-B.md` | COMPLETE — no HIGH/CRITICAL |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-REST-APPROVAL-REVIEW.md` | COMPLETE — approval PASS; residual documented |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-PRIVACY-REVIEW.md` | COMPLETE — initial ORANGE; defects fixed |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-CREDENTIAL-CLI-REVIEW.md` | COMPLETE — no active credential/CLI exposure |

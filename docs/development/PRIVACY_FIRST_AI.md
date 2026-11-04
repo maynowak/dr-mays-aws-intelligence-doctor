@@ -80,7 +80,7 @@ All endpoints remain loopback-only, unauthenticated and unsuitable for public de
 - Alias consistency is tested across findings and relationships.
 - Preview tampering, wrong token, token reuse, expiry and invalid privacy state are tested.
 - Unknown findings/evidence/relationships/aliases are rejected as `INVALID_RESPONSE`.
-- Current suite: 467 tests; AI/API coverage gates pass.
+- Current suite: 470 tests; AI/API coverage gates pass.
 
 ## Limitations
 

@@ -77,6 +77,13 @@ Excluded by default: `RULE_VERSION`, `RESOURCE_TYPE`, `REGION_CLASS`, `TITLE`, `
 
 `OpenCodeSandboxPolicy` requires all controls (OS isolation, no project write, no AWS/OpenCode credentials, deny tools/MCP/plugins, egress, bounded runtime/memory/output, cleanup). `ready()` is false by default; live adapter remains disabled. CLI permission configuration alone is not OS isolation.
 
+## 7a. Replay and credential state
+
+- Authorization nonces are stored in a TTL-keyed map; expired entries are pruned.
+- At capacity the router fails closed with `AUTHORIZATION_STORE_FULL`; it never evicts a still-valid nonce.
+- Credential binding is carried through preview/approval/authorization/request and compared before invoke.
+- State is in-memory, single-instance; restart invalidates pending/approval state and the current authorization cannot be serialized.
+
 ## 8. Failure model
 
 No provider call for missing/invalid/expired/reused authorization, provider/model mismatch, model not allowlisted, tools capability, policy mismatch, payload hash mismatch, disabled provider, credential policy failure, or OpenCode sandbox not ready. Errors are safe codes; no secret/raw payload in messages/logs.

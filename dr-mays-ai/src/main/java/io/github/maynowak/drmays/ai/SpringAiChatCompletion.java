@@ -4,7 +4,7 @@ import java.util.Objects;
 import org.springframework.ai.chat.client.ChatClient;
 
 /** Spring AI ChatClient transport; no tools are registered. */
-public final class SpringAiChatCompletion implements ChatCompletion {
+final class SpringAiChatCompletion implements ChatCompletion {
 
   private final ChatClient chatClient;
 

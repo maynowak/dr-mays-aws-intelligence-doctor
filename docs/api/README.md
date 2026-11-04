@@ -35,7 +35,10 @@ The container uses the `docker` Spring profile to bind `0.0.0.0:8080` internally
 | --- | --- | --- |
 | POST | `/api/v1/diagnoses` | Run deterministic rules over a synthetic snapshot |
 | POST | `/api/v1/dna/graphs` | Build the offline Infrastructure DNA graph |
-| POST | `/api/v1/intelligence/explain` | Explain findings/evidence/relationships with mock AI (Ollama opt-in) |
+| POST | `/api/v1/intelligence/explain` | Explain findings/evidence/relationships with mock AI (raw external path fail-closed) |
+| POST | `/api/v1/expertise/previews` | Build a sanitized provider payload preview; no provider call |
+| POST | `/api/v1/expertise/approvals` | Approve an exact preview payload; returns a single-use token |
+| POST | `/api/v1/expertise/explain` | Execute a stored mock-only preview with optional token |
 | GET | `/api/v1/rules` | List registered rules in rule-ID order |
 | GET | `/actuator/health` | Health endpoint; only Actuator endpoint exposed |
 
@@ -116,4 +119,4 @@ The example above is illustrative for one resource; the actual response also inc
 ./mvnw -B clean verify
 ```
 
-The API has MVC slice tests, full-context error tests and a real random-port server test. JaCoCo enforces 85 % line / 75 % branch coverage; current API coverage is 97.83 % line and 100 % branch. Reports: `dr-mays-api/target/site/jacoco/`.
+The API has MVC slice tests, full-context error tests and a real random-port server test. JaCoCo enforces 85 % line / 75 % branch coverage; current API coverage is 97.83 % line and 79.59 % branch. Reports: `dr-mays-api/target/site/jacoco/`.

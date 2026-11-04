@@ -9,7 +9,7 @@ import tools.jackson.core.JacksonException;
 import tools.jackson.databind.ObjectMapper;
 
 /** Opt-in Ollama/Spring AI analyzer with strict response verification. */
-public final class OllamaIntelligenceAnalyzer implements IntelligenceAnalyzer {
+final class OllamaIntelligenceAnalyzer implements IntelligenceAnalyzer {
 
   private final ChatCompletion completion;
   private final PromptBuilder promptBuilder;

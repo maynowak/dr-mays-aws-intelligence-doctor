@@ -4,13 +4,13 @@
 >
 > *Understand the infrastructure. Detect the risks. Explain the diagnosis.*
 
-**Project status:** 🟡 Core domain + API + Docker demo + simulated AWS discovery + DNA + AI explanation (mock verified) / live AWS & real model inference not started<br>
+**Project status:** 🟡 Core/API/Docker + simulated AWS + DNA + privacy-first AI orchestration (mock verified) / live AWS & real model inference not started<br>
 **Initial plan:** 3 November 2026<br>
 **Project ID:** `DR-MAYS`<br>
 **Type:** Independent, Java-first portfolio and reference project
 
 > [!IMPORTANT]
-> The Java 25 foundation, core diagnostic domain, local Spring Boot API, Docker offline demo, simulated AWS discovery, Infrastructure DNA and an AI explanation layer (deterministic mock verified; Ollama opt-in) are implemented and verified locally. **No live AWS scan and no real model inference have run.** No AWS resources are provisioned by this README.
+> The Java 25 foundation, core diagnostic domain, local Spring Boot API, Docker offline demo, simulated AWS discovery, Infrastructure DNA and an AI explanation layer plus privacy-first preview/approval orchestration (deterministic mock verified; raw Ollama path fail-closed) are implemented and verified locally. **No live AWS scan and no real model inference have run.** No AWS resources are provisioned by this README.
 
 ## 🎯 Vision
 
@@ -29,8 +29,8 @@ The key idea is **Infrastructure DNA**: infrastructure is more than a list of re
 | **Rule engine** | Deterministic checks with stable rule IDs, severity, evidence and recommendations |
 | **Infrastructure DNA** | Implemented offline graph of inventoried/referenced resources with verified SG→VPC and SG→SG edges |
 | **Diagnosis report** | Machine-readable JSON with findings, affected resources and priorities |
-| **AI interpretation** | Implemented mock/opt-in: explains findings/evidence/relationships; never authoritative |
-| **Local demo** | Implemented: Docker/offline fixtures with **no AWS account required** |
+| **AI interpretation** | Implemented mock/opt-in: explains findings/evidence/relationships; privacy preview/approval and pseudonymized provider payloads; never authoritative |
+| **Local demo** | Implemented: Docker/offline fixtures incl. privacy preview/approval/explain with **no AWS account or model required** |
 | **Cloud Doctor** | Later: Java AWS Lambda, optional EventBridge scheduling, infrastructure via AWS CDK in Java |
 
 **Out of scope for the MVP:** automatic remediation, unrestricted account crawling, multi-account orchestration, cost forecasting and a complex web UI.
@@ -155,7 +155,7 @@ dr-mays-aws-intelligence-doctor/
 ├── dr-mays-core/           # Implemented domain, findings, evidence, rules, engine, DNA graph
 ├── dr-mays-aws/            # Implemented read-only AWS discovery foundation (simulated)
 ├── dr-mays-api/            # Implemented Spring Boot REST API
-├── dr-mays-ai/             # Implemented AI explanation layer (mock default, Ollama opt-in)
+├── dr-mays-ai/             # Implemented AI explanation layer (mock default; raw external path fail-closed)
 ├── dr-mays-worker/         # Scheduled or Lambda execution (later)
 ├── dr-mays-infrastructure/ # AWS CDK in Java (later)
 ├── docker/                 # Implemented multi-stage Docker image
@@ -177,7 +177,8 @@ The core domain, local REST API and Docker offline demo are implemented today. O
 | 03 | `DR-MAYS-LOCAL-DOCKER-03` | Docker demo, fixture scans, reproducible example JSON | ✅ Complete (local verify + Docker smoke) |
 | 04 | `DR-MAYS-AWS-DISCOVERY-04` | Authorized S3/IAM/SG/Lambda discovery, rules, JSON report | 🟡 Simulated foundation complete; live scan not executed |
 | 05 | `DR-MAYS-DNA-GRAPH-05` | Verified resource links with provenance and graph tests | ✅ Complete (local verify, 223 tests) |
-| 06 | `DR-MAYS-AI-REPORTS-06` | Opt-in model adapters, redaction, fallback, JSON/PDF report | 🟡 Mock/API complete; real Ollama inference NOT VERIFIED |
+| 06 | `DR-MAYS-AI-REPORTS-06` | Opt-in model adapters, redaction, fallback, JSON/PDF report | 🟡 Mock/API + privacy orchestration complete; real model inference NOT VERIFIED |
+| ORCH-01 | `DR-MAYS-ORCHESTRATION-01` | Privacy-first provider orchestration, BYOK references, mock router, OpenCode adapter | 🟡 Local mock-only GREEN; live providers/OpenCode BLOCKED |
 | 07 | `DR-MAYS-CLOUD-DOCTOR-07` | Java Lambda, CDK synth/diff, approval-gated deploy | ⬜ Planned |
 | 08 | `DR-MAYS-PORTFOLIO-READINESS-08` | CI, security review, observability, docs and demo | ⬜ Planned |
 
@@ -188,7 +189,7 @@ The core domain, local REST API and Docker offline demo are implemented today. O
 **Core domain, local REST API and Docker offline demo available; AWS discovery is not implemented yet.** JDK 25 is required. Maven is pinned through the wrapper, so no global Maven 3.9 installation is needed.
 
 ```bash
-# Full reactor verification (compile + 115 tests + quality gates)
+# Full reactor verification (compile + 411 tests + quality gates)
 ./mvnw -B clean verify
 
 # Format and verify
@@ -209,7 +210,7 @@ java -jar dr-mays-api/target/dr-mays-api-0.1.0-SNAPSHOT.jar
 
 Endpoints: `POST /api/v1/diagnoses`, `GET /api/v1/rules`, `POST /api/v1/dna/graphs`, `POST /api/v1/intelligence/explain`, `GET /actuator/health`. Contract and examples: `docs/api/README.md` and `docs/api/openapi.yaml`. AI: `docs/development/AI_INTELLIGENCE.md` and `docs/security/AI_MODEL_SECURITY.md`.
 
-Quality gates: Spotless/Google Java Format, Checkstyle, 263 tests, and JaCoCo with 85 % line / 75 % branch minimums. Current coverage: core 99.36 % / 95.65 %, API 98.83 % / 83.87 %, AWS discovery 95.25 % / 83.93 %, AI 93.58 % / 82.86 %. Reports are under each module's `target/site/jacoco/`.
+Quality gates: Spotless/Google Java Format, Checkstyle, 411 tests, and JaCoCo with 85 % line / 75 % branch minimums. Current coverage: core 99.36 % / 95.65 %, API 97.83 % / 79.59 %, AWS discovery 95.25 % / 83.93 %, AI 94.49 % / 79.06 %. Reports are under each module's `target/site/jacoco/`.
 
 The build and tests require no AWS credentials. The AWS discovery layer uses mocked SDK clients only; the first live scan requires a separate explicit approval. Details: `docs/development/AWS_DISCOVERY.md` and `docs/security/AWS_SCANNER_IAM.md`.
 

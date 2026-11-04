@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.charset.StandardCharsets;
 
 /** Builds the versioned, size-limited model prompt from verified request data only. */
-public final class PromptBuilder {
+final class PromptBuilder {
 
   public static final int MAX_PROMPT_CHARS = 32_000;
   private static final String TEMPLATE = "/prompts/intelligence-v1.txt";

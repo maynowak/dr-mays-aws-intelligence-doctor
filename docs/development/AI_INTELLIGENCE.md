@@ -11,15 +11,15 @@ POST /api/v1/intelligence/explain
   -> IntelligenceRequest (findings + evidence + edges + completeness)
   -> IntelligenceAnalyzer
        default: MockIntelligenceAnalyzer (offline, deterministic)
-       opt-in: OllamaIntelligenceAnalyzer -> Spring AI ChatClient -> local Ollama
+       legacy enabled path: PrivacyGatedLegacyAnalyzer -> APPROVAL_REQUIRED (no raw call)
   -> IntelligenceResultValidator
   -> versioned DTOs
 ```
 
 - Core engine remains authoritative.
 - Default analyzer is the deterministic mock; Docker/CI require no model or Internet.
-- Spring AI 2.0.2 and the Ollama starter are confined to `dr-mays-ai`; the API imports only the `IntelligenceAnalyzer` contract.
-- Ollama is opt-in via `dr.mays.ai.enabled=true`; no connection at startup, no model download, no tools.
+- Spring AI 2.0.2 and the Ollama starter are confined to `dr-mays-ai`; the API imports AI contracts and the privacy-first engine, not provider internals.
+- ORCH-01 fail-closes the legacy raw path: with `dr.mays.ai.enabled=true`, `/api/v1/intelligence/explain` returns `APPROVAL_REQUIRED` and makes no provider call. The Ollama adapter class remains isolated for a future approved integration. No connection at startup, no model download, no tools.
 
 ## Contracts
 
@@ -31,7 +31,7 @@ POST /api/v1/intelligence/explain
 | `FindingExplanation` | Explanation tied to an existing finding |
 | `Recommendation` | Suggested action, separate from findings |
 | `EvidenceReference` | Existing evidence only |
-| `ModelExecutionStatus` | `SUCCESS`, `DISABLED`, `UNAVAILABLE`, `FAILED`, `INVALID_RESPONSE` |
+| `ModelExecutionStatus` | `SUCCESS`, `DISABLED`, `APPROVAL_REQUIRED`, `UNAVAILABLE`, `FAILED`, `INVALID_RESPONSE` |
 | `ModelMetadata` | Provider/model/version |
 
 ## Mock analyzer
@@ -43,7 +43,7 @@ The mock:
 - marks PARTIAL discovery and empty findings as uncertainties;
 - is deterministic and offline.
 
-## Spring AI / Ollama adapter
+## Spring AI / Ollama adapter (retained, not wired to legacy raw path)
 
 - Uses `ChatClient` through the narrow `ChatCompletion` transport.
 - Model response is parsed into a bounded internal shape and validated.
@@ -72,7 +72,26 @@ The mock:
 
 ## Real inference status
 
-**NOT VERIFIED.** Ollama CLI is installed, but no local model is present. No model was downloaded. A real inference run requires a separate explicit activation and local model.
+**NOT VERIFIED.** No real model call, provider transfer or local model inference has run. The ORCH-01 mock-only provider path is verified; real Ollama/OpenCode/BYOK execution requires separate approval and verification.
+
+## Privacy-first orchestration (ORCH-01)
+
+```text
+POST /api/v1/expertise/previews -> PrivacyProcessor -> PrivacyGate preview
+POST /api/v1/expertise/approvals -> single-use token
+POST /api/v1/expertise/explain -> sealed preview -> ProviderRouter -> mock
+  -> ExpertiseParser -> alias resolution -> IntelligenceResultValidator
+  -> ExpertiseValidator -> local report
+```
+
+- Remote providers would receive only `SanitizedExpertiseRequest` (aliases, allowlisted fields); never raw domain objects.
+- Preview never calls a provider; explain accepts only a preview ID and optional token.
+- Approval binds exact payload hash + provider + model + expertise + policy and is single-use/TTL-limited.
+- Mock provider is enabled; Ollama/OpenCode descriptors are disabled. OpenCode live execution is BLOCKED.
+- No API key is accepted, read or logged. Credential references are logical and resolution is disabled.
+- Pseudonymization is not anonymization; see `docs/security/AI_DATA_DISCLOSURE.md`.
+
+New contracts live in `ai.privacy`, `ai.provider` and `ai.expertise`. The legacy `/api/v1/intelligence/explain` remains mock-capable but is fail-closed when external AI is enabled; external use must go through preview/approval.
 
 ## Privacy
 

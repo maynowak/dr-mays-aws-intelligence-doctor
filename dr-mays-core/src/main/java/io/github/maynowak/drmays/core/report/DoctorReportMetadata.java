@@ -1,7 +1,6 @@
 package io.github.maynowak.drmays.core.report;
 
 import io.github.maynowak.drmays.core.validation.DomainChecks;
-import java.util.Objects;
 
 /**
  * Stable metadata for one deterministic Doctor Report.
@@ -32,6 +31,5 @@ public record DoctorReportMetadata(
     if (resourceCount < 0) {
       throw new IllegalArgumentException("resourceCount must not be negative");
     }
-    Objects.requireNonNull(inputHash, "inputHash");
   }
 }

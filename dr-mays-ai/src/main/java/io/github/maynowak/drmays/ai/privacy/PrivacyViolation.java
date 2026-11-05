@@ -22,6 +22,7 @@ public record PrivacyViolation(String code, String field, String message) {
   public static final String CONTROL_CHARACTER = "CONTROL_CHARACTER";
   public static final String PAYLOAD_TOO_LARGE = "PAYLOAD_TOO_LARGE";
   public static final String INVALID_FIELD = "INVALID_FIELD";
+  public static final String FIELD_NOT_ALLOWED = "FIELD_NOT_ALLOWED";
 
   public PrivacyViolation {
     code = DomainChecks.requireText(code, "code");

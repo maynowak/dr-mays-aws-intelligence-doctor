@@ -30,7 +30,34 @@ class ProviderRegistryTest {
   }
 
   @Test
+  void containsReportsRegistration() {
+    var registry = new ProviderRegistry(List.of(mock));
+
+    assertThat(registry.contains("mock")).isTrue();
+    assertThat(registry.contains("missing")).isFalse();
+  }
+
+  @Test
   void unknownProviderIsEmpty() {
     assertThat(new ProviderRegistry().find("missing")).isEmpty();
+  }
+
+  @Test
+  void rejectsMockIdFromNonMockImplementation() {
+    var impostor =
+        new ModelProvider() {
+          @Override
+          public ModelProviderDescriptor descriptor() {
+            return ModelProviderDescriptor.mock();
+          }
+
+          @Override
+          public ModelInvocationResult invoke(ModelInvocationRequest request) {
+            return ModelInvocationResult.success("mock", "deterministic-v1", "{}", 1);
+          }
+        };
+
+    assertThatThrownBy(() -> new ProviderRegistry().register(impostor))
+        .isInstanceOf(IllegalArgumentException.class);
   }
 }

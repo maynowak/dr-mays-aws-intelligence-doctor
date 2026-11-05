@@ -68,6 +68,13 @@ class CredentialReferenceTest {
   }
 
   @Test
+  void rejectsReservedFileReference() {
+    assertThatThrownBy(
+            () -> new ProviderCredentialReference("opencode", CredentialKind.FILE, "auth.json"))
+        .isInstanceOf(IllegalArgumentException.class);
+  }
+
+  @Test
   void rejectsNonLiteralNoneReference() {
     assertThatThrownBy(() -> new ProviderCredentialReference("mock", CredentialKind.NONE, "other"))
         .isInstanceOf(IllegalArgumentException.class);

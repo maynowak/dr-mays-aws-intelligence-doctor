@@ -86,7 +86,7 @@ final class ExpertiseTestFixtures {
         List.of(relationship()),
         List.of(),
         new PrivacyReceipt(
-            "privacy-v1",
+            "privacy-v2",
             "hash",
             ApprovalStatus.NOT_REQUIRED,
             "mock",

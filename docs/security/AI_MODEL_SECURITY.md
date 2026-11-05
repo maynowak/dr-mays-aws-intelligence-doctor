@@ -45,6 +45,14 @@
 - BYOK references are logical only. No API key in REST, URLs, logs, Git or prompts; no environment/auth-file scanning. Pattern-based secret checks are not exhaustive.
 - Pseudonymization is reversible by the local alias map; no anonymity claim.
 
+## ORCH-03 provider authorization hardening
+
+- `ProviderInvocationAuthorization` is server-minted with a package-private constructor; only the privacy gate can create it.
+- The router requires an authorization bound to canonical payload hash, provider, model, expertise, policy version and expiry; single-use is enforced.
+- Exact mock class exemption only; model allowlist is exact (`mock` / `deterministic-v1`).
+- Default privacy policy is `privacy-v2` with 8 allowed fields; relationships are omitted unless explicitly allowed.
+- Credential resolution/OpenCode live execution remain disabled/blocked.
+
 ## Prompt injection
 
 Prompts explicitly state that resource metadata is untrusted and must not be followed as instructions. Only validated fields are serialized; free-form tags are not included in the prompt builder.

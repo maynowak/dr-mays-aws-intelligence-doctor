@@ -6,6 +6,7 @@ import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.Comparator;
 import java.util.HexFormat;
 import java.util.List;
@@ -115,22 +116,22 @@ public final class PrivacyProcessor {
     var aliases = aliasFactory.get();
     var findings =
         request.findings().stream()
-            .sorted(
-                Comparator.comparing(
-                        (io.github.maynowak.drmays.core.finding.DiagnosticFinding finding) ->
-                            finding.resource().canonicalId())
-                    .thenComparing(finding -> finding.ruleId().value()))
             .map(finding -> sanitizeFinding(finding, aliases))
+            .sorted(
+                Comparator.comparing(SanitizedFinding::resourceAlias)
+                    .thenComparing(SanitizedFinding::ruleId))
             .toList();
     var relationships =
-        request.relationships().stream()
-            .sorted(
-                Comparator.comparing((io.github.maynowak.drmays.core.dna.ResourceEdge edge) ->
-                        edge.from().canonicalId())
-                    .thenComparing(edge -> edge.to().canonicalId())
-                    .thenComparing(edge -> edge.type().name()))
-            .map(edge -> sanitizeRelationship(edge, aliases))
-            .toList();
+        !policy.allows(PrivacyField.RELATIONSHIP_TYPE)
+                || !policy.allows(PrivacyField.RESOURCE_ALIAS)
+            ? List.<SanitizedRelationship>of()
+            : request.relationships().stream()
+                .map(edge -> sanitizeRelationship(edge, aliases))
+                .sorted(
+                    Comparator.comparing(SanitizedRelationship::fromAlias)
+                        .thenComparing(SanitizedRelationship::toAlias)
+                        .thenComparing(SanitizedRelationship::type))
+                .toList();
     var uncertainties = new ArrayList<String>();
     if (request.completeness() == GraphCompleteness.PARTIAL
         && policy.allows(PrivacyField.UNCERTAINTIES)) {
@@ -214,7 +215,8 @@ public final class PrivacyProcessor {
     while (matcher.find()) {
       var key = matcher.group(1);
       var candidate = matcher.group(2);
-      var safeKey = key.matches("[A-Za-z0-9._-]{1,128}") ? key : "[key]";
+      var safeKey =
+          SAFE_EVIDENCE_KEYS.contains(key) && key.matches("[A-Za-z0-9._-]{1,128}") ? key : "[key]";
       var replacement =
           candidate.matches("(?i)true|false|absent|blank|present|enabled|disabled|public|private")
               ? safeKey + "=" + candidate
@@ -279,33 +281,24 @@ public final class PrivacyProcessor {
   }
 
   private List<PrivacyFieldDecision> decisions() {
-    return List.of(
-        decision(PrivacyField.RULE_ID, PrivacyClassification.PUBLIC, "deterministic rule code"),
-        decision(PrivacyField.RULE_VERSION, PrivacyClassification.PUBLIC, "rule version"),
-        decision(PrivacyField.SEVERITY, PrivacyClassification.PUBLIC, "finding severity"),
-        decision(
-            PrivacyField.RESOURCE_TYPE, PrivacyClassification.INTERNAL, "coarse resource type"),
-        decision(PrivacyField.REGION_CLASS, PrivacyClassification.QUASI_IDENTIFIER, "coarse only"),
-        decision(PrivacyField.RESOURCE_ALIAS, PrivacyClassification.IDENTIFIER, "local pseudonym"),
-        decision(PrivacyField.TITLE, PrivacyClassification.INTERNAL, "sanitized rule text"),
-        decision(PrivacyField.DESCRIPTION, PrivacyClassification.INTERNAL, "sanitized rule text"),
-        decision(
-            PrivacyField.EVIDENCE_SOURCE, PrivacyClassification.INTERNAL, "evidence provenance"),
-        decision(
-            PrivacyField.EVIDENCE_OBSERVED, PrivacyClassification.SENSITIVE, "sanitized value"),
-        decision(
-            PrivacyField.EVIDENCE_EXPECTED, PrivacyClassification.SENSITIVE, "sanitized value"),
-        decision(
-            PrivacyField.RELATIONSHIP_TYPE, PrivacyClassification.PUBLIC, "verified edge type"),
-        decision(PrivacyField.COMPLETENESS, PrivacyClassification.PUBLIC, "discovery completeness"),
-        decision(
-            PrivacyField.UNCERTAINTIES, PrivacyClassification.INTERNAL, "sanitized uncertainty"));
+    return Arrays.stream(PrivacyField.values()).map(this::decision).toList();
   }
 
-  private PrivacyFieldDecision decision(
-      PrivacyField field, PrivacyClassification classification, String reason) {
+  private PrivacyFieldDecision decision(PrivacyField field) {
+    var classification =
+        switch (field) {
+          case RULE_ID, SEVERITY, RELATIONSHIP_TYPE, COMPLETENESS -> PrivacyClassification.PUBLIC;
+          case RULE_VERSION, RESOURCE_TYPE, TITLE, DESCRIPTION, EVIDENCE_SOURCE, UNCERTAINTIES ->
+              PrivacyClassification.INTERNAL;
+          case REGION_CLASS -> PrivacyClassification.QUASI_IDENTIFIER;
+          case RESOURCE_ALIAS -> PrivacyClassification.IDENTIFIER;
+          case EVIDENCE_OBSERVED, EVIDENCE_EXPECTED -> PrivacyClassification.SENSITIVE;
+        };
     var included = policy.allows(field);
     return new PrivacyFieldDecision(
-        field, classification, included, included ? reason : "excluded by " + policy.version());
+        field,
+        classification,
+        included,
+        included ? "allowed by " + policy.version() : "excluded by " + policy.version());
   }
 }

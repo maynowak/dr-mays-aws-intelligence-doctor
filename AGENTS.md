@@ -2,15 +2,15 @@
 
 ## Project status
 
-- **Core + API + Docker + simulated AWS + DNA + privacy-first mock AI implemented; live AWS and real model inference not started.** The reactor passes 411 local tests (86 core + 99 API + 64 AWS + 162 AI). No live AWS scan or real Ollama inference has run — never claim one.
-- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the verified baseline at `36ef4e5`; ORCH-01/02A work is on `feature/dr-mays-privacy-provider-orchestration-01`, PR #2 open). PR #1 is merged. No merge is authorized; feature-branch CI is green for `10c953c`.
+- **Core + API + Docker + simulated AWS + DNA + privacy-first mock AI implemented; live AWS and real model inference not started.** The reactor passes 470 local tests (86 core + 102 API + 64 AWS + 218 AI). No live AWS scan or real Ollama inference has run — never claim one.
+- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the verified baseline at `3ec0e3b`; ORCH-01/02A/02C are merged. PROVIDER-SECURITY-03 is on `feature/dr-mays-provider-security-03`). PR #1 and PR #2 are merged. No push or merge is authorized for the new branch.
 - License is GPL-3.0 (`LICENSE`). Do not relicense without explicit confirmation.
 - Roadmap IDs use `DR-MAYS-<AREA>-<NN>` (phases 01–08). MVP gate is after phase 04: offline demo, inspectable checks, reproducible JSON diagnosis.
 
 ## Build and test commands
 
 - **Always use the wrapper** (`./mvnw`); the system Maven is 3.8.7 and the Enforcer rejects it. The wrapper pins Maven 3.9.16 and downloads it on first use.
-- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 411 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core, API, AWS and AI).
+- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 470 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core, API, AWS and AI).
 - Formatting: `./mvnw spotless:apply` to fix, `./mvnw spotless:check` to verify. Never auto-format in CI.
 - Static analysis: `./mvnw checkstyle:check` (0 violations required).
 - Coverage reports: `dr-mays-core/target/site/jacoco/`, `dr-mays-api/target/site/jacoco/`, `dr-mays-aws/target/site/jacoco/`, `dr-mays-ai/target/site/jacoco/`.
@@ -43,7 +43,7 @@
 - Spring AI is isolated to `dr-mays-ai`; CDK is version-managed but intentionally **not** on any module classpath yet (phase 07). Do not add CDK without the corresponding phase.
 - Add internal module versions in the root `dependencyManagement`; add new modules to `<modules>` and the internal dependency list.
 - New API endpoints: `POST /api/v1/expertise/previews`, `/approvals`, `/explain`; preview never calls a provider, explain accepts only preview ID plus optional token. Keep the existing diagnosis/DNA/intelligence endpoints unchanged.
-- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0011`. Verify any upgrade with `./mvnw clean verify`.
+- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0013`. Verify any upgrade with `./mvnw clean verify`.
 
 ## CI
 

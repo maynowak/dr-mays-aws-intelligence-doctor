@@ -14,8 +14,12 @@ import io.github.maynowak.drmays.ai.provider.ModelInvocationRequest;
 import io.github.maynowak.drmays.ai.provider.ModelInvocationResult;
 import io.github.maynowak.drmays.ai.provider.ModelProvider;
 import io.github.maynowak.drmays.ai.provider.ModelProviderDescriptor;
+import io.github.maynowak.drmays.ai.provider.ProviderEnablement;
 import io.github.maynowak.drmays.ai.provider.ProviderExecutionStatus;
+import io.github.maynowak.drmays.ai.provider.ProviderModelPolicy;
 import io.github.maynowak.drmays.ai.provider.ProviderRegistry;
+import java.util.Map;
+import java.util.Set;
 import java.util.function.Function;
 import org.junit.jupiter.api.Test;
 
@@ -31,14 +35,24 @@ class PrivacyFirstExpertiseEngineTest {
                 "mock", "deterministic-v1", validJson(request), request.payloadJson().length()));
     var custom = engine(provider);
 
-    var preview = custom.preview(request(), "mock", "deterministic-v1", "standard");
+    var preview = custom.preview(request(), "fake", "m", "standard");
 
     assertThat(preview.payloadJson())
         .doesNotContain("123456789012")
         .doesNotContain("sg-0abc1234")
         .doesNotContain("vpc-0def5678");
-    assertThat(preview.approvalRequired()).isFalse();
+    assertThat(preview.approvalRequired()).isTrue();
     assertThat(provider.calls()).isZero();
+  }
+
+  @Test
+  void previewCarriesServerOwnedCredentialBinding() {
+    var binding =
+        new io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding(
+            "binding-test", "mock", "DR_MAYS_TEST_KEY", 1, "");
+    var preview = engine.preview(request(), "mock", "deterministic-v1", "standard", binding);
+
+    assertThat(preview.credentialBinding()).isEqualTo(binding);
   }
 
   @Test
@@ -86,6 +100,14 @@ class PrivacyFirstExpertiseEngineTest {
   }
 
   @Test
+  void rejectsModelNotInAllowlistBeforePreviewRegistration() {
+    assertThatThrownBy(() -> engine.preview(request(), "mock", "gpt-4o", "standard"))
+        .isInstanceOf(IllegalArgumentException.class);
+
+    assertThat(engine.preview(request(), "mock", "deterministic-v1", "standard")).isNotNull();
+  }
+
+  @Test
   void rejectsUnknownExpertise() {
     assertThatThrownBy(() -> engine.preview(request(), "mock", "m", "unknown"))
         .isInstanceOf(IllegalArgumentException.class);
@@ -107,9 +129,10 @@ class PrivacyFirstExpertiseEngineTest {
             ModelInvocationResult.failure(
                 ProviderExecutionStatus.UNAVAILABLE, "mock", "deterministic-v1", "TEST"));
     var custom = engine(provider);
-    var preview = custom.preview(request(), "mock", "deterministic-v1", "standard");
+    var preview = custom.preview(request(), "fake", "m", "standard");
+    var token = custom.approve(preview.previewId()).orElseThrow();
 
-    var report = custom.explain(preview.previewId(), null);
+    var report = custom.explain(preview.previewId(), token);
 
     assertThat(report.status()).isEqualTo(ProviderExecutionStatus.UNAVAILABLE);
     assertThat(report.facts()).isNotEmpty();
@@ -122,9 +145,10 @@ class PrivacyFirstExpertiseEngineTest {
             ModelInvocationResult.success(
                 "mock", "deterministic-v1", "not json", request.payloadJson().length()));
     var custom = engine(provider);
-    var preview = custom.preview(request(), "mock", "deterministic-v1", "standard");
+    var preview = custom.preview(request(), "fake", "m", "standard");
+    var token = custom.approve(preview.previewId()).orElseThrow();
 
-    assertThat(custom.explain(preview.previewId(), null).status())
+    assertThat(custom.explain(preview.previewId(), token).status())
         .isEqualTo(ProviderExecutionStatus.INVALID_RESPONSE);
   }
 
@@ -142,9 +166,10 @@ class PrivacyFirstExpertiseEngineTest {
                     + "\"missingInformation\":[],\"uncertainties\":[]}",
                 request.payloadJson().length()));
     var custom = engine(provider);
-    var preview = custom.preview(request(), "mock", "deterministic-v1", "standard");
+    var preview = custom.preview(request(), "fake", "m", "standard");
+    var token = custom.approve(preview.previewId()).orElseThrow();
 
-    assertThat(custom.explain(preview.previewId(), null).status())
+    assertThat(custom.explain(preview.previewId(), token).status())
         .isEqualTo(ProviderExecutionStatus.INVALID_RESPONSE);
   }
 
@@ -157,7 +182,9 @@ class PrivacyFirstExpertiseEngineTest {
         new PrivacyProcessor(PrivacyPolicy.defaultPolicy()),
         new PrivacyGate(),
         new ExpertiseParser(),
-        new ExpertiseValidator());
+        new ExpertiseValidator(),
+        ProviderModelPolicy.of(Map.of("fake", Set.of("m"))),
+        ProviderEnablement.of(registry, Set.of("fake")));
   }
 
   private static String validJson(ModelInvocationRequest request) {
@@ -184,7 +211,15 @@ class PrivacyFirstExpertiseEngineTest {
 
     @Override
     public ModelProviderDescriptor descriptor() {
-      return ModelProviderDescriptor.mock();
+      return new ModelProviderDescriptor(
+          "fake",
+          "Fake provider",
+          io.github.maynowak.drmays.ai.provider.ProviderKind.EXTERNAL_MODEL,
+          new io.github.maynowak.drmays.ai.provider.ProviderCapabilities(
+              true, false, false, 32_000, 64_000),
+          false,
+          true,
+          false);
     }
 
     @Override

@@ -16,7 +16,7 @@ Status: no real secret is accepted, read, resolved or transmitted in this phase.
 `ProviderCredentialReference` contains:
 
 - `providerId` — must match the provider descriptor.
-- `kind` — `NONE`, `ENV`, `FILE` or `KEYRING`.
+- `kind` — `NONE` or `ENV`; `FILE` and `KEYRING` are rejected at construction until a secure resolver/containment contract is approved.
 - `reference` — logical name only.
 
 Environment references must match `DR_MAYS_[A-Z0-9_]{2,64}`. A reference is validated structurally; the environment is not read. A remote provider requiring a credential returns `CREDENTIAL_UNAVAILABLE` while resolution is disabled.

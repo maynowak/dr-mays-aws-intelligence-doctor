@@ -691,7 +691,7 @@ components:
           format: date-time
         payloadJson:
           type: string
-          description: Exact sanitized JSON shown to the approver; contains aliases only.
+          description: Exact sanitized JSON shown to the approver; privacy-v2 uses aliases and [excluded] placeholders.
         decisions:
           type: array
           items:
@@ -748,7 +748,7 @@ components:
           type: string
           enum:
             [SUCCESS, DISABLED, UNAVAILABLE, FAILED, INVALID_RESPONSE, APPROVAL_REQUIRED,
-             PRIVACY_REJECTED, NOT_ALLOWED, CREDENTIAL_UNAVAILABLE, TIMEOUT]
+             PRIVACY_REJECTED, NOT_ALLOWED, MODEL_NOT_ALLOWED, CREDENTIAL_UNAVAILABLE, TIMEOUT]
         metadata:
           $ref: '#/components/schemas/IntelligenceMetadata'
         summary:

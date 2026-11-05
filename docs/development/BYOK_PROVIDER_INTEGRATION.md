@@ -53,5 +53,5 @@ Future provider configuration must be explicit, allowlisted and approval-bound. 
 
 ## Test evidence
 
-- 36 provider-specific tests cover descriptors, credential references, registry duplicates, allowlisting, no fallback, payload/output bounds, mock output and disabled OpenCode execution.
+- 77 provider-specific tests cover descriptors, credential references, registry duplicates, exact model allowlists, provider authorization/expiry/replay, no fallback, payload integrity, mock output and disabled OpenCode execution.
 - No real provider or credential was used.

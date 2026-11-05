@@ -24,7 +24,9 @@ class PrivacyProcessorTest {
 
   @Test
   void keepsResourceAliasesConsistentAcrossFindingsAndRelationships() {
-    var processed = PrivacyTestFixtures.processed();
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyTestFixtures.relationshipPolicy())
+            .process(PrivacyTestFixtures.request());
     var finding = processed.payload().findings().getFirst();
     var relationship = processed.payload().relationships().getFirst();
 
@@ -46,7 +48,7 @@ class PrivacyProcessorTest {
   @Test
   void aliasesArbitraryRelationshipEvidenceValues() {
     var processed =
-        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+        PrivacyTestFixtures.processor(PrivacyTestFixtures.relationshipPolicy())
             .process(
                 PrivacyTestFixtures.requestWithRelationshipObserved(
                     "ingress.referenced.securityGroupIds=prod-app-sg"));
@@ -60,7 +62,7 @@ class PrivacyProcessorTest {
   @Test
   void aliasesNonVpcRelationshipIdentifiers() {
     var processed =
-        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+        PrivacyTestFixtures.processor(PrivacyTestFixtures.relationshipPolicy())
             .process(PrivacyTestFixtures.requestWithRelationshipObserved("vpc.id=igw-0abc1234"));
 
     assertThat(processed.payloadJson()).doesNotContain("igw-0abc1234");
@@ -135,7 +137,9 @@ class PrivacyProcessorTest {
 
   @Test
   void preservesSchemaKeyEvidence() {
-    var processed = PrivacyTestFixtures.processed();
+    var processed =
+        PrivacyTestFixtures.processor(PrivacyTestFixtures.relationshipPolicy())
+            .process(PrivacyTestFixtures.request());
 
     assertThat(processed.payload().findings().getFirst().expected())
         .isEqualTo("ingress.public=false");
@@ -167,11 +171,11 @@ class PrivacyProcessorTest {
   }
 
   @Test
-  void usesCoarseRegionInsteadOfRawRegion() {
+  void excludesRegionByDefault() {
     var processed = PrivacyTestFixtures.processed();
 
     assertThat(processed.payloadJson()).doesNotContain("eu-west-1");
-    assertThat(processed.payload().findings().getFirst().regionClass()).isEqualTo("REGION");
+    assertThat(processed.payload().findings().getFirst().regionClass()).isEqualTo("[excluded]");
   }
 
   @Test
@@ -181,6 +185,58 @@ class PrivacyProcessorTest {
     assertThat(processed.payload().completeness()).isEqualTo("PARTIAL");
     assertThat(processed.payload().uncertainties())
         .contains("Discovery data is partial; unknown resources are not covered.");
+  }
+
+  @Test
+  void defaultPolicyOmitsRelationshipsAndFreeText() {
+    var processed = PrivacyTestFixtures.processed();
+    var finding = processed.payload().findings().getFirst();
+
+    assertThat(processed.payload().relationships()).isEmpty();
+    assertThat(finding.title()).isEqualTo("[excluded]");
+    assertThat(finding.description()).isEqualTo("[excluded]");
+    assertThat(finding.resourceType()).isEqualTo("[excluded]");
+    assertThat(finding.regionClass()).isEqualTo("[excluded]");
+  }
+
+  @Test
+  void decisionsCoverEveryFieldExactlyOnce() {
+    var processed = PrivacyTestFixtures.processed();
+
+    assertThat(processed.decisions())
+        .extracting(PrivacyFieldDecision::field)
+        .containsExactlyInAnyOrder(PrivacyField.values());
+  }
+
+  @Test
+  void policyVersionIsPartOfTheHash() {
+    var fields = java.util.EnumSet.copyOf(PrivacyPolicy.DEFAULT_ALLOWED_FIELDS);
+    var other = new PrivacyPolicy("privacy-other", fields, PrivacyPolicy.DEFAULT_MAX_PAYLOAD_CHARS);
+    var first =
+        PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
+            .process(PrivacyTestFixtures.request());
+    var second = PrivacyTestFixtures.processor(other).process(PrivacyTestFixtures.request());
+
+    assertThat(first.payloadHash()).isNotEqualTo(second.payloadHash());
+  }
+
+  @Test
+  void relationshipsAreOmittedNotPlaceholderEncoded() {
+    var processed = PrivacyTestFixtures.processed();
+
+    assertThat(processed.payload().relationships()).isEmpty();
+    assertThat(processed.payloadJson()).doesNotContain("fromAlias").doesNotContain("toAlias");
+  }
+
+  @Test
+  void decisionsAreVisibleForExcludedFields() {
+    var processed = PrivacyTestFixtures.processed();
+
+    assertThat(processed.decisions())
+        .anyMatch(decision ->
+            decision.field() == PrivacyField.TITLE
+                && !decision.included()
+                && decision.reason().contains("privacy-v2"));
   }
 
   @Test

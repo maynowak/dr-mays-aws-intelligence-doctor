@@ -31,13 +31,16 @@ class MockModelProviderTest {
   void handlesEmptyFindingSet() {
     var payload =
         new SanitizedExpertiseRequest(
-            "privacy-payload/v1", "privacy-v1", List.of(), List.of(), "COMPLETE", List.of());
+            "privacy-payload/v1", "privacy-v2", List.of(), List.of(), "COMPLETE", List.of());
     var request =
         new ModelInvocationRequest(
             "mock",
             "deterministic-v1",
+            "standard",
             payload,
             ProviderTestFixtures.PAYLOAD_JSON,
+            ProviderTestFixtures.PAYLOAD_HASH,
+            ProviderCredentialBinding.none("mock"),
             ProviderCredentialReference.none("mock"),
             java.time.Duration.ofSeconds(1),
             64_000);

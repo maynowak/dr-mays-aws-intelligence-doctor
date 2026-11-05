@@ -10,12 +10,28 @@ import org.junit.jupiter.api.Test;
 class PrivacyPolicyTest {
 
   @Test
-  void defaultPolicyAllowsEverySupportedField() {
+  void defaultPolicyIsMinimalAndVersioned() {
     var policy = PrivacyPolicy.defaultPolicy();
 
-    assertThat(policy.version()).isEqualTo("privacy-v1");
-    assertThat(policy.allowedFields()).containsExactlyInAnyOrder(PrivacyField.values());
+    assertThat(policy.version()).isEqualTo("privacy-v2");
+    assertThat(policy.allowedFields())
+        .containsExactlyInAnyOrder(
+            PrivacyField.RULE_ID,
+            PrivacyField.SEVERITY,
+            PrivacyField.RESOURCE_ALIAS,
+            PrivacyField.EVIDENCE_SOURCE,
+            PrivacyField.EVIDENCE_OBSERVED,
+            PrivacyField.EVIDENCE_EXPECTED,
+            PrivacyField.COMPLETENESS,
+            PrivacyField.UNCERTAINTIES);
+    assertThat(policy.allowedFields()).doesNotContain(PrivacyField.TITLE);
     assertThat(policy.maxPayloadChars()).isEqualTo(32_000);
+  }
+
+  @Test
+  void defaultPolicyIsNotAllFields() {
+    assertThat(PrivacyPolicy.defaultPolicy().allowedFields())
+        .isNotEqualTo(Set.of(PrivacyField.values()));
   }
 
   @Test

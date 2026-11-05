@@ -42,6 +42,22 @@ class ExpertiseControllerTest {
   }
 
   @Test
+  void previewShowsExcludedFieldsAndNoRelationshipsByDefault() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/v1/expertise/previews")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(previewBody("mock")))
+        .andExpect(status().isOk())
+        .andExpect(
+            jsonPath("$.payloadJson").value(org.hamcrest.Matchers.containsString("[excluded]")))
+        .andExpect(
+            jsonPath("$.payloadJson")
+                .value(
+                    org.hamcrest.Matchers.not(org.hamcrest.Matchers.containsString("fromAlias"))));
+  }
+
+  @Test
   void approveAndExplainReturnsValidatedExpertise() throws Exception {
     var preview =
         mockMvc
@@ -92,6 +108,30 @@ class ExpertiseControllerTest {
                 .content("{\"previewId\":\"unknown\"}"))
         .andExpect(status().isOk())
         .andExpect(jsonPath("$.status").value("APPROVAL_REQUIRED"));
+  }
+
+  @Test
+  void rejectsModelThatIsNotAllowlisted() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/v1/expertise/previews")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content(
+                    "{\"providerId\":\"mock\",\"modelId\":\"gpt-4o\","
+                        + "\"expertiseId\":\"standard\",\"resources\":["
+                        + RESOURCE
+                        + "]}"))
+        .andExpect(status().isBadRequest());
+  }
+
+  @Test
+  void rejectsUnknownAuthorizationField() throws Exception {
+    mockMvc
+        .perform(
+            post("/api/v1/expertise/explain")
+                .contentType(MediaType.APPLICATION_JSON)
+                .content("{\"previewId\":\"x\",\"authorization\":\"forged\"}"))
+        .andExpect(status().isBadRequest());
   }
 
   @Test

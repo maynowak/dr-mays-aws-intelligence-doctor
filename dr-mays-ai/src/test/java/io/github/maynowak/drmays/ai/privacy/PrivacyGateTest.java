@@ -2,6 +2,9 @@ package io.github.maynowak.drmays.ai.privacy;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
+import io.github.maynowak.drmays.ai.provider.MockModelProvider;
+import io.github.maynowak.drmays.ai.provider.ProviderApprovalPolicy;
+import io.github.maynowak.drmays.ai.provider.ProviderRegistry;
 import java.time.Clock;
 import java.time.Duration;
 import java.time.Instant;
@@ -19,7 +22,8 @@ class PrivacyGateTest {
 
   private final MutableClock clock = new MutableClock(Instant.parse("2026-01-01T00:00:00Z"));
   private final PrivacyGate gate =
-      new PrivacyGate(Duration.ofMinutes(5), Duration.ofMinutes(5), clock);
+      new PrivacyGate(
+          Duration.ofMinutes(5), Duration.ofMinutes(5), clock, id -> !"mock".equals(id));
   private final PrivacyProcessingResult processed = PrivacyTestFixtures.processed();
   private final PrivacyProcessingResult invalidProcessed =
       PrivacyTestFixtures.processor(PrivacyPolicy.defaultPolicy())
@@ -45,6 +49,8 @@ class PrivacyGateTest {
     assertThat(decision.invocation()).isPresent();
     assertThat(decision.invocation().orElseThrow().source())
         .isEqualTo(PrivacyTestFixtures.request());
+    assertThat(decision.invocation().orElseThrow().authorization().payloadHash())
+        .isEqualTo(processed.payloadHash());
   }
 
   @Test
@@ -167,14 +173,105 @@ class PrivacyGateTest {
   }
 
   @Test
+  void defaultGateIsStrictForEvenTheMockProvider() {
+    var strict = new PrivacyGate(Duration.ofMinutes(5), Duration.ofMinutes(5), clock, id -> true);
+    var preview =
+        strict.register(
+            PrivacyTestFixtures.request(),
+            processed,
+            "mock",
+            PREVIEW,
+            "standard",
+            io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding.none("mock"));
+
+    assertThat(strict.consume(preview.previewId(), null).status())
+        .isEqualTo(ApprovalStatus.APPROVAL_REQUIRED);
+  }
+
+  @Test
+  void registryPolicyExemptsOnlyTheRealMock() {
+    var registry = new ProviderRegistry(List.of(new MockModelProvider()));
+    var policyGate =
+        new PrivacyGate(
+            Duration.ofMinutes(5),
+            Duration.ofMinutes(5),
+            clock,
+            ProviderApprovalPolicy.forRegistry(registry));
+    var mockPreview =
+        policyGate.register(
+            PrivacyTestFixtures.request(),
+            processed,
+            "mock",
+            PREVIEW,
+            "standard",
+            io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding.none("mock"));
+    var fakePreview =
+        policyGate.register(
+            PrivacyTestFixtures.request(),
+            processed,
+            "fake",
+            PREVIEW,
+            "standard",
+            io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding.none("fake"));
+
+    assertThat(policyGate.consume(mockPreview.previewId(), null).status())
+        .isEqualTo(ApprovalStatus.APPROVED);
+    assertThat(policyGate.consume(fakePreview.previewId(), null).status())
+        .isEqualTo(ApprovalStatus.APPROVAL_REQUIRED);
+  }
+
+  @Test
+  void registerHasNoCallerSuppliedApprovalParameter() {
+    assertThat(
+            java.util.Arrays.stream(PrivacyGate.class.getMethods())
+                .filter(method -> method.getName().equals("register"))
+                .allMatch(method ->
+                    method.getParameterCount() == 6
+                        && java.util.Arrays.stream(method.getParameterTypes())
+                            .noneMatch(type -> type == boolean.class)))
+        .isTrue();
+  }
+
+  @Test
+  void authorizationCannotBeConstructedPubliclyAndRedactsToString() {
+    var preview = register(false, PREVIEW, processed);
+    var authorization =
+        gate.consume(preview.previewId(), null).invocation().orElseThrow().authorization();
+
+    assertThat(ProviderInvocationAuthorization.class.getConstructors()).isEmpty();
+    assertThat(authorization.toString()).isEqualTo("ProviderInvocationAuthorization[redacted]");
+  }
+
+  @Test
+  void authorizationBindsProviderModelExpertisePolicyAndHash() {
+    var preview = register(false, PREVIEW, processed);
+    var authorization =
+        gate.consume(preview.previewId(), null).invocation().orElseThrow().authorization();
+
+    assertThat(authorization.providerId()).isEqualTo("mock");
+    assertThat(authorization.modelId()).isEqualTo(PREVIEW);
+    assertThat(authorization.expertiseId()).isEqualTo("standard");
+    assertThat(authorization.policyVersion()).isEqualTo(PrivacyPolicy.defaultPolicy().version());
+    assertThat(authorization.payloadHash()).isEqualTo(processed.payloadHash());
+    assertThat(authorization.expired(clock.instant())).isFalse();
+    assertThat(authorization.expired(clock.instant().plus(Duration.ofSeconds(31)))).isTrue();
+  }
+
+  @Test
   void approvalTokenRedactsItsValue() {
     assertThat(new ApprovalToken("A".repeat(43)).toString()).isEqualTo("ApprovalToken[redacted]");
   }
 
   private PrivacyPreview register(
       boolean approvalRequired, String modelId, PrivacyProcessingResult result) {
+    var provider = approvalRequired ? "remote" : "mock";
     return gate.register(
-        PrivacyTestFixtures.request(), result, "mock", modelId, "standard", approvalRequired);
+        PrivacyTestFixtures.request(),
+        result,
+        provider,
+        modelId,
+        "standard",
+        io.github.maynowak.drmays.ai.provider.ProviderCredentialBinding.none(provider));
   }
 
   private static final class MutableClock extends Clock {

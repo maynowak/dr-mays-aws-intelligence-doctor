@@ -41,6 +41,15 @@ class ApiExceptionHandlerTest {
   }
 
   @Test
+  void mapsReportLimitToPayloadTooLarge() {
+    var problem = handler.handleReportLimit(new ReportLimitExceededException());
+
+    assertThat(problem.getStatus()).isEqualTo(HttpStatus.PAYLOAD_TOO_LARGE.value());
+    assertThat(problem.getTitle()).isEqualTo("Report too large");
+    assertThat(problem.getDetail()).doesNotContain("stack");
+  }
+
+  @Test
   void mapsUnsupportedMediaType() {
     var problem =
         handler.handleUnsupportedMediaType(new HttpMediaTypeNotSupportedException("text/plain"));

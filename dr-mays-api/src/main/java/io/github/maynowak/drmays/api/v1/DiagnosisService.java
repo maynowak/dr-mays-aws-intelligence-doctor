@@ -10,6 +10,7 @@ import io.github.maynowak.drmays.core.resource.InfrastructureResource;
 import io.github.maynowak.drmays.core.resource.ResourceIdentity;
 import io.github.maynowak.drmays.core.rule.DiagnosticContext;
 import io.github.maynowak.drmays.core.rule.DiagnosticOutcome;
+import io.github.maynowak.drmays.core.rule.DiagnosticRule;
 import java.util.List;
 import org.springframework.stereotype.Service;
 
@@ -41,7 +42,14 @@ public class DiagnosisService {
 
   /** Runs the deterministic engine for server-side intelligence input. */
   DiagnosisResult diagnoseDomain(DiagnosisRequest request) {
-    return engine.diagnose(new DiagnosticContext(toResources(request)));
+    return diagnoseSnapshot(request).result();
+  }
+
+  /** Returns one consistent diagnosis snapshot for server-side aggregation. */
+  DiagnosisSnapshot diagnoseSnapshot(DiagnosisRequest request) {
+    var resources = toResources(request);
+    return new DiagnosisSnapshot(
+        resources, engine.diagnose(new DiagnosticContext(resources)), engine.rules());
   }
 
   /** Maps validated wire resources to the existing domain model. */
@@ -60,6 +68,15 @@ public class DiagnosisService {
             .map(rule -> new RuleResponse(rule.id().value(), rule.version(), rule.description()))
             .toList();
     return new RulesResponse(rules);
+  }
+
+  record DiagnosisSnapshot(
+      List<InfrastructureResource> resources, DiagnosisResult result, List<DiagnosticRule> rules) {
+
+    DiagnosisSnapshot {
+      resources = List.copyOf(resources);
+      rules = List.copyOf(rules);
+    }
   }
 
   private InfrastructureResource toResource(ResourceRequest request) {

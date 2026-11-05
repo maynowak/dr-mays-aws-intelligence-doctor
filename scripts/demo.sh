@@ -20,7 +20,7 @@ done
 echo "Dr. Mays offline demo"
 echo "API: $BASE_URL"
 
-for _ in $(seq 1 30); do
+for _ in $(seq 1 60); do
   if curl -fsS "$BASE_URL/actuator/health" > "$TMP_DIR/health.json" 2>/dev/null; then
     break
   fi
@@ -104,6 +104,81 @@ if data.get("completeness") != "COMPLETE":
     raise SystemExit(f"unexpected completeness: {data.get('completeness')}")
 print("  DNA graph checks passed: 2 nodes, 1 verified VPC edge")
 PY
+
+echo
+echo "--- Doctor Report JSON ---"
+curl -fsS -X POST "$BASE_URL/api/v1/reports" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$FIXTURES_DIR/report-multiple-findings.json" > "$TMP_DIR/report.json"
+python3 -m json.tool < "$TMP_DIR/report.json"
+python3 - "$TMP_DIR/report.json" <<'PY'
+import json, sys
+data = json.load(open(sys.argv[1]))
+if data.get("schemaVersion") != "doctor-report-v1":
+    raise SystemExit(f"unexpected report schema: {data.get('schemaVersion')}")
+if data.get("summary", {}).get("findingCount") != 2:
+    raise SystemExit(f"unexpected report finding count: {data.get('summary')}")
+if data.get("graph", {}).get("stats", {}).get("nodeCount") != 2:
+    raise SystemExit(f"unexpected report graph stats: {data.get('graph', {}).get('stats')}")
+if not data.get("metadata", {}).get("inputHash", "").startswith("sha256:"):
+    raise SystemExit("report input hash missing")
+if data.get("metadata", {}).get("partialDiscovery") is not False:
+    raise SystemExit(f"unexpected report completeness: {data.get('metadata')}")
+print("  Doctor Report JSON checks passed: schema, findings, graph and metadata")
+PY
+
+echo
+echo "--- Doctor Report Markdown ---"
+curl -fsS -X POST "$BASE_URL/api/v1/reports/markdown" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$FIXTURES_DIR/report-multiple-findings.json" > "$TMP_DIR/report.md"
+if ! grep -q '^# Dr\. Mays Infrastructure Doctor Report' "$TMP_DIR/report.md"; then
+  fail "Markdown report heading missing"
+fi
+if ! grep -q '^## 5\. Infrastructure DNA' "$TMP_DIR/report.md"; then
+  fail "Markdown DNA section missing"
+fi
+if grep -q '<script>' "$TMP_DIR/report.md"; then
+  fail "Markdown report contains raw script markup"
+fi
+echo "  Doctor Report Markdown checks passed: heading, DNA and escaping"
+
+echo
+echo "--- Doctor Report partial discovery and cycle ---"
+curl -fsS -X POST "$BASE_URL/api/v1/reports" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$FIXTURES_DIR/dna-partial.json" > "$TMP_DIR/report-partial.json"
+curl -fsS -X POST "$BASE_URL/api/v1/reports" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$FIXTURES_DIR/report-dna-cycle.json" > "$TMP_DIR/report-cycle.json"
+python3 - "$TMP_DIR/report-partial.json" "$TMP_DIR/report-cycle.json" <<'PY'
+import json, sys
+partial = json.load(open(sys.argv[1]))
+cycle = json.load(open(sys.argv[2]))
+if partial.get("metadata", {}).get("partialDiscovery") is not True:
+    raise SystemExit("partial report metadata is not partial")
+if partial.get("graph", {}).get("completeness") != "PARTIAL":
+    raise SystemExit(f"unexpected partial graph completeness: {partial.get('graph')}")
+if not any("PARTIAL DISCOVERY" in value for value in partial.get("limitations", [])):
+    raise SystemExit("partial report limitation missing")
+if cycle.get("graph", {}).get("stats", {}).get("cyclic") is not True:
+    raise SystemExit(f"cycle report did not detect a cycle: {cycle.get('graph', {}).get('stats')}")
+print("  Partial and cycle report checks passed")
+PY
+
+# The same report request must produce byte-identical JSON on a second run.
+curl -fsS -X POST "$BASE_URL/api/v1/reports" \
+  -H 'Content-Type: application/json' \
+  --data-binary "@$FIXTURES_DIR/report-multiple-findings.json" > "$TMP_DIR/report-repeat.json"
+if ! cmp -s "$TMP_DIR/report.json" "$TMP_DIR/report-repeat.json"; then
+  fail "Doctor Report JSON is not deterministic"
+fi
+
+status="$(curl -sS -o "$TMP_DIR/report-invalid.json" -w '%{http_code}' \
+  -X POST "$BASE_URL/api/v1/reports" \
+  -H 'Content-Type: application/json' \
+  --data-binary '{"partialDiscovery":false,"resources":[]}')"
+[ "$status" = "400" ] || fail "invalid report request returned HTTP $status instead of 400"
 
 echo
 echo "--- AI intelligence (deterministic mock) ---"
@@ -194,4 +269,4 @@ if data.get("title") != "Request validation failed":
 PY
 
 echo
-echo "DEMO PASSED: health, rules, 4 diagnosis fixtures, DNA, mock intelligence, privacy preview/approval/explain, determinism and invalid-input handling"
+echo "DEMO PASSED: health, rules, 4 diagnosis fixtures, DNA, Doctor Report JSON/Markdown, partial/cycle reports, mock intelligence, privacy preview/approval/explain, determinism and invalid-input handling"

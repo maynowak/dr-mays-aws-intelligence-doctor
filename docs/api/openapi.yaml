@@ -284,6 +284,93 @@ paths:
                   status:
                     type: string
                     example: UP
+  /api/v1/reports:
+    post:
+      operationId: createDoctorReport
+      summary: Build a deterministic JSON Doctor Report
+      description: |
+        Aggregates the existing deterministic diagnosis engine and verified Infrastructure DNA.
+        No AI provider, AWS call, credential read or persistence is used.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DoctorReportRequest'
+            example:
+              partialDiscovery: false
+              resources:
+                - identity:
+                    provider: aws
+                    accountId: "000000000000"
+                    region: eu-west-1
+                    resourceType: network
+                    resourceId: net-1
+                  tags: {}
+                  attributes:
+                    ingress.public: "true"
+                    vpc.id: vpc-1
+      responses:
+        '200':
+          description: Deterministic Doctor Report
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: no-store
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/DoctorReportResponse'
+        '400':
+          description: Invalid or malformed request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '413':
+          description: Generated report exceeds the bounded output limit
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+  /api/v1/reports/markdown:
+    post:
+      operationId: createDoctorReportMarkdown
+      summary: Build a deterministic Markdown Doctor Report
+      description: |
+        Same deterministic report contract as /api/v1/reports, rendered as escaped Markdown.
+        No provider call or file persistence is used.
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/DoctorReportRequest'
+      responses:
+        '200':
+          description: Markdown Doctor Report
+          headers:
+            Cache-Control:
+              schema:
+                type: string
+                example: no-store
+          content:
+            text/markdown:
+              schema:
+                type: string
+        '400':
+          description: Invalid or malformed request
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
+        '413':
+          description: Generated report exceeds the bounded output limit
+          content:
+            application/problem+json:
+              schema:
+                $ref: '#/components/schemas/ProblemDetail'
 components:
   schemas:
     DiagnosisRequest:
@@ -787,6 +874,221 @@ components:
             type: string
         privacyReceipt:
           $ref: '#/components/schemas/ExpertisePrivacyReceipt'
+    DoctorReportRequest:
+      type: object
+      required: [resources, partialDiscovery]
+      properties:
+        resources:
+          type: array
+          minItems: 1
+          maxItems: 100
+          items:
+            $ref: '#/components/schemas/ResourceRequest'
+        partialDiscovery:
+          type: boolean
+    DoctorReportResponse:
+      type: object
+      required:
+        [schemaVersion, metadata, scope, summary, findings, outcomes, graph, rules, limitations]
+      properties:
+        schemaVersion:
+          type: string
+          example: doctor-report-v1
+        metadata:
+          $ref: '#/components/schemas/DoctorReportMetadata'
+        scope:
+          $ref: '#/components/schemas/DoctorReportScope'
+        summary:
+          $ref: '#/components/schemas/DoctorReportSummary'
+        findings:
+          type: array
+          items:
+            $ref: '#/components/schemas/DoctorReportFinding'
+        outcomes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DoctorReportOutcome'
+        graph:
+          $ref: '#/components/schemas/DoctorReportGraph'
+        rules:
+          type: array
+          items:
+            $ref: '#/components/schemas/DoctorReportRule'
+        limitations:
+          type: array
+          items:
+            type: string
+    DoctorReportMetadata:
+      type: object
+      required:
+        [generator, mode, diagnosisSource, inputHash, rulesFingerprint, partialDiscovery, resourceCount]
+      properties:
+        generator:
+          type: string
+        mode:
+          type: string
+        diagnosisSource:
+          type: string
+        inputHash:
+          type: string
+          pattern: '^sha256:[0-9a-f]{64}$'
+        rulesFingerprint:
+          type: string
+          pattern: '^sha256:[0-9a-f]{64}$'
+        partialDiscovery:
+          type: boolean
+        resourceCount:
+          type: integer
+          minimum: 0
+    DoctorReportScope:
+      type: object
+      required: [providers, accounts, regions, resourceCount]
+      properties:
+        providers:
+          type: array
+          items:
+            type: string
+        accounts:
+          type: array
+          items:
+            type: string
+        regions:
+          type: array
+          items:
+            type: string
+        resourceCount:
+          type: integer
+          minimum: 0
+    DoctorReportSummary:
+      type: object
+      required:
+        [resourceCount, findingCount, outcomeCount, info, low, medium, high, critical, highestSeverity]
+      properties:
+        resourceCount:
+          type: integer
+          minimum: 0
+        findingCount:
+          type: integer
+          minimum: 0
+        outcomeCount:
+          type: integer
+          minimum: 0
+        info:
+          type: integer
+          minimum: 0
+        low:
+          type: integer
+          minimum: 0
+        medium:
+          type: integer
+          minimum: 0
+        high:
+          type: integer
+          minimum: 0
+        critical:
+          type: integer
+          minimum: 0
+        highestSeverity:
+          type: string
+          enum: [NONE, INFO, LOW, MEDIUM, HIGH, CRITICAL]
+    DoctorReportFinding:
+      type: object
+      required:
+        [ruleId, ruleVersion, severity, resource, title, description, evidence, recommendation]
+      properties:
+        ruleId:
+          type: string
+        ruleVersion:
+          type: string
+        severity:
+          type: string
+          enum: [INFO, LOW, MEDIUM, HIGH, CRITICAL]
+        resource:
+          $ref: '#/components/schemas/ResourceIdentity'
+        title:
+          type: string
+        description:
+          type: string
+        evidence:
+          $ref: '#/components/schemas/Evidence'
+        recommendation:
+          type: string
+    DoctorReportOutcome:
+      type: object
+      required: [ruleId, ruleVersion, resource, type]
+      properties:
+        ruleId:
+          type: string
+        ruleVersion:
+          type: string
+        resource:
+          $ref: '#/components/schemas/ResourceIdentity'
+        type:
+          type: string
+          enum: [FINDING, NO_FINDING, NOT_APPLICABLE]
+        reason:
+          type: string
+    DoctorReportGraph:
+      type: object
+      required: [nodes, edges, issues, stats, completeness]
+      properties:
+        nodes:
+          type: array
+          items:
+            $ref: '#/components/schemas/DoctorReportNode'
+        edges:
+          type: array
+          items:
+            $ref: '#/components/schemas/DoctorReportEdge'
+        issues:
+          type: array
+          items:
+            $ref: '#/components/schemas/GraphIssue'
+        stats:
+          $ref: '#/components/schemas/GraphStats'
+        completeness:
+          type: string
+          enum: [COMPLETE, PARTIAL, UNKNOWN]
+    DoctorReportNode:
+      type: object
+      required: [resource, status, tags, attributes]
+      properties:
+        resource:
+          $ref: '#/components/schemas/ResourceIdentity'
+        status:
+          type: string
+          enum: [INVENTORIED, REFERENCED]
+        tags:
+          type: object
+          additionalProperties:
+            type: string
+        attributes:
+          type: object
+          additionalProperties:
+            type: string
+    DoctorReportEdge:
+      type: object
+      required: [from, to, type, evidence]
+      properties:
+        from:
+          $ref: '#/components/schemas/ResourceIdentity'
+        to:
+          $ref: '#/components/schemas/ResourceIdentity'
+        type:
+          type: string
+          enum: [SECURITY_GROUP_IN_VPC, SECURITY_GROUP_REFERENCES_SECURITY_GROUP]
+        evidence:
+          $ref: '#/components/schemas/Evidence'
+    DoctorReportRule:
+      type: object
+      required: [ruleId, version, description]
+      properties:
+        ruleId:
+          type: string
+        version:
+          type: string
+        description:
+          type: string
     ProblemDetail:
       type: object
       required: [type, title, status]

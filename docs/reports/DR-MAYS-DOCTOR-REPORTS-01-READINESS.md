@@ -22,7 +22,7 @@
 |---|---|
 | `./mvnw -B clean verify` | BUILD SUCCESS, 8/8 modules |
 | Tests | **497** total, 0 failures/errors/skips |
-| Core | 97 tests; 92.76 % line / 81.76 % branch |
+| Core | 97 tests; 92.75 % line / 81.76 % branch |
 | API | 118 tests; 98.13 % / 78.69 % |
 | AWS | 64 tests; 95.25 % / 83.93 % |
 | AI | 218 tests; 93.70 % / 76.89 % |

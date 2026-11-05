@@ -136,6 +136,19 @@ public class ApiExceptionHandler {
   }
 
   /**
+   * Handles bounded report output overflow.
+   *
+   * @param exception report limit failure
+   * @return a 413 problem
+   */
+  @ExceptionHandler(ReportLimitExceededException.class)
+  public ProblemDetail handleReportLimit(ReportLimitExceededException exception) {
+    var problem = problem(HttpStatus.PAYLOAD_TOO_LARGE, "Report too large");
+    problem.setDetail("The generated report exceeds the configured output limit.");
+    return problem;
+  }
+
+  /**
    * Handles unexpected failures without exposing stack traces or internal messages.
    *
    * @param exception unexpected failure

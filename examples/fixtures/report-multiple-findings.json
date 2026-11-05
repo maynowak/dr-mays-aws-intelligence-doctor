@@ -1,0 +1,31 @@
+{
+  "resources": [
+    {
+      "identity": {
+        "provider": "aws",
+        "accountId": "000000000000",
+        "region": "eu-west-1",
+        "resourceType": "network",
+        "resourceId": "net-multi"
+      },
+      "tags": {},
+      "attributes": {
+        "ingress.public": "true"
+      }
+    },
+    {
+      "identity": {
+        "provider": "aws",
+        "accountId": "000000000000",
+        "region": "eu-west-1",
+        "resourceType": "storage",
+        "resourceId": "store-multi"
+      },
+      "tags": {
+        "owner": "platform"
+      },
+      "attributes": {}
+    }
+  ],
+  "partialDiscovery": false
+}

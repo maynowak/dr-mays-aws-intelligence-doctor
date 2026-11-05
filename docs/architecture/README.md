@@ -87,6 +87,18 @@ verified IntelligenceRequest
 
 `dr-mays-ai` now contains `privacy`, `provider` and `expertise` packages. `dr-mays-core` remains free of provider, Spring AI, OpenCode and credential types. Preview never invokes a provider; execution accepts only a stored preview ID and optional token. OpenCode live execution is BLOCKED. See `docs/architecture/PRIVACY_FIRST_PROVIDER_CONTRACT.md` and ADR-0011.
 
+## Doctor Reports (DR-MAYS-DOCTOR-REPORTS-01)
+
+```text
+validated resources
+  -> existing DiagnosisEngine (single run)
+  -> existing InfrastructureGraphBuilder (same snapshot)
+  -> DoctorReportAssembler (aggregation only)
+  -> deterministic JSON (report-v1) or escaped Markdown
+```
+
+`POST /api/v1/reports` and `POST /api/v1/reports/markdown` are local-only, response-only and AI-free. The report never creates findings or graph edges and requires explicit `partialDiscovery`. See `docs/development/DOCTOR_REPORTS.md` and ADR-0014.
+
 ## Target flow
 
 ```text

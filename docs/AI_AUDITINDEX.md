@@ -1,8 +1,8 @@
 # Dr. Mays — AI Audit Index
 
-Current Branch: `feature/dr-mays-provider-security-03`
-Latest recorded HEAD: `5b1fe6a` (03-CI audit commit follows)
-Last updated: 2026-11-04T18:05:00+01:00
+Current Branch: `feature/dr-mays-doctor-reports-01`
+Latest recorded HEAD: see `git log -1` on `feature/dr-mays-doctor-reports-01`
+Last updated: 2026-11-05T10:05:00+01:00
 
 | Task ID | Report | Status |
 | --- | --- | --- |
@@ -29,9 +29,14 @@ Last updated: 2026-11-04T18:05:00+01:00
 | `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-EXECUTION_LOG.md` | COMPLETE — GREEN (local) |
 | `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-REVIEW-A.md` | COMPLETE — no HIGH/CRITICAL |
 | `DR-MAYS-PROVIDER-SECURITY-03I` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03I-REVIEW-B.md` | COMPLETE — no HIGH/CRITICAL |
-| `DR-MAYS-PROVIDER-SECURITY-03-CI` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-CI-EXECUTION_LOG.md` | PRE-PUSH AUDIT — local GREEN; CI/PR pending |
-| `DR-MAYS-PROVIDER-SECURITY-03-CI` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-CI-READINESS.md` | PRE-PUSH READINESS — local GREEN |
-| `DR-MAYS-PROVIDER-SECURITY-03-CI` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-CI-PR-REVIEW.md` | COMPLETE — no HIGH/CRITICAL; CI pending |
+| `DR-MAYS-PROVIDER-SECURITY-03-CI` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-CI-EXECUTION_LOG.md` | COMPLETE — PR #3 merged; main CI 41994821397 SUCCESS |
+| `DR-MAYS-PROVIDER-SECURITY-03-CI` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-CI-READINESS.md` | COMPLETE — merged; 470 tests; main CI PASS |
+| `DR-MAYS-PROVIDER-SECURITY-03-CI` | `docs/reports/DR-MAYS-PROVIDER-SECURITY-03-CI-PR-REVIEW.md` | COMPLETE — no HIGH/CRITICAL; PR #3 merged |
+| `DR-MAYS-DOCTOR-REPORTS-01` | `docs/reports/DR-MAYS-DOCTOR-REPORTS-01-DISCOVERY.md` | COMPLETE — contract frozen |
+| `DR-MAYS-DOCTOR-REPORTS-01` | `docs/reports/DR-MAYS-DOCTOR-REPORTS-01-EXECUTION_LOG.md` | COMPLETE — local GREEN; unpushed |
+| `DR-MAYS-DOCTOR-REPORTS-01` | `docs/reports/DR-MAYS-DOCTOR-REPORTS-01-READINESS.md` | COMPLETE — 497 tests; Docker PASS |
+| `DR-MAYS-DOCTOR-REPORTS-01` | `docs/reports/DR-MAYS-DOCTOR-REPORTS-01-REVIEW-A.md` | COMPLETE — no HIGH/CRITICAL after fixes |
+| `DR-MAYS-DOCTOR-REPORTS-01` | `docs/reports/DR-MAYS-DOCTOR-REPORTS-01-REVIEW-B.md` | COMPLETE — no HIGH/CRITICAL; live-data residual |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-REST-APPROVAL-REVIEW.md` | COMPLETE — approval PASS; residual documented |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-PRIVACY-REVIEW.md` | COMPLETE — initial ORANGE; defects fixed |
 | `DR-MAYS-ORCHESTRATION-02A` | `docs/reports/DR-MAYS-ORCHESTRATION-02A-CREDENTIAL-CLI-REVIEW.md` | COMPLETE — no active credential/CLI exposure |

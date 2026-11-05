@@ -2,15 +2,15 @@
 
 ## Project status
 
-- **Core + API + Docker + simulated AWS + DNA + privacy-first mock AI implemented; live AWS and real model inference not started.** The reactor passes 470 local tests (86 core + 102 API + 64 AWS + 218 AI). No live AWS scan or real Ollama inference has run — never claim one.
-- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the verified baseline at `3ec0e3b`; ORCH-01/02A/02C are merged. PROVIDER-SECURITY-03 is on `feature/dr-mays-provider-security-03`). PR #1 and PR #2 are merged. No push or merge is authorized for the new branch.
+- **Core + API + Docker + simulated AWS + DNA + privacy-first mock AI + Doctor Reports V1 implemented; live AWS and real model inference not started.** The reactor passes 497 local tests (97 core + 118 API + 64 AWS + 218 AI). No live AWS scan or real Ollama inference has run — never claim one.
+- Upstream: `https://github.com/maynowak/dr-mays-aws-intelligence-doctor` (`main` is the verified baseline at `91c6307`; PR #3 is merged. Doctor Reports V1 is on local `feature/dr-mays-doctor-reports-01`). No push or merge is authorized for the Doctor Reports branch.
 - License is GPL-3.0 (`LICENSE`). Do not relicense without explicit confirmation.
 - Roadmap IDs use `DR-MAYS-<AREA>-<NN>` (phases 01–08). MVP gate is after phase 04: offline demo, inspectable checks, reproducible JSON diagnosis.
 
 ## Build and test commands
 
 - **Always use the wrapper** (`./mvnw`); the system Maven is 3.8.7 and the Enforcer rejects it. The wrapper pins Maven 3.9.16 and downloads it on first use.
-- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 470 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core, API, AWS and AI).
+- Full verification (acceptance gate): `./mvnw -B clean verify` — currently 497 tests, Spotless, Checkstyle and JaCoCo (85 % line / 75 % branch for core, API, AWS and AI).
 - Formatting: `./mvnw spotless:apply` to fix, `./mvnw spotless:check` to verify. Never auto-format in CI.
 - Static analysis: `./mvnw checkstyle:check` (0 violations required).
 - Coverage reports: `dr-mays-core/target/site/jacoco/`, `dr-mays-api/target/site/jacoco/`, `dr-mays-aws/target/site/jacoco/`, `dr-mays-ai/target/site/jacoco/`.
@@ -32,7 +32,7 @@
 
 - Reactor: `dr-mays-common`, `dr-mays-core`, `dr-mays-aws`, `dr-mays-api`, `dr-mays-ai`, `dr-mays-worker`, `dr-mays-infrastructure`. Base package: `io.github.maynowak.drmays`.
 - Dependency direction: `core -> common`; `aws`, `api`, `ai`, `worker -> core`; `infrastructure` isolated. Do not let `core` import AWS SDK, Spring AI or CDK types.
-- Core packages: `resource`, `evidence`, `finding`, `rule` (+ `rule.builtin`), `diagnosis`, `validation`. Rules must be deterministic and side-effect free; findings require evidence for the same resource.
+- Core packages: `resource`, `evidence`, `finding`, `rule` (+ `rule.builtin`), `diagnosis`, `validation`, `dna`, `report`. Rules must be deterministic and side-effect free; findings require evidence for the same resource. The report package may aggregate but never evaluate rules or create graph edges.
 - API packages: `api`, `api.config`, `api.v1`. DTOs are separate from domain types; `DiagnosisService` maps between them. The API is loopback-only, unauthenticated and not for public deployment.
 - The API must use the existing `DiagnosisEngine`; do not duplicate diagnosis logic in controllers.
 - Docker: `compose.yaml` publishes only `127.0.0.1:18080`, runs UID/GID `10001`, read-only root with `/tmp` tmpfs, all capabilities dropped, `no-new-privileges`, no extra services. Image base digests are pinned in `docker/Dockerfile`; do not add curl/wget to the runtime image—health is external.
@@ -42,16 +42,16 @@
 - Fixtures live in `examples/fixtures` and are copied to the API test classpath by `dr-mays-api/pom.xml`. Keep them aligned with `docs/api/openapi.yaml`.
 - Spring AI is isolated to `dr-mays-ai`; CDK is version-managed but intentionally **not** on any module classpath yet (phase 07). Do not add CDK without the corresponding phase.
 - Add internal module versions in the root `dependencyManagement`; add new modules to `<modules>` and the internal dependency list.
-- New API endpoints: `POST /api/v1/expertise/previews`, `/approvals`, `/explain`; preview never calls a provider, explain accepts only preview ID plus optional token. Keep the existing diagnosis/DNA/intelligence endpoints unchanged.
-- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0013`. Verify any upgrade with `./mvnw clean verify`.
+- New API endpoints: `POST /api/v1/reports` and `/api/v1/reports/markdown` for deterministic reports; plus `POST /api/v1/expertise/previews`, `/approvals`, `/explain`; preview never calls a provider, explain accepts only preview ID plus optional token. Reports require explicit `partialDiscovery`, use one existing diagnosis run and one DNA build, make no provider/AWS call and write no files. Keep the existing diagnosis/DNA/intelligence endpoints unchanged.
+- Pinned versions and rationale: `docs/development/dependency-baseline.md` and `docs/decisions/ADR-0001..0014`. Verify any upgrade with `./mvnw clean verify`.
 
 ## CI
 
 - `.github/workflows/build.yml` runs Java 25 (Temurin), Maven caching and `./mvnw -B clean verify`; no AWS credentials or deployment.
 - The workflow confirms JaCoCo XML and Checkstyle reports exist, then uploads Surefire, JaCoCo and Checkstyle reports as `quality-reports`.
-- Proven runs: `41674237406` (push) and `41674526277` (pull request) on `b8c92d1` both succeeded.
-- PR #1 is **MERGED** to `main`; feature branch preserved.
-- Main CI run `41677398448` on merge commit `e11881b` succeeded. No force-push or history rewrite. Live AWS and real Ollama inference remain NOT VERIFIED.
+- PR #1, PR #2 and PR #3 are **MERGED** to `main`.
+- Security PR #3 merged as `91c6307`; main CI `41994821397` succeeded with 470 tests.
+- Doctor Reports V1 remains local and unpushed. No force-push or history rewrite. Live AWS and real Ollama inference remain NOT VERIFIED.
 
 ## Audit workflow (from `docs/AI_AUDITLOG.md`)
 
